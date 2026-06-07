@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>void.lumin — The Somatic Ghost</title>
+<meta name="description" content="A cognitive instrument. Your face drives the physics of a generative canvas. Real-time emotion detection maps your brain chemistry to particle physics and light.">
+<meta property="og:title" content="void.lumin — The Somatic Ghost">
+<meta property="og:description" content="Your calm or your chaos drives the physics of the canvas. Emotion → physics → light.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+html,body{
+  width:100%;height:100%;
+  background:#000;
+  overflow:hidden;
+  font-family:'Inter',sans-serif;
+  color:#fff;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── Main canvas ── */
+#c{
+  position:fixed;top:0;left:0;
+  width:100%;height:100%;
+  display:block;
+}
+
+/* Hidden video source */
+#v{
+  position:fixed;top:-9999px;left:-9999px;
+  pointer-events:none;opacity:0;
+}
+
+/* ═══════════════════════════════════
+   LOADING SCREEN
+═══════════════════════════════════ */
+#loading{
+  position:fixed;inset:0;
+  background:#000;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  z-index:100;
+  transition:opacity .9s ease;
+}
+#loading.out{opacity:0;pointer-events:none}
+
+.logo{
+  font-family:'Space Mono',monospace;
+  font-size:clamp(2.4rem,7vw,5.5rem);
+  font-weight:700;
+  letter-spacing:.18em;
+  background:linear-gradient(135deg,#fff 0%,#777 55%,#2a2a2a 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  user-select:none;
+}
+.tagline{
+  font-family:'Space Mono',monospace;
+  font-size:clamp(.6rem,1.8vw,.85rem);
+  letter-spacing:.35em;
+  color:#2a2a2a;
+  text-transform:uppercase;
+  margin:.7rem 0 3.5rem;
+}
+.progress-track{
+  width:min(380px,55vw);height:1px;
+  background:#111;position:relative;
+  margin-bottom:1.4rem;overflow:hidden;
+}
+#progress-bar{
+  height:100%;width:0%;
+  background:linear-gradient(90deg,#222,#999);
+  transition:width .45s ease;
+}
+#load-msg{
+  font-family:'Space Mono',monospace;
+  font-size:.68rem;color:#282828;letter-spacing:.08em;
+}
+
+/* Camera error */
+#cam-err{
+  position:fixed;inset:0;background:#000;
+  display:none;flex-direction:column;
+  align-items:center;justify-content:center;
+  z-index:200;gap:1rem;
+}
+.err-h{font-family:'Space Mono',monospace;color:#c0392b;font-size:1.1rem;letter-spacing:.1em}
+.err-p{color:#333;font-size:.85rem;text-align:center;max-width:380px;line-height:1.75}
+
+/* ═══════════════════════════════════
+   MAIN UI OVERLAY
+═══════════════════════════════════ */
+#ui{
+  position:fixed;inset:0;pointer-events:none;z-index:10;
+  opacity:0;transition:opacity .8s ease;
+}
+#ui.on{opacity:1}
+
+/* Top-left stats */
+.stats{
+  position:absolute;top:20px;left:22px;
+  font-family:'Space Mono',monospace;
+  font-size:.58rem;color:#1e1e1e;
+  line-height:1.9;
+}
+
+/* Top-right emotion badge */
+#badge{
+  position:absolute;top:18px;right:22px;
+  font-family:'Space Mono',monospace;font-size:.72rem;
+  letter-spacing:.2em;padding:6px 16px;
+  border-radius:22px;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.06);
+  backdrop-filter:blur(12px);
+  transition:color .6s ease,border-color .6s ease;
+}
+
+/* Bottom mode selector */
+#modes{
+  position:absolute;bottom:26px;left:50%;
+  transform:translateX(-50%);
+  display:flex;gap:3px;
+  background:rgba(0,0,0,.65);
+  border:1px solid rgba(255,255,255,.055);
+  border-radius:28px;padding:5px;
+  backdrop-filter:blur(22px);
+  pointer-events:all;
+}
+.mb{
+  background:none;border:none;
+  color:#2a2a2a;
+  font-family:'Space Mono',monospace;font-size:.62rem;
+  letter-spacing:.15em;padding:7px 18px;
+  border-radius:22px;cursor:pointer;
+  transition:all .22s ease;
+}
+.mb:hover{color:#555}
+.mb.on{background:rgba(255,255,255,.08);color:#fff}
+
+/* Bottom-left hint */
+.hint{
+  position:absolute;bottom:34px;left:22px;
+  font-family:'Space Mono',monospace;font-size:.52rem;
+  color:#141414;line-height:2;letter-spacing:.05em;
+}
+
+/* ═══════════════════════════════════
+   BRAIN HUD  (bottom-right)
+═══════════════════════════════════ */
+#hud{
+  position:absolute;bottom:72px;right:18px;
+  width:230px;
+  background:rgba(4,4,4,.78);
+  border:1px solid rgba(255,255,255,.045);
+  border-radius:14px;padding:14px 16px;
+  backdrop-filter:blur(22px);
+  font-family:'Space Mono',monospace;
+  opacity:0;transition:opacity .5s ease;
+  pointer-events:none;
+}
+#hud.on{opacity:1}
+
+.hud-em{font-size:.82rem;font-weight:700;letter-spacing:.18em;margin-bottom:3px;transition:color .5s ease}
+.hud-conf{color:#252525;font-size:.56rem;margin-bottom:10px}
+.hud-sec{color:#1c1c1c;font-size:.52rem;letter-spacing:.12em;text-transform:uppercase;margin:9px 0 5px}
+.bar-row{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.bar-label{color:#252525;width:68px;flex-shrink:0;font-size:.54rem}
+.bar-bg{flex:1;height:2px;background:#0e0e0e;border-radius:1px;overflow:hidden}
+.bar-fill{height:100%;border-radius:1px;transition:width .55s ease}
+.hud-region{color:#303030;font-size:.54rem;line-height:1.7}
+</style>
+</head>
+<body>
+
+<canvas id="c"></canvas>
+<video id="v" playsinline muted autoplay></video>
+
+<!-- Loading -->
+<div id="loading">
+  <div class="logo">void.lumin</div>
+  <div class="tagline">The Somatic Ghost</div>
+  <div class="progress-track"><div id="progress-bar"></div></div>
+  <div id="load-msg">Requesting camera access…</div>
+</div>
+
+<!-- Camera error -->
+<div id="cam-err">
+  <div class="err-h">Camera Required</div>
+  <div class="err-p">void.lumin reads your biometric signals through your webcam.<br>Please allow camera access and reload the page.</div>
+</div>
+
+<!-- Main UI -->
+<div id="ui">
+  <div class="stats" id="stats">void.lumin v2.0<br>— fps<br>— particles</div>
+  <div id="badge">NEUTRAL</div>
+
+  <div id="modes">
+    <button class="mb" data-m="LINE">LINE</button>
+    <button class="mb" data-m="QUANTUM">QUANTUM</button>
+    <button class="mb on" data-m="EMOTION">EMOTION</button>
+  </div>
+
+  <div class="hint">SPACE — cycle modes &nbsp;·&nbsp; F — toggle HUD &nbsp;·&nbsp; R — reset</div>
+
+  <div id="hud">
+    <div class="hud-em" id="hud-em">NEUTRAL</div>
+    <div class="hud-conf" id="hud-conf">0% confidence</div>
+    <div class="hud-sec">Brain Chemistry</div>
+    <div id="hud-chems"></div>
+    <div class="hud-sec">Active Region</div>
+    <div class="hud-region" id="hud-region"></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════════════════
+//  INFERNO COLORMAP  (256-entry LUT, matches matplotlib exactly)
+// ═══════════════════════════════════════════════════════════════
+const INFERNO = (() => {
+  const kp = [
+    [  0,[  0,  0,  4]],[16, [13, 5, 40]],[32,[38,11, 84]],
+    [ 48,[ 68, 15,108]],[64,[101,21,110]],[80,[132,32,107]],
+    [ 96,[159, 42, 99]],[112,[183,55, 84]],[128,[206,72, 66]],
+    [144,[224, 95, 46]],[160,[238,122, 25]],[176,[247,152,  8]],
+    [192,[252,184, 11]],[208,[252,213, 52]],[224,[251,236,114]],
+    [240,[252,250,157]],[255,[252,255,164]],
+  ];
+  const L = new Uint8Array(256*3);
+  for(let i=0;i<kp.length-1;i++){
+    const[i0,c0]=kp[i],[i1,c1]=kp[i+1];
+    for(let v=i0;v<=i1;v++){
+      const t=(v-i0)/(i1-i0);
+      L[v*3]  =Math.round(c0[0]+t*(c1[0]-c0[0]));
+      L[v*3+1]=Math.round(c0[1]+t*(c1[1]-c0[1]));
+      L[v*3+2]=Math.round(c0[2]+t*(c1[2]-c0[2]));
+    }
+  }
+  return L;
+})();
+
+// ═══════════════════════════════════════════════════════════════
+//  NEUROSCIENCE DATA  (real literature values, RGB colors)
+// ═══════════════════════════════════════════════════════════════
+const SCI = {
+  happy:    { label:'HAPPY',    css:'#ffb900', rgb:[255,185,  0],
+    ch:{Dopamine:.85,Serotonin:.75,Endorphins:.70,Cortisol:.15,Adrenaline:.20,GABA:.50},
+    region:'Nucleus Accumbens · VTA · PFC',
+    meaning:'Outward expansion · vitality · reward',
+    fade:.85,emit:1.65,vel:1.25,drift:-.35,sc:.8 },
+  sad:      { label:'SAD',      css:'#1040cc', rgb:[ 16, 64,200],
+    ch:{Dopamine:.20,Serotonin:.15,Endorphins:.18,Cortisol:.75,Adrenaline:.15,GABA:.40},
+    region:'Anterior Cingulate · Amygdala',
+    meaning:'Withdrawal · introspection · time slowing',
+    fade:.94,emit:.45,vel:.55,drift:.45,sc:.2 },
+  angry:    { label:'ANGRY',    css:'#dc1515', rgb:[220, 21, 21],
+    ch:{Dopamine:.35,Serotonin:.25,Endorphins:.20,Cortisol:.82,Adrenaline:.90,GABA:.20},
+    region:'Amygdala · Hypothalamus · OFC',
+    meaning:'Explosive activation · threat · heat',
+    fade:.73,emit:2.30,vel:1.90,drift:.0,sc:2.0 },
+  fearful:  { label:'FEAR',     css:'#7010c0', rgb:[112, 16,192],
+    ch:{Dopamine:.25,Serotonin:.20,Endorphins:.15,Cortisol:.88,Adrenaline:.80,GABA:.12},
+    region:'Amygdala · Hippocampus · Locus Coeruleus',
+    meaning:'Collapse inward · vigilance · the unknown',
+    fade:.89,emit:.80,vel:.90,drift:.25,sc:1.2 },
+  surprised:{ label:'SURPRISE', css:'#00e0ff', rgb:[  0,224,255],
+    ch:{Dopamine:.92,Serotonin:.55,Endorphins:.45,Cortisol:.30,Adrenaline:.65,GABA:.35},
+    region:'PFC · Thalamus · Superior Colliculus',
+    meaning:'Novelty shock · pattern break · open attention',
+    fade:.78,emit:2.60,vel:2.10,drift:-.60,sc:1.5 },
+  disgusted:{ label:'DISGUST',  css:'#30900a', rgb:[ 48,144, 10],
+    ch:{Dopamine:.20,Serotonin:.25,Endorphins:.15,Cortisol:.55,Adrenaline:.30,GABA:.45},
+    region:'Insula · Basal Ganglia · OFC',
+    meaning:'Rejection · boundary assertion · avoidance',
+    fade:.87,emit:.70,vel:.80,drift:.30,sc:.9 },
+  neutral:  { label:'NEUTRAL',  css:'#b0b0b0', rgb:[176,176,176],
+    ch:{Dopamine:.42,Serotonin:.48,Endorphins:.40,Cortisol:.30,Adrenaline:.20,GABA:.62},
+    region:'Prefrontal Cortex (default mode)',
+    meaning:'Homeostasis · open presence · clear baseline',
+    fade:.88,emit:1.00,vel:1.00,drift:.00,sc:.5 },
+};
+const CHEMS  = ['Dopamine','Serotonin','Endorphins','Cortisol','Adrenaline','GABA'];
+const CHEM_C = { Dopamine:'#ff8c1e',Serotonin:'#50dcff',Endorphins:'#32ff96',
+                 Cortisol:'#2828e0',Adrenaline:'#1464ff',GABA:'#b4b428' };
+
+// ═══════════════════════════════════════════════════════════════
+//  BIOMETRIC INTERPOLATION ENGINE
+// ═══════════════════════════════════════════════════════════════
+class EmotionState {
+  constructor(){
+    this.dom='neutral';
+    this.probs=Object.fromEntries(Object.keys(SCI).map(k=>[k,0]));
+    this.probs.neutral=1;
+    const s=SCI.neutral;
+    this._c=[...s.rgb]; this._tc=[...s.rgb];
+    this._fade=s.fade; this._emit=s.emit; this._vel=s.vel;
+    this._drift=s.drift; this._sc=s.sc;
+    // Face tracking
+    this.box=null; this._tbox=null;
+    this.vis=0; this._tvis=0; this._lastT=0;
+    // Physics proxies
+    this.chaos=0; this.coherence=0; this.visc=.97;
+    this.hr=5; this.freq=.005; this.grav=0;
+  }
+
+  detect(dom, probs, box){
+    this.dom=dom; this.probs=probs;
+    this._tc=[...SCI[dom].rgb];
+    if(box){ this._tbox=[...box]; this._tvis=1; this._lastT=performance.now(); }
+  }
+
+  tick(){
+    const s=SCI[this.dom], k=.06;
+    for(let i=0;i<3;i++) this._c[i]+=(this._tc[i]-this._c[i])*k;
+    this._fade +=(s.fade -this._fade)*k;
+    this._emit +=(s.emit -this._emit)*k;
+    this._vel  +=(s.vel  -this._vel )*k;
+    this._drift+=(s.drift-this._drift)*k;
+    this._sc   +=(s.sc   -this._sc  )*k;
+    // 2-second decay
+    if(this._lastT && performance.now()-this._lastT>2000) this._tvis=0;
+    this.vis+=(this._tvis-this.vis)*.07;
+    // Lerp box
+    if(this._tbox){
+      if(!this.box) this.box=[...this._tbox];
+      else for(let i=0;i<4;i++) this.box[i]+=(this._tbox[i]-this.box[i])*.14;
+    }
+    // Physics
+    const c=s.ch, adr=c.Adrenaline,cor=c.Cortisol,ser=c.Serotonin,gab=c.GABA;
+    this.chaos    =adr*2.8+cor*1.6;
+    this.coherence=ser*.65+gab*.35;
+    this.visc     =Math.max(.84,Math.min(.996,.94+ser*.03+gab*.02-adr*.07-cor*.03));
+    this.hr       =5+adr*8.5+cor*2.8-gab*2;
+    this.freq     =.005+adr*.018+cor*.006;
+    this.grav     =this._drift;
+  }
+
+  get col(){ return this._c.map(v=>Math.max(0,Math.min(255,Math.round(v)))); }
+  get css(){ const c=this.col; return`rgb(${c[0]},${c[1]},${c[2]})`; }
+  get fade(){ return this._fade; }
+  get emit(){ return this._emit; }
+  get vel(){ return this._vel; }
+  get sc(){ return this._sc; }
+  get sci(){ return SCI[this.dom]; }
+  get conf(){ return this.probs[this.dom]||0; }
+  get live(){ return this.vis>.05&&this.box!==null; }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SOMATIC RENDERER — core Void Lumin 2.0 engine
+// ═══════════════════════════════════════════════════════════════
+class Renderer {
+  constructor(canvas){
+    this.c=canvas; this.x=canvas.getContext('2d');
+    // Offscreen canvases (pre-allocated, reused every frame)
+    this.trail=this._oc(); this.tx=this.trail.getContext('2d');
+    this.vid  =this._oc(); this.vx=this.vid.getContext('2d');
+    this.body =this._oc(); this.bx=this.body.getContext('2d');
+    this.w=0; this.h=0;
+    this.parts=[];
+    this.prev=null;      // previous grayscale frame
+    this._bd=null;       // pre-allocated thermal body pixel buffer
+    this._bdImg=null;    // ImageData for the body buffer
+  }
+
+  _oc(){ const c=document.createElement('canvas'); return c; }
+
+  resize(w,h){
+    if(this.w===w&&this.h===h) return;
+    this.w=w; this.h=h;
+    [this.trail,this.vid,this.body,this.c].forEach(c=>{c.width=w;c.height=h;});
+    this._bd   =new Uint8ClampedArray(w*h*4);
+    this._bdImg=new ImageData(this._bd,w,h);
+  }
+
+  reset(){ this.parts=[]; this.tx.clearRect(0,0,this.w,this.h); }
+
+  // ── Main render entry point ──────────────────────────────────
+  render(video, es, pulse, t, mode){
+    const w=this.w,h=this.h,ctx=this.x;
+
+    // 1. Draw mirrored video to offscreen
+    this.vx.save();
+    this.vx.scale(-1,1);
+    this.vx.drawImage(video,-w,0,w,h);
+    this.vx.restore();
+    const fd=this.vx.getImageData(0,0,w,h);
+
+    // 2. Frame diff for motion
+    const gray=this._gray(fd.data);
+    const motion=this.prev?this._diff(this.prev,gray,w,h):[];
+    this.prev=gray;
+
+    // 3. Fade trail
+    this.tx.fillStyle=`rgba(0,0,0,${(1-es.fade).toFixed(3)})`;
+    this.tx.fillRect(0,0,w,h);
+
+    // 4. Emit particles from motion
+    this._emit(motion,es,pulse,mode==='EMOTION');
+
+    // 5. Update particles
+    this._step(es,pulse,t,mode==='EMOTION');
+
+    // 6. Composite
+    ctx.fillStyle='#000';
+    ctx.fillRect(0,0,w,h);
+
+    if(mode==='EMOTION'){
+      this._drawBody(ctx,fd,es,pulse);
+    }
+    // Particles overlay
+    ctx.globalCompositeOperation='screen';
+    ctx.globalAlpha=.94;
+    ctx.drawImage(this.trail,0,0);
+    ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over';
+
+    // Organs
+    if(mode==='EMOTION'&&es.live){
+      ctx.save();
+      ctx.globalAlpha=Math.min(1,es.vis);
+      this._drawBrain(ctx,es,t);
+      this._drawHeart(ctx,es,t);
+      ctx.restore();
+    }
+  }
+
+  // ── Frame processing ─────────────────────────────────────────
+  _gray(data){
+    const g=new Uint8Array(this.w*this.h);
+    for(let i=0;i<g.length;i++) g[i]=(data[i*4]*77+data[i*4+1]*150+data[i*4+2]*29)>>8;
+    return g;
+  }
+
+  _diff(prev,curr,w,h){
+    const pts=[];
+    const S=5;
+    for(let y=S;y<h-S;y+=S)
+      for(let x=S;x<w-S;x+=S){
+        const d=Math.abs(curr[y*w+x]-prev[y*w+x]);
+        if(d>20) pts.push(x,y,d);
+      }
+    return pts; // flat: [x,y,strength, x,y,strength, ...]
+  }
+
+  // ── Particle emission ─────────────────────────────────────────
+  _emit(motion,es,pulse,emo){
+    const MAX=15000;
+    if(this.parts.length>=MAX||motion.length<3) return;
+    const col=es.col;
+    const n=Math.min(
+      motion.length/3,
+      Math.round(70*es.emit*(1+pulse*2.2))
+    );
+    const step=Math.max(1,Math.floor((motion.length/3)/n));
+    for(let i=0;i<motion.length&&this.parts.length<MAX;i+=step*3){
+      const x=motion[i],y=motion[i+1],str=motion[i+2]/255;
+      const spd=.8+Math.random()*1.6;
+      const dir=Math.random()*Math.PI*2;
+      const sc=(Math.random()-.5)*es.sc;
+      const vx=(Math.cos(dir)+sc)*spd*es.vel;
+      const vy=(Math.sin(dir)+sc*.5)*spd*es.vel+es.grav;
+      const life=18+Math.random()*28|0;
+      const br=.32+str*.68;
+      const c=emo
+        ?[col[0]*br,col[1]*br,col[2]*br]
+        :this._chromaCol(str);
+      this.parts.push(x,y,vx,vy,life,life,c[0],c[1],c[2]);
+    }
+  }
+
+  _chromaCol(s){ return[Math.min(255,160+s*95),Math.min(255,s*230),Math.max(0,80-s*65)]; }
+
+  // ── Particle simulation (flat array for performance) ──────────
+  _step(es,pulse,t,emo){
+    const w=this.w,h=this.h;
+    const P=this.parts;
+    const alive=[];
+    const tx=this.tx;
+    const STRIDE=9;
+
+    // Brain/heart anchor points
+    let bx=0,by=0,hx=0,hy=0;
+    if(emo&&es.live){
+      const[fx,fy,fw,fh]=es.box;
+      bx=fx+fw*.5; by=fy+fh*.08;
+      hx=bx;       hy=by+fh*1.85;
+    }
+
+    for(let i=0;i<P.length;i+=STRIDE){
+      let px=P[i],py=P[i+1],pvx=P[i+2],pvy=P[i+3];
+      const life=P[i+4]-1;
+      const maxl=P[i+5];
+      const r=P[i+6],g=P[i+7],b=P[i+8];
+
+      if(emo){
+        // ── Generative Chaos Vector Field (Adrenaline/Cortisol) ──
+        if(es.chaos>.05){
+          const chaos=es.chaos*(1+pulse*1.5);
+          const f=es.freq;
+          const ang=(Math.sin(px*f+t*1.2)+Math.cos(py*f-t*.9)+
+                     Math.sin((px+py)*f*.6+t*1.6))*Math.PI;
+          pvx+=Math.cos(ang)*chaos*.08;
+          pvy+=Math.sin(ang)*chaos*.08;
+        }
+        // ── Orbital Resonance Field (GABA/Serotonin) ─────────────
+        if(es.coherence>.15){
+          for(const[ax,ay]of[[bx,by],[hx,hy]]){
+            const dx=px-ax,dy=py-ay;
+            const dist=Math.sqrt(dx*dx+dy*dy)+1e-5;
+            if(dist<380){
+              const att=Math.exp(-dist*.004);
+              pvx+=(-dy/dist*.45-dx/dist*.10)*es.coherence*att;
+              pvy+=( dx/dist*.45-dy/dist*.10)*es.coherence*att;
+            }
+          }
+        }
+        pvy+=es.grav*.04;
+      }
+
+      pvx*=es.visc; pvy*=es.visc;
+      px+=pvx; py+=pvy;
+      if(life<=0||px<0||px>=w||py<0||py>=h) continue;
+
+      const alpha=Math.pow(life/maxl,.6);
+      tx.fillStyle=`rgba(${r*alpha|0},${g*alpha|0},${b*alpha|0},1)`;
+      tx.fillRect(px|0,py|0,2,2);
+
+      alive.push(px,py,pvx,pvy,life,maxl,r,g,b);
+    }
+    if(alive.length>15000*STRIDE) alive.splice(0,alive.length-15000*STRIDE);
+    this.parts=alive;
+  }
+
+  // ── Heated Soul Body ──────────────────────────────────────────
+  _drawBody(ctx,fd,es,pulse){
+    if(!es.live) return;
+    const w=this.w,h=this.h;
+    const[fx,fy,fw,fh]=es.box;
+    const col=es.col;
+    const blend=.20+pulse*.18;
+
+    // Body region derived from face box
+    const bX=fx-fw*.38, bY=fy-fh*.06;
+    const bW=fw*1.76,    bH=fh*3.8;
+    const cX=bX+bW*.5,  cY=bY+bH*.5;
+    const rX=bW*.5,      rY=bH*.5;
+
+    const bd=this._bd;
+    bd.fill(0);  // clear
+
+    const x0=Math.max(0,bX|0), y0=Math.max(0,bY|0);
+    const x1=Math.min(w-1,(bX+bW)|0), y1=Math.min(h-1,(bY+bH)|0);
+    const src=fd.data;
+
+    for(let y=y0;y<=y1;y++){
+      for(let x=x0;x<=x1;x++){
+        // Elliptical soft feather mask
+        const nx=(x-cX)/rX, ny=(y-cY)/rY;
+        const d2=nx*nx+ny*ny;
+        if(d2>1) continue;
+        const mask=Math.pow(Math.max(0,1-Math.sqrt(d2)),.75);
+
+        const pi=(y*w+x)<<2;
+        const gray=(src[pi]*77+src[pi+1]*150+src[pi+2]*29)>>8;
+        const li=gray*3;
+        const ir=INFERNO[li],ig=INFERNO[li+1],ib=INFERNO[li+2];
+
+        bd[pi]  =((ir*(1-blend)+col[0]*blend)*mask)|0;
+        bd[pi+1]=((ig*(1-blend)+col[1]*blend)*mask)|0;
+        bd[pi+2]=((ib*(1-blend)+col[2]*blend)*mask)|0;
+        bd[pi+3]=(200*mask)|0;
+      }
+    }
+    this.bx.putImageData(this._bdImg,0,0);
+
+    ctx.save();
+    ctx.globalCompositeOperation='screen';
+    ctx.globalAlpha=.84;
+    ctx.drawImage(this.body,0,0);
+    ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over';
+
+    // Outer aura
+    const aura=ctx.createRadialGradient(cX,cY,0,cX,cY,Math.max(rX,rY)*.85);
+    aura.addColorStop(.30,`rgba(${col[0]},${col[1]},${col[2]},0)`);
+    aura.addColorStop(.65,`rgba(${col[0]},${col[1]},${col[2]},.14)`);
+    aura.addColorStop(1.0,`rgba(${col[0]},${col[1]},${col[2]},0)`);
+    ctx.fillStyle=aura;
+    ctx.fillRect(0,0,w,h);
+    ctx.restore();
+  }
+
+  // ── Anatomical Brain ──────────────────────────────────────────
+  _drawBrain(ctx,es,t){
+    const[fx,fy,fw,fh]=es.box;
+    const cx=fx+fw*.5, cy=fy+fh*.08;
+    const bw=Math.max(6,fw*.44), bh=Math.max(4,fh*.36);
+    const col=es.col;
+    const dark =`rgba(${col[0]*.30|0},${col[1]*.30|0},${col[2]*.30|0},.92)`;
+    const bright=`rgba(${Math.min(255,col[0]*1.6|0)},${Math.min(255,col[1]*1.6|0)},${Math.min(255,col[2]*1.6|0)},.95)`;
+    const pulse =1+.07*Math.sin(t*7.5);
+
+    ctx.save();
+
+    // ── Filled base (blurred) ──────────────────────
+    ctx.shadowColor=bright; ctx.shadowBlur=14;
+    ctx.fillStyle=dark;
+
+    // Left hemisphere
+    ctx.beginPath();
+    ctx.ellipse(cx-bw*.22,cy-bh*.12,bw*.62,bh*.52,-.26,0,Math.PI*2);
+    ctx.fill();
+    // Right hemisphere
+    ctx.beginPath();
+    ctx.ellipse(cx+bw*.22,cy-bh*.12,bw*.62,bh*.52,.26,0,Math.PI*2);
+    ctx.fill();
+    // Cerebellum
+    ctx.beginPath();
+    ctx.ellipse(cx,cy+bh*.36,bw*.46,bh*.26,0,0,Math.PI*2);
+    ctx.fill();
+    // Brain stem
+    ctx.beginPath();
+    ctx.ellipse(cx,cy+bh*.68,bw*.14,bh*.34,0,0,Math.PI*2);
+    ctx.fill();
+    ctx.shadowBlur=0;
+
+    // ── Gyri folds ────────────────────────────────
+    const F=[
+      [[-.25,-.42],[-.40,-.30],[-.44,-.10],[-.28,.02],[-.10,-.10]],
+      [[-.18,-.30],[-.32,-.18],[-.28,.04],[-.10,.10]],
+      [[-.44,-.10],[-.52,.10],[-.38,.22],[-.18,.12]],
+      [[-.28,.08],[-.38,.18],[-.28,.28],[-.10,.20]],
+      [[-.10,-.22],[-.20,-.10],[-.18,.04]],
+      [[.25,-.42],[.40,-.30],[.44,-.10],[.28,.02],[.10,-.10]],
+      [[.18,-.30],[.32,-.18],[.28,.04],[.10,.10]],
+      [[.44,-.10],[.52,.10],[.38,.22],[.18,.12]],
+      [[.28,.08],[.38,.18],[.28,.28],[.10,.20]],
+      [[.10,-.22],[.20,-.10],[.18,.04]],
+      [[-.10,-.20],[.00,-.28],[.10,-.20]],
+      [[-.10,-.10],[.00,-.16],[.10,-.10]],
+      [[-.12,.00],[.00,-.04],[.12,.00]],
+      [[-.34,.28],[.00,.26],[.34,.28]],
+      [[-.28,.34],[.00,.32],[.28,.34]],
+      [[-.20,.40],[.00,.38],[.20,.40]],
+    ];
+    ctx.strokeStyle=bright; ctx.lineWidth=1.6; ctx.lineCap='round';
+    ctx.shadowColor=bright; ctx.shadowBlur=6;
+
+    for(const path of F){
+      ctx.beginPath();
+      for(let i=0;i<path.length;i++){
+        const[rx,ry]=path[i];
+        const wx=.024*Math.sin(t*5.8+rx*13+ry*7);
+        const wy=.024*Math.cos(t*4.9+ry*11+rx*8);
+        const px=cx+(rx+wx)*bw*pulse;
+        const py=cy+(ry+wy)*bh*pulse;
+        i?ctx.lineTo(px,py):ctx.moveTo(px,py);
+      }
+      ctx.stroke();
+    }
+    ctx.shadowBlur=0;
+
+    // ── Synapses ──────────────────────────────────
+    const SY=[
+      [-.30,-.22],[-.10,-.32],[.30,-.22],[.10,-.32],
+      [-.22,.06],[.22,.06],[.00,-.16],[.00,.06],
+      [-.16,.30],[.16,.30],[.00,.40],[-.44,-.10],[.44,-.10],
+    ];
+    for(const[sx,sy]of SY){
+      const blink=.35+.65*Math.abs(Math.sin(t*10.8+sx*22+sy*14));
+      const r=Math.max(1,3.5*blink);
+      const px=cx+sx*bw*pulse, py=cy+sy*bh*pulse;
+      ctx.shadowColor='#fff'; ctx.shadowBlur=8*blink;
+      ctx.fillStyle=`rgba(255,255,255,${blink.toFixed(2)})`;
+      ctx.beginPath(); ctx.arc(px,py,r,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle=bright; ctx.lineWidth=1; ctx.shadowBlur=0;
+      ctx.beginPath(); ctx.arc(px,py,r+2,0,Math.PI*2); ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // ── Somatic Heart Core ────────────────────────────────────────
+  _drawHeart(ctx,es,t){
+    const[fx,fy,fw,fh]=es.box;
+    const cx=fx+fw*.5, cy=fy+fh*.08+fh*1.85;
+    const col=es.col;
+    const ch=es.sci.ch;
+    const adr=ch.Adrenaline,cor=ch.Cortisol;
+    const amp=.10+adr*.32+cor*.10;
+    const hb=1+amp*Math.sin(t*es.hr);
+    const r0=Math.max(3,fw*.145*hb);
+    const bright=`rgba(${Math.min(255,col[0]*1.55|0)},${Math.min(255,col[1]*1.55|0)},${Math.min(255,col[2]*1.55|0)},.95)`;
+
+    ctx.save();
+    ctx.shadowColor=bright; ctx.shadowBlur=22;
+    ctx.fillStyle=bright;
+    ctx.beginPath(); ctx.arc(cx,cy,r0,0,Math.PI*2); ctx.fill();
+    ctx.shadowBlur=0;
+
+    // Aura rings
+    for(let ring=1;ring<=4;ring++){
+      const rr=r0*(1+ring*.45);
+      const fade=Math.max(0,1-ring*.22);
+      ctx.strokeStyle=`rgba(${col[0]},${col[1]},${col[2]},${fade.toFixed(2)})`;
+      ctx.lineWidth=Math.max(1,3-ring);
+      ctx.beginPath(); ctx.arc(cx,cy,rr,0,Math.PI*2); ctx.stroke();
+    }
+
+    // Neural spokes
+    const sLen=fw*.18*(1+adr*.4);
+    for(let i=0;i<6;i++){
+      const ang=(i/6)*Math.PI*2+t*.8;
+      const alpha=.45+.55*Math.sin(t*9+i*1.1);
+      ctx.strokeStyle=`rgba(${col[0]},${col[1]},${col[2]},${(alpha*.9).toFixed(2)})`;
+      ctx.lineWidth=1;
+      ctx.beginPath();
+      ctx.moveTo(cx,cy);
+      ctx.lineTo(cx+Math.cos(ang)*sLen,cy+Math.sin(ang)*sLen);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  get count(){ return this.parts.length/9|0; }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  BRAIN HUD  (DOM overlay)
+// ═══════════════════════════════════════════════════════════════
+class BrainHUD {
+  constructor(){
+    this.el=document.getElementById('hud');
+    this.em=document.getElementById('hud-em');
+    this.cf=document.getElementById('hud-conf');
+    this.ch=document.getElementById('hud-chems');
+    this.rg=document.getElementById('hud-region');
+    this.bars={}; this._built=false;
+  }
+  _build(){
+    this.ch.innerHTML='';
+    for(const c of CHEMS){
+      const d=document.createElement('div');
+      d.className='bar-row';
+      d.innerHTML=`<span class="bar-label">${c}</span>
+        <div class="bar-bg"><div class="bar-fill" id="bf-${c}" style="background:${CHEM_C[c]}"></div></div>`;
+      this.ch.appendChild(d);
+      this.bars[c]=document.getElementById(`bf-${c}`);
+    }
+    this._built=true;
+  }
+  update(es,show){
+    this.el.classList.toggle('on',show);
+    if(!show) return;
+    if(!this._built) this._build();
+    const s=es.sci;
+    this.em.textContent=s.label; this.em.style.color=s.css;
+    this.cf.textContent=`${(es.conf*100)|0}% confidence`;
+    for(const c of CHEMS)
+      if(this.bars[c]) this.bars[c].style.width=`${((s.ch[c]||0)*100).toFixed(0)}%`;
+    this.rg.textContent=s.region;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  VOID LUMIN — APPLICATION CONTROLLER
+// ═══════════════════════════════════════════════════════════════
+class VoidLumin {
+  constructor(){
+    this.canvas=document.getElementById('c');
+    this.video =document.getElementById('v');
+    this.mode  ='EMOTION';
+    this.showHUD=true;
+    this.es    =new EmotionState();
+    this.r     =null;
+    this.hud   =new BrainHUD();
+    this._fps  =[];
+    this._lastT=0;
+    this._running=false;
+  }
+
+  async init(){
+    this._prog(5,'Requesting camera access…');
+
+    // Camera
+    let stream;
+    try{
+      stream=await navigator.mediaDevices.getUserMedia({
+        video:{width:{ideal:1280},height:{ideal:720},facingMode:'user'},audio:false
+      });
+    }catch(e){
+      document.getElementById('loading').style.display='none';
+      document.getElementById('cam-err').style.display='flex';
+      return;
+    }
+    this.video.srcObject=stream;
+    await new Promise(r=>this.video.addEventListener('loadedmetadata',r,{once:true}));
+    await this.video.play();
+    const vw=this.video.videoWidth||1280, vh=this.video.videoHeight||720;
+
+    this._prog(20,'Initializing renderer…');
+    this.canvas.width=vw; this.canvas.height=vh;
+    this.r=new Renderer(this.canvas);
+    this.r.resize(vw,vh);
+
+    this._prog(30,'Loading TinyFaceDetector…');
+    const URLS=[
+      'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights',
+      'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model',
+    ];
+    let loaded=false;
+    for(const url of URLS){
+      try{
+        await faceapi.nets.tinyFaceDetector.loadFromUri(url);
+        this._prog(65,'Loading expression model…');
+        await faceapi.nets.faceExpressionNet.loadFromUri(url);
+        loaded=true; break;
+      }catch(_){}
+    }
+    if(!loaded){
+      this._prog(65,'Model unavailable — visual mode only');
+      await new Promise(r=>setTimeout(r,1400));
+    }
+
+    this._prog(92,'Starting…');
+    this._setupUI();
+    this._detectLoop();
+
+    this._prog(100,'Ready.');
+    await new Promise(r=>setTimeout(r,500));
+
+    const L=document.getElementById('loading');
+    L.classList.add('out');
+    setTimeout(()=>L.style.display='none',900);
+    document.getElementById('ui').classList.add('on');
+
+    this._running=true;
+    this._loop();
+  }
+
+  _prog(p,msg){
+    document.getElementById('progress-bar').style.width=p+'%';
+    document.getElementById('load-msg').textContent=msg;
+  }
+
+  // ── Async face detection (~4.5fps, decoupled from render) ─────
+  _detectLoop(){
+    const go=async()=>{
+      if(!this._running){return;}
+      try{
+        const opts=new faceapi.TinyFaceDetectorOptions({inputSize:320,scoreThreshold:.48});
+        const dets=await faceapi.detectAllFaces(this.video,opts).withFaceExpressions();
+        if(dets.length){
+          const d=dets[0];
+          const bx=d.detection.box;
+          const ex=d.expressions;
+          const dom=Object.keys(ex).reduce((a,b)=>ex[a]>ex[b]?a:b);
+          // Flip X for mirrored canvas
+          const vw=this.video.videoWidth;
+          const box=[vw-bx.x-bx.width, bx.y, bx.width, bx.height];
+          const probs={};
+          for(const[k,v]of Object.entries(ex)) if(SCI[k]) probs[k]=v;
+          this.es.detect(dom,probs,box);
+        }
+      }catch(_){}
+      setTimeout(go,220);
+    };
+    go();
+  }
+
+  // ── 60fps render loop ─────────────────────────────────────────
+  _loop(){
+    if(!this._running) return;
+    const now=performance.now()/1e3;
+    const dt =Math.min(.1,now-this._lastT||.016);
+    this._lastT=now;
+
+    this.es.tick();
+    const pulse=this._pulse(now);
+
+    if(this.r&&this.video.readyState>=2)
+      this.r.render(this.video,this.es,pulse,now,this.mode);
+
+    this._updateUI(dt);
+    requestAnimationFrame(()=>this._loop());
+  }
+
+  _pulse(t){
+    const period=3.5,str=.38;
+    const ph=(t%period)/period;
+    const raw=ph<.15?ph/.15:Math.pow(Math.max(0,1-(ph-.15)/.85),2);
+    return raw*str;
+  }
+
+  _updateUI(dt){
+    this._fps.push(1/dt);
+    if(this._fps.length>45) this._fps.shift();
+    const fps=Math.round(this._fps.reduce((a,b)=>a+b,0)/this._fps.length);
+    const n=this.r?this.r.count:0;
+    document.getElementById('stats').innerHTML=
+      `void.lumin v2.0<br>${fps} fps<br>${n.toLocaleString()} particles`;
+    const badge=document.getElementById('badge');
+    badge.textContent=this.es.sci.label;
+    badge.style.color=this.es.css;
+    badge.style.borderColor=this.es.css+'33';
+    this.hud.update(this.es,this.mode==='EMOTION'&&this.showHUD);
+  }
+
+  _setupUI(){
+    const btns=document.querySelectorAll('.mb');
+    btns.forEach(b=>{
+      b.classList.toggle('on',b.dataset.m===this.mode);
+      b.addEventListener('click',()=>{
+        this.mode=b.dataset.m;
+        btns.forEach(x=>x.classList.toggle('on',x.dataset.m===this.mode));
+      });
+    });
+    document.addEventListener('keydown',e=>{
+      if(e.code==='Space'){
+        const M=['LINE','QUANTUM','EMOTION'];
+        this.mode=M[(M.indexOf(this.mode)+1)%M.length];
+        btns.forEach(x=>x.classList.toggle('on',x.dataset.m===this.mode));
+      }
+      if(e.code==='KeyR'&&this.r) this.r.reset();
+      if(e.code==='KeyF') this.showHUD=!this.showHUD;
+    });
+    // Resize canvas on window change
+    window.addEventListener('resize',()=>{
+      if(this.r) this.r.resize(this.canvas.width,this.canvas.height);
+    });
+  }
+}
+
+// Boot
+new VoidLumin().init().catch(console.error);
+</script>
+</body>
+</html>
