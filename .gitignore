@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+wheels/
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# TensorFlow / Keras cache
+*.h5
+*.pb
+*.tflite
+__pycache__/
+
+# OpenCV output / debug frames
+*.jpg
+*.jpeg
+*.png
+*.mp4
+*.avi
+output/
+frames/
+
+# Logs
+*.log
+logs/

@@ -1,0 +1,17 @@
+# void.lumin — Antigravity Software
+# Concept 1: The Somatic Ghost — dependencies
+#
+# Install: pip install -r requirements.txt
+#
+# Note: setuptools must be <72 for fer's pkg_resources dependency to work.
+# If you hit "No module named 'pkg_resources'", run:
+#   pip install "setuptools<72"
+
+opencv-contrib-python>=4.9.0
+numpy>=1.26.0
+
+# Emotion detection (FER + TensorFlow Lite)
+# setuptools<72 required for pkg_resources compatibility with fer
+setuptools<72
+fer>=22.5.1
+tensorflow>=2.13.0
