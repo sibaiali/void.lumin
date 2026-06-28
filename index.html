@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<title>void.lumin — Masterpiece Creator</title>
-<meta name="description" content="Paint in the air with hand tracking and biometric emotional states. Uncover levels of design expression as your emotion intensifies.">
+<title>void.lumin — Cognitive Instrument</title>
+<meta name="description" content="Co-create with an AI that learns your stroke physics and responds to your biometric emotions.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@200;400;600&display=swap" rel="stylesheet">
 <!-- face-api.js for facial expressions -->
-<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
 <!-- MediaPipe Hands for air-drawing -->
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
@@ -16,13 +16,14 @@
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html,body{
-  width:100%;height:100%;background:#000;overflow:hidden;
+  width:100%;height:100%;background:#020202;overflow:hidden;
   user-select:none;-webkit-user-select:none;
   font-family:'Outfit',sans-serif;color:#fff;
 }
 
-/* Canvases */
+/* Masterpiece Canvas (permanent art) */
 #art{position:fixed;top:0;left:0;display:block;z-index:1}
+/* UI overlay canvas (prediction trails, cursor) */
 #glow{position:fixed;top:0;left:0;pointer-events:none;z-index:2}
 
 /* Hidden video feed */
@@ -40,67 +41,53 @@ html,body{
 #load.out{opacity:0;pointer-events:none}
 .l-logo{
   font-family:'Space Mono',monospace;
-  font-size:clamp(2.5rem,8vw,5rem);font-weight:700;letter-spacing:.25em;
-  background:linear-gradient(135deg,#fff 30%,#555 70%,#111 100%);
+  font-size:clamp(2rem,6vw,4rem);font-weight:700;letter-spacing:.3em;
+  background:linear-gradient(135deg,#fff 30%,#444 70%,#111 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  animation:glitch 4s infinite alternate;
 }
 .l-sub{
   font-family:'Space Mono',monospace;
-  font-size:.7rem;letter-spacing:.5em;color:#333;
-  text-transform:uppercase;margin:1rem 0 3.5rem;
+  font-size:.6rem;letter-spacing:.6em;color:#2c2c2c;
+  text-transform:uppercase;margin:1rem 0 3rem;
 }
-.l-track{width:min(350px,60vw);height:2px;background:#111;overflow:hidden;margin-bottom:1.5rem;border-radius:2px}
-#l-bar{height:100%;width:0%;background:linear-gradient(90deg,#333,#fff);transition:width .4s ease}
-#l-msg{font-family:'Space Mono',monospace;font-size:.65rem;color:#444;letter-spacing:.12em;text-transform:uppercase}
+.l-track{width:min(320px,50vw);height:2px;background:#111;overflow:hidden;margin-bottom:1.5rem}
+#l-bar{height:100%;width:0%;background:linear-gradient(90deg,#333,#fff);transition:width 0.3s ease}
+#l-msg{font-family:'Space Mono',monospace;font-size:.55rem;color:#444;letter-spacing:.1em;text-transform:uppercase}
+#l-err-fallback{
+  margin-top:2rem;display:none;flex-direction:column;align-items:center;gap:15px;
+}
+.fb-btn{
+  font-family:'Space Mono',monospace;font-size:.65rem;letter-spacing:.2em;
+  color:#ffb800;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.2);
+  padding:10px 24px;border-radius:20px;cursor:pointer;transition:all 0.3s ease;
+}
+.fb-btn:hover{background:#ffb800;color:#000}
 
 /* ═══════════════════════
-   INTERACTIVE INSTRUCTIONS
+   CALIBRATION / ENTRY
 ═══════════════════════ */
 #setup-guide{
-  position:fixed;inset:0;background:rgba(0,0,0,0.92);
+  position:fixed;inset:0;background:rgba(2,2,2,0.96);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   z-index:150;transition:opacity 0.6s ease;
   padding:20px;text-align:center;
 }
 #setup-guide.out{opacity:0;pointer-events:none}
-.g-title{font-size:2rem;font-weight:300;letter-spacing:.15em;margin-bottom:2.5rem;background:linear-gradient(to right,#fff,#888);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.g-title{font-size:1.8rem;font-weight:200;letter-spacing:.2em;margin-bottom:2.5rem;text-transform:uppercase}
 .g-steps{
-  display:flex;gap:40px;max-width:900px;margin-bottom:3.5rem;
+  display:flex;gap:30px;max-width:850px;margin-bottom:3.5rem;
   flex-wrap:wrap;justify-content:center;
 }
 .g-step{
-  flex:1;min-width:240px;max-width:280px;background:rgba(255,255,255,0.02);
-  border:1px solid rgba(255,255,255,0.05);border-radius:16px;padding:30px 24px;
+  flex:1;min-width:240px;max-width:260px;background:rgba(255,255,255,0.01);
+  border:1px solid rgba(255,255,255,0.04);border-radius:12px;padding:24px;
 }
-.g-num{font-family:'Space Mono',monospace;font-size:.9rem;color:#ffb800;margin-bottom:12px;display:block}
-.g-txt{font-size:.88rem;color:#888;line-height:1.7}
-.g-btn{
-  font-family:'Space Mono',monospace;font-size:.75rem;letter-spacing:.2em;
-  color:#fff;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);
-  padding:14px 36px;border-radius:30px;cursor:pointer;transition:all 0.3s ease;
-}
-.g-btn:hover{background:#fff;color:#000;box-shadow:0 0 25px rgba(255,255,255,0.2)}
+.g-num{font-family:'Space Mono',monospace;font-size:.8rem;color:#ffb800;margin-bottom:10px;display:block}
+.g-txt{font-size:.82rem;color:#777;line-height:1.6}
+.g-btn-wrap{display:flex;gap:20px}
 
 /* ═══════════════════════
-   UNLOCK NOTIFICATION
-═══════════════════════ */
-#unlock-toast{
-  position:fixed;top:20%;left:50%;transform:translate(-50%,-50%);
-  z-index:90;pointer-events:none;
-  opacity:0;transition:all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-#unlock-toast.on{opacity:1;top:25%}
-.ut-card{
-  background:rgba(5,5,5,0.85);border:1px solid rgba(255,255,255,0.08);
-  border-radius:30px;padding:12px 30px;backdrop-filter:blur(20px);
-  display:flex;flex-direction:column;align-items:center;
-}
-.ut-level{font-family:'Space Mono',monospace;font-size:.55rem;letter-spacing:.3em;color:#ffb800;margin-bottom:3px}
-.ut-name{font-size:1.1rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
-
-/* ═══════════════════════
-   HUD INTERFACE (Premium Glass)
+   HUD INTERFACE
 ═══════════════════════ */
 #ui{position:fixed;inset:0;pointer-events:none;z-index:30;opacity:0;transition:opacity 1s ease}
 #ui.on{opacity:1}
@@ -111,12 +98,12 @@ html,body{
   display:flex;flex-direction:column;align-items:center;
 }
 #em-label{
-  font-family:'Space Mono',monospace;font-size:.65rem;letter-spacing:.3em;
-  color:#444;transition:color .6s ease;text-transform:uppercase;
+  font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.3em;
+  color:#333;transition:color .6s ease;text-transform:uppercase;
 }
 #em-name{
-  font-size:.9rem;font-weight:300;letter-spacing:.15em;
-  color:#888;transition:color .6s ease;margin-top:2px;text-transform:uppercase;
+  font-size:.85rem;font-weight:300;letter-spacing:.18em;
+  color:#666;transition:color .6s ease;margin-top:2px;text-transform:uppercase;
 }
 
 /* Left controls: Intensity bar */
@@ -124,56 +111,27 @@ html,body{
   position:absolute;left:28px;top:50%;transform:translateY(-50%);
   display:flex;flex-direction:column;align-items:center;gap:12px;
 }
-#intensity-pct{font-family:'Space Mono',monospace;font-size:.6rem;color:#444}
+#intensity-pct{font-family:'Space Mono',monospace;font-size:.58rem;color:#333}
 #bar-track{
-  width:3px;height:220px;background:rgba(255,255,255,0.03);border-radius:3px;
+  width:2px;height:180px;background:rgba(255,255,255,0.02);border-radius:2px;
   position:relative;
 }
 #bar-fill{
-  position:absolute;bottom:0;width:100%;border-radius:3px;
-  background:#fff;transition:height 0.2s cubic-bezier(0.1, 0.8, 0.2, 1);
-}
-.bar-notch{
-  position:absolute;left:-4px;width:11px;height:1px;background:rgba(255,255,255,0.12);
+  position:absolute;bottom:0;width:100%;border-radius:2px;
+  background:#fff;transition:height 0.25s ease;
 }
 
-/* Right indicators: Unlocked features */
-#level-panel{
-  position:absolute;left:42px;top:50%;transform:translateY(-50%);
-  display:flex;flex-direction:column-reverse;justify-content:space-between;
-  height:220px;
+/* AI Resonance Panel (Right side) */
+#ai-panel{
+  position:absolute;right:28px;top:50%;transform:translateY(-50%);
+  background:rgba(5,5,5,0.65);border:1px solid rgba(255,255,255,0.03);
+  border-radius:16px;padding:20px;width:210px;
+  font-family:'Space Mono',monospace;backdrop-filter:blur(15px);
 }
-.lvl-indicator{
-  display:flex;align-items:center;gap:10px;
-}
-.lvl-dot{
-  width:6px;height:6px;border-radius:50%;background:#111;
-  transition:all 0.4s ease;
-}
-.lvl-dot.on{background:#fff;box-shadow:0 0 10px 2px currentColor}
-.lvl-lbl{
-  font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.15em;
-  color:#1c1c1c;transition:color 0.4s ease;text-transform:uppercase;
-}
-.lvl-lbl.on{color:#fff}
-
-/* Face & Hand Camera monitors (bottom right) */
-#monitor-panel{
-  position:absolute;bottom:24px;right:28px;
-  display:flex;flex-direction:column;align-items:flex-end;gap:12px;
-}
-.monitor-window{
-  width:96px;height:96px;border-radius:50%;
-  border:1px solid rgba(255,255,255,0.05);overflow:hidden;
-  background:#030303;transition:all 0.5s ease;
-  position:relative;
-}
-.m-canvas{width:100%;height:100%;object-fit:cover;display:block}
-.m-state{
-  position:absolute;bottom:-18px;right:0;left:0;text-align:center;
-  font-family:'Space Mono',monospace;font-size:.48rem;letter-spacing:.12em;
-  color:#333;text-transform:uppercase;transition:color 0.4s ease;
-}
+.ai-title{font-size:.65rem;color:#555;letter-spacing:.15em;margin-bottom:12px}
+.ai-row{display:flex;justify-content:space-between;margin-bottom:8px;font-size:.52rem}
+.ai-lbl{color:#333}
+.ai-val{color:#888;transition:color .4s ease}
 
 /* Pinch State overlay indicator (top left) */
 #pinch-state{
@@ -181,13 +139,31 @@ html,body{
   display:flex;align-items:center;gap:8px;
 }
 .ps-dot{
-  width:8px;height:8px;border-radius:50%;background:#c0392b;
+  width:6px;height:6px;border-radius:50%;background:#333;
   transition:all 0.3s ease;
 }
-.ps-dot.on{background:#2ecc71;box-shadow:0 0 10px #2ecc71}
+.ps-dot.on{background:#2ecc71;box-shadow:0 0 8px #2ecc71}
 .ps-lbl{
-  font-family:'Space Mono',monospace;font-size:.55rem;letter-spacing:.2em;
-  color:#333;text-transform:uppercase;transition:color 0.3s ease;
+  font-family:'Space Mono',monospace;font-size:.52rem;letter-spacing:.2em;
+  color:#333;text-transform:uppercase;
+}
+
+/* Monitors (bottom right) */
+#monitor-panel{
+  position:absolute;bottom:24px;right:28px;
+  display:flex;align-items:flex-end;gap:12px;
+}
+.monitor-window{
+  width:80px;height:80px;border-radius:50%;
+  border:1px solid rgba(255,255,255,0.04);overflow:hidden;
+  background:#030303;transition:all 0.5s ease;
+  position:relative;
+}
+.m-canvas{width:100%;height:100%;object-fit:cover;display:block}
+.m-state{
+  position:absolute;bottom:-18px;right:0;left:0;text-align:center;
+  font-family:'Space Mono',monospace;font-size:.45rem;letter-spacing:.12em;
+  color:#222;text-transform:uppercase;
 }
 
 /* Actions bottom center */
@@ -196,15 +172,22 @@ html,body{
   display:flex;gap:30px;pointer-events:all;
 }
 .action-btn{
-  font-family:'Space Mono',monospace;font-size:.58rem;letter-spacing:.3em;
-  color:#333;background:none;border:none;cursor:pointer;
+  font-family:'Space Mono',monospace;font-size:.54rem;letter-spacing:.3em;
+  color:#252525;background:none;border:none;cursor:pointer;
   text-transform:uppercase;padding:10px 20px;transition:all 0.3s ease;
 }
 .action-btn:hover{color:#fff;text-shadow:0 0 15px rgba(255,255,255,0.3)}
 
 /* Interactive canvas flash */
 #save-flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:100;transition:opacity .15s ease}
-#save-flash.on{opacity:.2}
+#save-flash.on{opacity:.18}
+
+/* Help text overlay */
+#help-hint{
+  position:absolute;bottom:75px;left:50%;transform:translateX(-50%);
+  font-family:'Space Mono',monospace;font-size:.48rem;color:#1c1c1c;
+  letter-spacing:.15em;text-transform:uppercase;text-align:center;
+}
 </style>
 </head>
 <body>
@@ -218,12 +201,15 @@ html,body{
   <div class="l-logo">void.lumin</div>
   <div class="l-sub">air paint instrument</div>
   <div class="l-track"><div id="l-bar"></div></div>
-  <div id="l-msg">Initializing engines…</div>
+  <div id="l-msg">Initializing engine layers…</div>
+  <div id="l-err-fallback">
+    <button class="fb-btn" id="btn-force-mouse">LOAD MOUSE/TOUCH ONLY</button>
+  </div>
 </div>
 
 <!-- 2. SETUP GUIDE -->
 <div id="setup-guide" class="out" style="display:none">
-  <h1 class="g-title">Air Paint Calibration</h1>
+  <h1 class="g-title">Instrument Calibration</h1>
   <div class="g-steps">
     <div class="g-step">
       <span class="g-num">STEP 1</span>
@@ -231,21 +217,16 @@ html,body{
     </div>
     <div class="g-step">
       <span class="g-num">STEP 2</span>
-      <p class="g-txt"><strong>Pinch</strong> your index finger & thumb together to start drawing in the air.</p>
+      <p class="g-txt"><strong>Pinch</strong> index finger + thumb to paint in the air. Hover to plan.</p>
     </div>
     <div class="g-step">
       <span class="g-num">STEP 3</span>
-      <p class="g-txt">Your facial expression (Joy, Sadness, Anger, Fear) unlocks and morphs the brush physics.</p>
+      <p class="g-txt">The AI partner learns your stroke physics and completes your lines, morphing with your emotion.</p>
     </div>
   </div>
-  <button class="g-btn" id="start-btn">ENTER INSTRUMENT</button>
-</div>
-
-<!-- 3. UNLOCK NOTIFICATION -->
-<div id="unlock-toast">
-  <div class="ut-card">
-    <div class="ut-level" id="ut-level">LEVEL 2 UNLOCKED</div>
-    <div class="ut-name" id="ut-name">GOLDEN RADIANCE</div>
+  <div class="g-btn-wrap">
+    <button class="g-btn" id="start-camera-btn">START CO-CREATION</button>
+    <button class="g-btn" style="background:rgba(255,255,255,0.02);border-color:rgba(255,255,255,0.05)" id="start-mouse-btn">DRAW WITH MOUSE/TOUCH</button>
   </div>
 </div>
 
@@ -274,33 +255,37 @@ html,body{
     </div>
   </div>
 
-  <!-- Level Indicators -->
-  <div id="level-panel">
-    <div class="lvl-indicator">
-      <span class="lvl-dot" id="dot-1"></span>
-      <span class="lvl-lbl" id="lbl-1">L1: Thread</span>
+  <!-- AI Resonance / Predictive metrics (Right) -->
+  <div id="ai-panel">
+    <div class="ai-title">NEURAL CO-CREATION</div>
+    <div class="ai-row">
+      <span class="ai-lbl">Resonance</span>
+      <span class="ai-val" id="ai-res">0%</span>
     </div>
-    <div class="lvl-indicator">
-      <span class="lvl-dot" id="dot-2"></span>
-      <span class="lvl-lbl" id="lbl-2">L2: Bloom</span>
+    <div class="ai-row">
+      <span class="ai-lbl">Intent Pattern</span>
+      <span class="ai-val" id="ai-pattern">Linear</span>
     </div>
-    <div class="lvl-indicator">
-      <span class="lvl-dot" id="dot-3"></span>
-      <span class="lvl-lbl" id="lbl-3">L3: Field</span>
+    <div class="ai-row">
+      <span class="ai-lbl">Predict Steps</span>
+      <span class="ai-val" id="ai-steps">+0</span>
     </div>
-    <div class="lvl-indicator">
-      <span class="lvl-dot" id="dot-4"></span>
-      <span class="lvl-lbl" id="lbl-4">L4: Peak</span>
+    <div class="ai-row" style="margin-top:12px;border-top:1px solid rgba(255,255,255,0.05);padding-top:8px">
+      <span class="ai-lbl">Input Mode</span>
+      <span class="ai-val" id="ai-mode" style="color:#ffb800">Camera</span>
     </div>
   </div>
 
   <!-- Monitors (bottom right) -->
   <div id="monitor-panel">
-    <div class="monitor-window" id="mon-face">
+    <div class="monitor-window" id="mon-face" style="display:none">
       <canvas id="face-preview" class="m-canvas" width="120" height="120"></canvas>
       <span class="m-state" id="mon-face-lbl">no face</span>
     </div>
   </div>
+
+  <!-- Mode hint -->
+  <div id="help-hint">Pinch fingers (or drag mouse) to draw. AI will predict & co-create.</div>
 
   <!-- Actions -->
   <div id="action-panel">
@@ -315,10 +300,10 @@ html,body{
 'use strict';
 
 // ═══════════════════════════════════════════════════════
-//  EMOTION MAPPINGS (Colors, Physics modifiers)
+//  EMOTION MAPPINGS
 // ═══════════════════════════════════════════════════════
 const SCI = {
-  neutral:   { label:'NEUTRAL',  name:'Silver Thread',    css:'#cccccc', rgb:[204,204,204] },
+  neutral:   { label:'NEUTRAL',  name:'Silver Spline',    css:'#cccccc', rgb:[204,204,204] },
   happy:     { label:'HAPPY',    name:'Golden Radiance',  css:'#ffb800', rgb:[255,184,  0] },
   sad:       { label:'SAD',      name:'Blue Gravity',     css:'#1438cc', rgb:[ 20, 56,204] },
   angry:     { label:'ANGRY',    name:'Crimson Fracture', css:'#dc1212', rgb:[220, 18, 18] },
@@ -327,279 +312,308 @@ const SCI = {
   disgusted: { label:'DISGUST',  name:'Green Recoil',     css:'#2e8a08', rgb:[ 46,138,  8] },
 };
 
-const LVL_NAMES = ['L1: THREAD', 'L2: BLOOM', 'L3: DYNAMICS', 'L4: PEAK FORCE'];
-const LVL_THRESH = [0, 0.30, 0.55, 0.80];
-
 // ═══════════════════════════════════════════════════════
-//  DYNAMIC BRUSH PHYSICS
+//  AI PREDICTIVE PARTNER & BIOMETRIC BRUSHES
+//  The machine learns your trajectory, acceleration, and curvature.
+//  It extends your stroke in real-time, matching your emotional state.
 // ═══════════════════════════════════════════════════════
 const PHX = {
-  neutral(ctx, x, y, px, py, iv) {
+  neutral(ctx, points, iv, isPrediction) {
+    if (points.length < 2) return;
     ctx.save();
-    ctx.globalAlpha = 0.08 + iv * 0.16;
-    ctx.strokeStyle = `hsl(0,0%,${75 + iv*15}%)`;
-    ctx.lineWidth = 0.6 + iv * 2.8;
+    ctx.globalAlpha = isPrediction ? 0.05 + iv*0.05 : 0.12 + iv*0.12;
+    ctx.strokeStyle = `rgba(204,204,204,${isPrediction ? 0.35 : 1})`;
+    ctx.lineWidth = isPrediction ? 0.4 : 0.8 + iv * 1.5;
     ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(x,y); ctx.stroke();
-
-    // Soft filament curves
-    const branches = (iv * 4) | 0;
-    for (let i = 0; i < branches; i++) {
-      const a = Math.atan2(y-py, x-px) + (Math.random()-.5)*(1.1+iv*0.6);
-      const len = 5 + Math.random()*22*iv;
-      ctx.globalAlpha = 0.03 + Math.random()*0.05*iv;
-      ctx.lineWidth = 0.3;
-      ctx.beginPath(); ctx.moveTo(x,y);
-      ctx.lineTo(x+Math.cos(a)*len, y+Math.sin(a)*len); ctx.stroke();
-    }
+    
+    ctx.beginPath();
+    ctx.moveTo(points[points.length-2].x, points[points.length-2].y);
+    ctx.lineTo(points[points.length-1].x, points[points.length-1].y);
+    ctx.stroke();
     ctx.restore();
   },
 
-  happy(ctx, x, y, px, py, iv) {
+  happy(ctx, points, iv, isPrediction) {
+    if (points.length < 2) return;
+    const p1 = points[points.length-2], p2 = points[points.length-1];
     ctx.save();
-    // Core radiance stroke
-    ctx.globalAlpha = 0.12 + iv * 0.28;
-    ctx.strokeStyle = `hsl(${35+Math.random()*15},100%,${55+iv*10}%)`;
-    ctx.lineWidth = 1.2 + iv * 7;
+    ctx.globalAlpha = isPrediction ? 0.06 + iv*0.08 : 0.15 + iv*0.25;
+    ctx.strokeStyle = `hsl(${34+Math.random()*15},100%,${55+iv*12}%)`;
+    ctx.lineWidth = isPrediction ? 0.5 : 1 + iv * 4;
     ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(x,y); ctx.stroke();
+    
+    ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
 
-    // Spore blooms (L2+)
-    if (iv > 0.30) {
-      const n = (3 + iv * 20) | 0;
-      for (let i = 0; i < n; i++) {
-        const r = 8 + Math.random()*70*iv;
-        const a = Math.random()*Math.PI*2;
-        ctx.globalAlpha = 0.03 + Math.random()*0.12*iv;
-        ctx.fillStyle = `hsl(${22+Math.random()*48},100%,${55+iv*12}%)`;
-        ctx.beginPath();
-        ctx.arc(x+Math.cos(a)*r, y+Math.sin(a)*r, .6+Math.random()*(3+iv*3), 0, Math.PI*2);
-        ctx.fill();
-      }
-    }
-    // Orbit rings (L3+)
-    if (iv > 0.55) {
-      const rings = (iv * 3) | 0;
-      for (let r = 1; r <= rings; r++) {
-        ctx.globalAlpha = Math.max(0, 0.05*iv - r*0.01);
-        ctx.strokeStyle = `hsl(${40+r*4},100%,60%)`;
-        ctx.lineWidth = 0.4;
-        ctx.beginPath(); ctx.arc(x, y, r*15*iv, 0, Math.PI*2); ctx.stroke();
-      }
-    }
-    // Cosmic sunburst (L4 Peak)
-    if (iv > 0.80) {
-      const beams = 16;
-      for (let i = 0; i < beams; i++) {
-        const a = (i/beams)*Math.PI*2 + Math.random()*.2;
-        const len = 35 + Math.random()*90*iv;
-        ctx.globalAlpha = 0.05 + Math.random()*0.08;
-        ctx.strokeStyle = `hsl(${28+Math.random()*25},100%,70%)`;
-        ctx.lineWidth = 0.4 + Math.random();
-        ctx.beginPath(); ctx.moveTo(x,y);
-        ctx.lineTo(x+Math.cos(a)*len, y+Math.sin(a)*len); ctx.stroke();
-      }
-    }
-    ctx.restore();
-  },
-
-  sad(ctx, x, y, px, py, iv) {
-    ctx.save();
-    ctx.globalAlpha = 0.10 + iv * 0.15;
-    ctx.strokeStyle = `hsl(${220+Math.random()*12},70%,${32+iv*15}%)`;
-    ctx.lineWidth = 0.6 + iv * 2.5;
-    ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(x,y); ctx.stroke();
-
-    // Drips falling downwards (L2+)
-    if (iv > 0.30) {
-      const drips = (1 + iv * 7) | 0;
-      for (let i = 0; i < drips; i++) {
-        const dx = (Math.random()-.5)*25*iv;
-        const h = 4 + Math.random()*40*iv;
-        ctx.globalAlpha = 0.04 + Math.random()*0.08*iv;
-        ctx.fillStyle = `hsl(${212+Math.random()*20},75%,${28+iv*18}%)`;
-        ctx.beginPath();
-        ctx.ellipse(x+dx, y+h*.6, 1+iv, h*.6, 0, 0, Math.PI*2);
-        ctx.fill();
-      }
-    }
-    // Atmospheric wash (L3+)
-    if (iv > 0.55) {
-      ctx.globalAlpha = 0.02 * iv;
-      ctx.fillStyle = `hsl(225,60%,34%)`;
+    // AI organic blooms along the path
+    if (iv > 0.30 && !isPrediction && Math.random() < 0.4) {
+      const dist = Math.hypot(p2.x-p1.x, p2.y-p1.y);
+      const r = 4 + Math.random()*50*iv;
+      const a = Math.random()*Math.PI*2;
+      ctx.globalAlpha = 0.02 + Math.random()*0.08*iv;
+      ctx.fillStyle = `hsl(${22+Math.random()*45},100%,${55+iv*15}%)`;
       ctx.beginPath();
-      ctx.ellipse(x, y, 20+iv*35, 10+iv*15, 0,0,Math.PI*2);
+      ctx.arc(p2.x+Math.cos(a)*r, p2.y+Math.sin(a)*r, 0.5+Math.random()*(2+iv*2), 0, Math.PI*2);
       ctx.fill();
     }
     ctx.restore();
   },
 
-  angry(ctx, x, y, px, py, iv) {
+  sad(ctx, points, iv, isPrediction) {
+    if (points.length < 2) return;
+    const p1 = points[points.length-2], p2 = points[points.length-1];
     ctx.save();
-    ctx.globalAlpha = 0.20 + iv * 0.25;
+    ctx.globalAlpha = isPrediction ? 0.04 + iv*0.04 : 0.10 + iv*0.15;
+    ctx.strokeStyle = `hsl(${218+Math.random()*12},72%,${35+iv*15}%)`;
+    ctx.lineWidth = isPrediction ? 0.3 : 0.7 + iv * 1.8;
+    
+    ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+
+    // Drips (fall downward, only for permanent strokes)
+    if (iv > 0.30 && !isPrediction && Math.random() < 0.25) {
+      const h = 5 + Math.random()*40*iv;
+      ctx.globalAlpha = 0.03 + Math.random()*0.07*iv;
+      ctx.fillStyle = `hsl(${212+Math.random()*20},75%,${28+iv*15}%)`;
+      ctx.beginPath();
+      ctx.ellipse(p2.x, p2.y + h*.5, 1, h*.5, 0, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.restore();
+  },
+
+  angry(ctx, points, iv, isPrediction) {
+    if (points.length < 2) return;
+    const p1 = points[points.length-2], p2 = points[points.length-1];
+    ctx.save();
+    ctx.globalAlpha = isPrediction ? 0.08 + iv*0.08 : 0.22 + iv*0.25;
     ctx.strokeStyle = `hsl(${355+Math.random()*10},95%,${40+iv*15}%)`;
-    ctx.lineWidth = 1.8 + iv * 7.5;
+    ctx.lineWidth = isPrediction ? 0.6 : 1.5 + iv * 5;
     ctx.lineCap = 'square';
-    ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(x,y); ctx.stroke();
+    
+    ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
 
-    // Fracture shards (L2+)
-    if (iv > 0.30) {
-      const n = (3 + iv * 15) | 0;
-      for (let i = 0; i < n; i++) {
-        const a = Math.random()*Math.PI*2;
-        const len = 12 + Math.random()*80*iv;
-        ctx.globalAlpha = 0.06 + Math.random()*0.15*iv;
-        ctx.strokeStyle = `hsl(${358+Math.random()*20},100%,${45+iv*15}%)`;
-        ctx.lineWidth = 0.4 + Math.random()*2*iv;
-        ctx.beginPath(); ctx.moveTo(x,y);
-        ctx.lineTo(x+Math.cos(a)*len, y+Math.sin(a)*len); ctx.stroke();
-      }
-    }
-    // Kinetic impact waves (L4 Peak)
-    if (iv > 0.80) {
-      for (let r = 1; r <= 3; r++) {
-        ctx.globalAlpha = Math.max(0, 0.08 - r*0.02);
-        ctx.strokeStyle = `hsl(0,100%,50%)`;
-        ctx.lineWidth = 1.2;
-        ctx.beginPath(); ctx.arc(x,y,r*18*iv,0,Math.PI*2); ctx.stroke();
-      }
+    // Fractures (sharp projections)
+    if (iv > 0.30 && !isPrediction && Math.random() < 0.35) {
+      const a = Math.random()*Math.PI*2;
+      const len = 10 + Math.random()*60*iv;
+      ctx.globalAlpha = 0.04 + Math.random()*0.10*iv;
+      ctx.strokeStyle = `hsl(358,100%,${45+iv*15}%)`;
+      ctx.lineWidth = 0.3 + iv;
+      ctx.beginPath(); ctx.moveTo(p2.x, p2.y);
+      ctx.lineTo(p2.x+Math.cos(a)*len, p2.y+Math.sin(a)*len); ctx.stroke();
     }
     ctx.restore();
   },
 
-  fearful(ctx, x, y, px, py, iv) {
+  fearful(ctx, points, iv, isPrediction) {
+    if (points.length < 2) return;
+    const p1 = points[points.length-2], p2 = points[points.length-1];
     ctx.save();
-    ctx.globalAlpha = 0.08 + iv * 0.12;
+    ctx.globalAlpha = isPrediction ? 0.04 + iv*0.04 : 0.08 + iv*0.12;
     ctx.strokeStyle = `hsl(${272+Math.random()*15},60%,${30+iv*15}%)`;
-    ctx.lineWidth = 0.5 + iv * 1.8;
-    ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(x,y); ctx.stroke();
+    ctx.lineWidth = isPrediction ? 0.3 : 0.5 + iv * 1.5;
+    
+    ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
 
-    // Tightening contracting loops (L2+)
-    if (iv > 0.30) {
-      const loops = (1 + iv * 4) | 0;
-      for (let r = 1; r <= loops; r++) {
-        const rad = r * 8 * (1.1 - iv * 0.4);
-        ctx.globalAlpha = Math.max(0, 0.05 - r * 0.008);
-        ctx.strokeStyle = `hsl(${275+r*3},55%,${26+r*4}%)`;
-        ctx.lineWidth = 0.4;
-        ctx.beginPath(); ctx.arc(x, y, rad, 0, Math.PI*2); ctx.stroke();
-      }
-    }
-    // High-intensity background tension (L3+)
-    if (iv > 0.55) {
-      const points = (iv * 8) | 0;
-      for (let i = 0; i < points; i++) {
-        ctx.globalAlpha = 0.035 * iv;
-        ctx.fillStyle = `hsl(282,55%,22%)`;
-        ctx.beginPath();
-        ctx.arc(x+(Math.random()-.5)*18, y+(Math.random()-.5)*18, 1+Math.random()*2.5, 0, Math.PI*2);
-        ctx.fill();
-      }
+    if (iv > 0.30 && !isPrediction && Math.random() < 0.3) {
+      const rad = 6 + Math.random()*25*iv;
+      ctx.globalAlpha = 0.02 + Math.random()*0.04*iv;
+      ctx.strokeStyle = `hsl(278,55%,26%)`;
+      ctx.lineWidth = 0.3;
+      ctx.beginPath(); ctx.arc(p2.x, p2.y, rad, 0, Math.PI*2); ctx.stroke();
     }
     ctx.restore();
   },
 
-  surprised(ctx, x, y, px, py, iv) {
+  surprised(ctx, points, iv, isPrediction) {
+    if (points.length < 2) return;
+    const p1 = points[points.length-2], p2 = points[points.length-1];
     ctx.save();
-    const beams = (6 + iv * 16) | 0;
-    for (let i = 0; i < beams; i++) {
-      const a = (i/beams)*Math.PI*2 + Math.random()*0.2;
-      const len = 10 + Math.random()*75*iv;
-      ctx.globalAlpha = 0.07 + Math.random()*0.12*iv;
-      ctx.strokeStyle = `hsl(${185+Math.random()*15},100%,${58+iv*16}%)`;
-      ctx.lineWidth = 0.4 + Math.random()*1.8*iv;
-      ctx.beginPath(); ctx.moveTo(x,y);
-      ctx.lineTo(x+Math.cos(a)*len, y+Math.sin(a)*len); ctx.stroke();
-    }
-    ctx.globalAlpha = 0.18 + iv * 0.28;
-    ctx.fillStyle = '#00ecff';
-    ctx.beginPath(); ctx.arc(x,y,1+iv*3, 0, Math.PI*2); ctx.fill();
+    ctx.globalAlpha = isPrediction ? 0.08 : 0.18 + iv * 0.22;
+    ctx.strokeStyle = `hsl(${185+Math.random()*15},100%,${58+iv*16}%)`;
+    ctx.lineWidth = isPrediction ? 0.4 : 0.8 + iv * 2.5;
+    ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
     ctx.restore();
   },
 
-  disgusted(ctx, x, y, px, py, iv) {
+  disgusted(ctx, points, iv, isPrediction) {
+    if (points.length < 2) return;
+    const p1 = points[points.length-2], p2 = points[points.length-1];
     ctx.save();
-    ctx.globalAlpha = 0.10 + iv * 0.10;
+    ctx.globalAlpha = isPrediction ? 0.04 : 0.10 + iv * 0.10;
     ctx.strokeStyle = `hsl(${84+Math.random()*18},50%,${26+iv*14}%)`;
-    ctx.lineWidth = 1 + iv * 2.8;
-    ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(x,y); ctx.stroke();
-    if (iv > 0.30) {
-      const clusters = (2 + iv * 6) | 0;
-      for (let i = 0; i < clusters; i++) {
-        const a = Math.random()*Math.PI*2;
-        const d = 15 + Math.random()*45*iv;
-        ctx.globalAlpha = 0.03 + Math.random()*0.05*iv;
-        ctx.fillStyle = `hsl(${86+Math.random()*16},45%,${24+iv*14}%)`;
-        ctx.beginPath();
-        ctx.arc(x+Math.cos(a)*d, y+Math.sin(a)*d, 1.2+Math.random()*3*iv, 0, Math.PI*2);
-        ctx.fill();
-      }
-    }
+    ctx.lineWidth = isPrediction ? 0.3 : 0.8 + iv * 2;
+    ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
     ctx.restore();
-  },
+  }
 };
 
 // ═══════════════════════════════════════════════════════
-//  CURSOR GLOW (Air point cursor feedback)
+//  AI TRAJECTORY PREDICTION ENGINE
 // ═══════════════════════════════════════════════════════
-function drawCursorGlow(ctx, x, y, emotion, iv, active, t) {
-  const w = ctx.canvas.width, h = ctx.canvas.height;
-  ctx.clearRect(0,0,w,h);
-  if (x === null) return;
-  const col = SCI[emotion].rgb;
-  const pulse = active
-    ? 1 + 0.20 * Math.sin(t * 9)
-    : 0.70 + 0.30 * Math.sin(t * 2);
-  const r = (16 + iv * 25) * pulse;
+class AILearningEngine {
+  constructor() {
+    this.strokeHistory = []; // stores points of the current stroke
+    this.coupling = 0;       // how closely the AI matches the user's rhythm (0-1)
+    this.predictedPath = []; // predicted future points
+    this.inferredPattern = 'Linear';
+  }
 
-  // Ambient aura
-  const aura = ctx.createRadialGradient(x,y,0,x,y,r*3.5);
-  const alpha = active ? 0.10 + iv * 0.15 : 0.03 + iv * 0.05;
-  aura.addColorStop(0,   `rgba(${col[0]},${col[1]},${col[2]},${alpha.toFixed(3)})`);
-  aura.addColorStop(0.5, `rgba(${col[0]},${col[1]},${col[2]},${(alpha*0.35).toFixed(3)})`);
-  aura.addColorStop(1,   'rgba(0,0,0,0)');
-  ctx.fillStyle = aura;
-  ctx.beginPath(); ctx.arc(x,y,r*3.5,0,Math.PI*2); ctx.fill();
+  reset() {
+    this.strokeHistory = [];
+    this.predictedPath = [];
+    this.coupling = 0;
+    this.inferredPattern = 'Linear';
+  }
 
-  // Circle crosshair
-  ctx.strokeStyle = `rgba(${col[0]},${col[1]},${col[2]},${active ? .55 : .22})`;
-  ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.arc(x,y,r*0.5,0,Math.PI*2); ctx.stroke();
+  addPoint(x, y, t) {
+    this.strokeHistory.push({ x, y, t });
+    if (this.strokeHistory.length > 50) this.strokeHistory.shift();
+    this.learnPattern();
+  }
 
-  // Center tip dot
-  ctx.fillStyle = `rgba(${col[0]},${col[1]},${col[2]},${active ? .85 : .35})`;
-  ctx.beginPath(); ctx.arc(x,y,2,0,Math.PI*2); ctx.fill();
+  learnPattern() {
+    const H = this.strokeHistory;
+    if (H.length < 5) return;
+
+    // 1. Calculate speeds and headings
+    let totalVel = 0;
+    let headingChanges = 0;
+    const headings = [];
+
+    for (let i = 1; i < H.length; i++) {
+      const dt = (H[i].t - H[i-1].t) || 0.016;
+      const dx = H[i].x - H[i-1].x;
+      const dy = H[i].y - H[i-1].y;
+      const dist = Math.hypot(dx, dy);
+      totalVel += dist / dt;
+
+      const heading = Math.atan2(dy, dx);
+      headings.push(heading);
+      if (headings.length > 1) {
+        let diff = heading - headings[headings.length - 2];
+        // normalize
+        diff = Math.atan2(Math.sin(diff), Math.cos(diff));
+        headingChanges += Math.abs(diff);
+      }
+    }
+
+    const avgVel = totalVel / (H.length - 1);
+    const avgCurvature = headingChanges / (H.length - 2);
+
+    // Predict pattern
+    if (avgCurvature < 0.08) {
+      this.inferredPattern = 'Linear Spline';
+    } else if (avgCurvature < 0.32) {
+      this.inferredPattern = 'Harmonic Curve';
+    } else {
+      this.inferredPattern = 'Organic Spiral';
+    }
+
+    // Dynamic coupling based on drawing stability
+    this.coupling = Math.max(0.1, Math.min(0.95, 1 - avgCurvature * 0.8));
+  }
+
+  // Generate predictive stroke extension based on physical derivatives
+  predict(steps, emotion, intensity) {
+    const H = this.strokeHistory;
+    if (H.length < 4) {
+      this.predictedPath = [];
+      return;
+    }
+
+    const last = H[H.length - 1];
+    const prev = H[H.length - 2];
+    const pprev = H[H.length - 3];
+
+    // Compute velocity vectors
+    const dt1 = (last.t - prev.t) || 0.016;
+    let vx = (last.x - prev.x) / dt1;
+    let vy = (last.y - prev.y) / dt1;
+
+    // Compute acceleration vectors
+    const dt2 = (prev.t - pprev.t) || 0.016;
+    const pvx = (prev.x - pprev.x) / dt2;
+    const pvy = (prev.y - pprev.y) / dt2;
+    const ax = (vx - pvx) / dt1;
+    const ay = (vy - pvy) / dt1;
+
+    this.predictedPath = [{ x: last.x, y: last.y }];
+
+    let currX = last.x;
+    let currY = last.y;
+    let stepSize = 0.016; // 60fps step simulation
+
+    const s = SCI[emotion].rgb;
+
+    for (let step = 1; step <= steps; step++) {
+      const t = step * stepSize;
+      
+      // Standard physics extension: x = x0 + vt + 0.5at^2
+      let dx = vx * t + 0.5 * ax * t * t;
+      let dy = vy * t + 0.5 * ay * t * t;
+
+      // Emotion-induced physical forces on the AI prediction
+      if (emotion === 'happy') {
+        // Golden Radiance pulls predictions into logarithmic curves
+        const spiralForce = 0.05 * intensity * step;
+        const ang = t * 15;
+        dx += Math.cos(ang) * spiralForce * 15;
+        dy += Math.sin(ang) * spiralForce * 15;
+      } else if (emotion === 'sad') {
+        // Sadness exerts downward gravity
+        dy += 0.85 * intensity * step * step;
+      } else if (emotion === 'angry') {
+        // Anger forces sharp angular offsets
+        const jitter = (Math.random() - 0.5) * 8 * intensity;
+        dx += jitter;
+        dy += jitter;
+      } else if (emotion === 'fearful') {
+        // Fear contracts the path back toward the center of the stroke history
+        let cx = 0, cy = 0;
+        H.forEach(p => { cx += p.x; cy += p.y; });
+        cx /= H.length; cy /= H.length;
+        const pull = 0.02 * intensity;
+        dx += (cx - currX) * pull;
+        dy += (cy - currY) * pull;
+      }
+
+      this.predictedPath.push({
+        x: currX + dx,
+        y: currY + dy
+      });
+
+      // Update state for next step simulation
+      currX += dx;
+      currY += dy;
+    }
+  }
 }
 
 // ═══════════════════════════════════════════════════════
-//  VOID LUMIN INSTRUMENT CONTROLLER
+//  COGNITIVE APP CONTROLLER
 // ═══════════════════════════════════════════════════════
 class VoidLuminCreator {
   constructor() {
-    this.artCanvas = document.getElementById('art');
-    this.glwCanvas = document.getElementById('glow');
-    this.faceCanvas = document.getElementById('face-preview');
+    this.artC = document.getElementById('art');
+    this.glwC = document.getElementById('glow');
+    this.faceC = document.getElementById('face-preview');
     this.video = document.getElementById('cam');
 
-    this.ac = this.artCanvas.getContext('2d');
-    this.gc = this.glwCanvas.getContext('2d');
-    this.fc = this.faceCanvas.getContext('2d');
+    this.ac = this.artC.getContext('2d');
+    this.gc = this.glwC.getContext('2d');
+    this.fc = this.faceC.getContext('2d');
+
+    this.ai = new AILearningEngine();
 
     this.emotion = 'neutral';
-    this.prevEmotion = 'neutral';
     this.intensity = 0;
     this.smoothIv = 0;
 
-    // Hand tracking & drawing state
     this.isDrawing = false;
-    this.cursor = {x:null, y:null};
-    this.prevCursor = {x:null, y:null};
-    this.isPinching = false;
-    this.handVisible = false;
+    this.cursor = { x: null, y: null };
+    this.prevCursor = { x: null, y: null };
 
+    this.inputMode = 'mouse'; // 'camera' or 'mouse' fallback
     this.cameraOK = false;
     this.faceAPIok = false;
     this.handsAPIok = false;
@@ -613,118 +627,143 @@ class VoidLuminCreator {
   }
 
   async init() {
-    this._prog(5, 'Requesting camera access…');
+    this._prog(10, 'Initializing canvases…');
     this._resize();
     window.addEventListener('resize', () => this._resize());
 
-    // Camera setup
+    // Setup clear UI bindings for entry
+    this._setupEntryControls();
+
+    // Check camera availability
     try {
+      this._prog(25, 'Scanning webcam sensors…');
       const stream = await navigator.mediaDevices.getUserMedia({
-        video:{width:{ideal:1280},height:{ideal:720},facingMode:'user'},audio:false
+        video: { facingMode: 'user' }, audio: false
       });
       this.video.srcObject = stream;
-      await new Promise(r => this.video.addEventListener('loadedmetadata',r,{once:true}));
+      await new Promise(r => this.video.addEventListener('loadedmetadata', r, { once: true }));
       await this.video.play();
       this.cameraOK = true;
-    } catch(_) {
+    } catch(e) {
+      console.warn('Camera failed:', e);
       this.cameraOK = false;
-      document.getElementById('load').style.display='none';
-      document.getElementById('cam-err').style.display='flex';
-      return;
     }
 
-    // Load face-api.js models
-    this._prog(25, 'Loading face models…');
-    const modelUrl = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model';
-    try {
-      await faceapi.nets.tinyFaceDetector.loadFromUri(modelUrl);
-      this._prog(45, 'Loading expressions…');
-      await faceapi.nets.faceExpressionNet.loadFromUri(modelUrl);
-      this.faceAPIok = true;
-    } catch(_) {
-      console.warn('FaceAPI failed to load via fast CDN, trying backup...');
+    if (this.cameraOK) {
+      this._prog(45, 'Loading facial networks…');
+      const modelUrl = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model';
       try {
-        const backupUrl = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights';
-        await faceapi.nets.tinyFaceDetector.loadFromUri(backupUrl);
-        await faceapi.nets.faceExpressionNet.loadFromUri(backupUrl);
+        await faceapi.nets.tinyFaceDetector.loadFromUri(modelUrl);
+        await faceapi.nets.faceExpressionNet.loadFromUri(modelUrl);
         this.faceAPIok = true;
+      } catch(err) {
+        console.warn('FaceAPI CDN failed, using backup...');
+        try {
+          const backupUrl = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights';
+          await faceapi.nets.tinyFaceDetector.loadFromUri(backupUrl);
+          await faceapi.nets.faceExpressionNet.loadFromUri(backupUrl);
+          this.faceAPIok = true;
+        } catch(e) {
+          console.error('All face model CDN paths failed:', e);
+        }
+      }
+
+      this._prog(70, 'Loading MediaPipe hand matrices…');
+      try {
+        this.hands = new Hands({locateFile: (file) => {
+          return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+        }});
+        this.hands.setOptions({
+          maxNumHands: 1,
+          modelComplexity: 1,
+          minDetectionConfidence: 0.55,
+          minTrackingConfidence: 0.55
+        });
+        this.hands.onResults((res) => this._onHandResults(res));
+        this.handsAPIok = true;
       } catch(e) {
-        console.error('FaceAPI failed completely:', e);
+        console.error('MediaPipe Hands load failed:', e);
       }
     }
 
-    // Load MediaPipe Hands
-    this._prog(65, 'Loading hand tracking…');
-    try {
-      this.hands = new Hands({locateFile: (file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-      }});
-      this.hands.setOptions({
-        maxNumHands: 1,
-        modelComplexity: 1,
-        minDetectionConfidence: 0.55,
-        minTrackingConfidence: 0.55
-      });
-      this.hands.onResults((res) => this._onHandResults(res));
-      this.handsAPIok = true;
-    } catch(e) {
-      console.error('MediaPipe Hands load failed:', e);
-    }
-
-    this._prog(88, 'Calibrating loops…');
+    this._prog(90, 'Preparing interface…');
     this._fillBlack();
     this._setupUI();
 
-    // Start MediaPipe Camera helper to pipe frames
-    if (this.cameraOK) {
-      this.cameraHelper = new Camera(this.video, {
-        onFrame: async () => {
-          if (!this._running) return;
-          // Pipe frame to MediaPipe Hands
-          if (this.handsAPIok) await this.hands.send({image: this.video});
-        },
-        width: 1280,
-        height: 720
-      });
-      this.cameraHelper.start();
-    }
-
-    this._detectFaceLoop();
-
-    this._prog(100, 'Ready.');
-    await new Promise(r => setTimeout(r, 350));
-
-    // Show setup guide first
+    // Finish loading
     document.getElementById('load').classList.add('out');
     setTimeout(() => document.getElementById('load').style.display='none', 800);
-    
+
     const guide = document.getElementById('setup-guide');
     guide.style.display = 'flex';
     setTimeout(() => guide.classList.remove('out'), 50);
   }
 
-  _setupUI() {
-    document.getElementById('start-btn').addEventListener('click', () => {
-      const guide = document.getElementById('setup-guide');
-      guide.classList.add('out');
-      setTimeout(() => guide.style.display = 'none', 600);
-      document.getElementById('ui').classList.add('on');
-      this._running = true;
-      this._loop();
+  _setupEntryControls() {
+    // Start camera co-creation
+    document.getElementById('start-camera-btn').addEventListener('click', () => {
+      if (this.cameraOK && this.handsAPIok) {
+        this.inputMode = 'camera';
+        this.cameraHelper = new Camera(this.video, {
+          onFrame: async () => {
+            if (this._running && this.handsAPIok) {
+              await this.hands.send({ image: this.video });
+            }
+          },
+          width: 1280,
+          height: 720
+        });
+        this.cameraHelper.start();
+        this._detectFaceLoop();
+        document.getElementById('mon-face').style.display = 'block';
+      } else {
+        alert('Webcam sensor failed to initialize. Falling back to mouse/touch drawing.');
+        this.inputMode = 'mouse';
+      }
+      this._enterInstrument();
     });
 
-    document.getElementById('act-clear').addEventListener('click', () => this._clear());
-    document.getElementById('act-save').addEventListener('click', () => this._save());
-
-    document.addEventListener('keydown', e => {
-      if (e.code==='KeyS' && !e.ctrlKey) this._save();
-      if (e.code==='KeyC' && !e.ctrlKey) this._clear();
+    // Start mouse co-creation
+    document.getElementById('start-mouse-btn').addEventListener('click', () => {
+      this.inputMode = 'mouse';
+      this._enterInstrument();
     });
+
+    // Fallback load on loading screen
+    document.getElementById('btn-force-mouse').addEventListener('click', () => {
+      this.inputMode = 'mouse';
+      this._enterInstrument();
+    });
+
+    // Show fallback option if loading takes too long
+    setTimeout(() => {
+      document.getElementById('l-err-fallback').style.display = 'flex';
+    }, 4500);
+  }
+
+  _enterInstrument() {
+    const guide = document.getElementById('setup-guide');
+    guide.classList.add('out');
+    setTimeout(() => guide.style.display = 'none', 600);
+    document.getElementById('ui').classList.add('on');
+
+    if (this.inputMode === 'mouse') {
+      this._setupMouseInput();
+      document.getElementById('mon-face').style.display = 'none';
+      document.getElementById('ai-mode').textContent = 'Mouse/Touch';
+      document.getElementById('ai-mode').style.color = '#50dcff';
+    } else {
+      document.getElementById('ai-mode').textContent = 'Webcam Air';
+      document.getElementById('ai-mode').style.color = '#2ecc71';
+    }
+
+    this._running = true;
+    this._loop();
   }
 
   _resize() {
     const w=window.innerWidth, h=window.innerHeight, D=this._DPR;
-    for (const c of [this.artCanvas, this.glwCanvas]) {
+    for (const c of [this.artC, this.glwC]) {
       c.width=w*D; c.height=h*D;
       c.style.width=w+'px'; c.style.height=h+'px';
     }
@@ -736,87 +775,122 @@ class VoidLuminCreator {
   _fillBlack() {
     this.ac.save();
     this.ac.setTransform(1,0,0,1,0,0);
-    this.ac.fillStyle='#000';
-    this.ac.fillRect(0,0,this.artCanvas.width,this.artCanvas.height);
+    this.ac.fillStyle='#020202';
+    this.ac.fillRect(0,0,this.artC.width,this.artC.height);
     this.ac.restore();
   }
 
-  // ── Hand tracking results ────────────────────────
+  // ── Mouse & Touch Drawing setup ─────────────────
+  _setupMouseInput() {
+    const toLocal = e => {
+      const r = this.artC.getBoundingClientRect();
+      return { x: e.clientX - r.left, y: e.clientY - r.top };
+    };
+
+    const handleDown = p => {
+      this.cursor = p;
+      this.prevCursor = p;
+      this.isDrawing = true;
+      this.ai.reset();
+      this.ai.addPoint(p.x, p.y, performance.now()/1000);
+      this._updatePinchIndicators(true);
+    };
+
+    const handleMove = p => {
+      this.cursor = p;
+    };
+
+    const handleUp = () => {
+      this.isDrawing = false;
+      this._updatePinchIndicators(false);
+      
+      // When user lifts pen, AI permanently commits its final prediction trail as a co-creative echo!
+      if (this.ai.predictedPath.length > 1) {
+        const phx = PHX[this.emotion] || PHX.neutral;
+        phx(this.ac, this.ai.predictedPath, this.smoothIv, false);
+      }
+      this.ai.reset();
+    };
+
+    this.artC.addEventListener('mousedown', e => handleDown(toLocal(e)));
+    this.artC.addEventListener('mousemove', e => handleMove(toLocal(e)));
+    window.addEventListener('mouseup', handleUp);
+
+    this.artC.addEventListener('touchstart', e => {
+      if (e.touches.length > 0) handleDown(toLocal(e.touches[0]));
+    });
+    this.artC.addEventListener('touchmove', e => {
+      if (e.touches.length > 0) handleMove(toLocal(e.touches[0]));
+    });
+    window.addEventListener('touchend', handleUp);
+  }
+
+  _updatePinchIndicators(active) {
+    const dot = document.getElementById('ps-dot');
+    const lbl = document.getElementById('ps-lbl');
+    dot.classList.toggle('on', active);
+    lbl.textContent = active ? 'drawing' : 'hovering';
+    lbl.style.color = active ? SCI[this.emotion].css : '#333';
+  }
+
+  // ── MediaPipe Hand tracking ──────────────────────
   _onHandResults(res) {
-    if (!this._running) return;
+    if (!this._running || this.inputMode !== 'camera') return;
 
     if (res.multiHandLandmarks && res.multiHandLandmarks.length > 0) {
-      this.handVisible = true;
       const landmarks = res.multiHandLandmarks[0];
-
-      // Landmark index tip (8) and thumb tip (4)
       const indexTip = landmarks[8];
       const thumbTip = landmarks[4];
 
-      // Map index to screen (X is inverted because video is mirrored)
       const screenX = (1 - indexTip.x) * this.W;
       const screenY = indexTip.y * this.H;
 
       this.cursor = { x: screenX, y: screenY };
 
-      // Pinch distance detection
       const dx = indexTip.x - thumbTip.x;
       const dy = indexTip.y - thumbTip.y;
       const dz = indexTip.z - thumbTip.z;
       const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
 
-      // Threshold for pinch (~0.03-0.04 normalized hand distance)
       const isPinchingNow = dist < 0.038;
 
-      if (isPinchingNow && !this.isPinching) {
-        // Pinch start: pen down
-        this.isPinching = true;
+      if (isPinchingNow && !this.isDrawing) {
         this.isDrawing = true;
         this.prevCursor = { ...this.cursor };
-      } else if (!isPinchingNow && this.isPinching) {
-        // Pinch release: pen up
-        this.isPinching = false;
+        this.ai.reset();
+        this.ai.addPoint(screenX, screenY, this._t);
+      } else if (!isPinchingNow && this.isDrawing) {
         this.isDrawing = false;
+        
+        // Commit AI prediction on lift
+        if (this.ai.predictedPath.length > 1) {
+          const phx = PHX[this.emotion] || PHX.neutral;
+          phx(this.ac, this.ai.predictedPath, this.smoothIv, false);
+        }
+        this.ai.reset();
       }
 
-      this._updatePinchIndicator();
+      this._updatePinchIndicators(this.isDrawing);
     } else {
-      this.handVisible = false;
-      this.isDrawing = false;
-      this.isPinching = false;
+      if (this.isDrawing) {
+        this.isDrawing = false;
+        this.ai.reset();
+      }
       this.cursor = { x: null, y: null };
-      this._updatePinchIndicator();
+      this._updatePinchIndicators(false);
     }
   }
 
-  _updatePinchIndicator() {
-    const dot = document.getElementById('ps-dot');
-    const lbl = document.getElementById('ps-lbl');
-    if (!this.handVisible) {
-      dot.style.background = '#333';
-      dot.style.boxShadow = 'none';
-      lbl.textContent = 'no hand';
-      lbl.style.color = '#333';
-    } else if (this.isPinching) {
-      dot.className = 'ps-dot on';
-      lbl.textContent = 'painting';
-      lbl.style.color = SCI[this.emotion].css;
-    } else {
-      dot.className = 'ps-dot';
-      lbl.textContent = 'hovering';
-      lbl.style.color = '#555';
-    }
-  }
-
-  // ── Face expression detection (async) ────────────
+  // ── Face expression detection ────────────────────
   _detectFaceLoop() {
     const run = async () => {
+      if (this.inputMode !== 'camera') return;
       try {
-        const opts = new faceapi.TinyFaceDetectorOptions({inputSize:224,scoreThreshold:.4});
-        const dets = await faceapi.detectAllFaces(this.video,opts).withFaceExpressions();
+        const opts = new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.4 });
+        const dets = await faceapi.detectAllFaces(this.video, opts).withFaceExpressions();
         if (dets.length > 0) {
           const ex = dets[0].expressions;
-          const dom = Object.keys(ex).reduce((a,b) => ex[a]>ex[b]?a:b);
+          const dom = Object.keys(ex).reduce((a, b) => ex[a] > ex[b] ? a : b);
           if (SCI[dom]) {
             this.emotion = dom;
             this.intensity = ex[dom];
@@ -841,26 +915,24 @@ class VoidLuminCreator {
       lbl.textContent = s.label;
       lbl.style.color = s.css + 'aa';
       document.getElementById('mon-face').style.borderColor = s.css + '44';
-      document.getElementById('mon-face').style.boxShadow = `0 0 14px 2px ${s.css}11`;
     } else {
       lbl.textContent = 'no face';
       lbl.style.color = '#333';
-      document.getElementById('mon-face').style.borderColor = 'rgba(255,255,255,0.05)';
-      document.getElementById('mon-face').style.boxShadow = 'none';
+      document.getElementById('mon-face').style.borderColor = 'rgba(255,255,255,0.04)';
     }
   }
 
-  // ── Main animation loop ──────────────────────────
+  // ── Render loop ──────────────────────────────────
   _loop() {
     if (!this._running) return;
     this._t = performance.now() / 1000;
 
-    // Smooth emotion intensity
+    // Smooth intensity
     this.smoothIv += (this.intensity - this.smoothIv) * 0.08;
     const iv = this.smoothIv;
 
-    // Render local face monitor
-    if (this.cameraOK && this.video.readyState >= 2) {
+    // Local face preview
+    if (this.inputMode === 'camera' && this.cameraOK && this.video.readyState >= 2) {
       this.fc.save();
       this.fc.clearRect(0,0,120,120);
       this.fc.beginPath(); this.fc.arc(60,60,58,0,Math.PI*2); this.fc.clip();
@@ -873,123 +945,113 @@ class VoidLuminCreator {
       this.fc.beginPath(); this.fc.arc(60,60,58,0,Math.PI*2); this.fc.stroke();
     }
 
-    // Glow cursor following hand pointer location
-    drawCursorGlow(this.gc, this.cursor.x, this.cursor.y, this.emotion, iv, this.isPinching, this._t);
+    // Glow overlay (clears every frame, non-permanent)
+    this.gc.clearRect(0,0,this.W,this.H);
 
-    // If pinching: draw permanently with effective pressure
+    // Draw active drawing cursor
+    drawCursorGlow(this.gc, this.cursor.x, this.cursor.y, this.emotion, iv, this.isDrawing, this._t);
+
     if (this.isDrawing && this.cursor.x !== null && this.prevCursor.x !== null) {
       const dist = Math.hypot(this.cursor.x - this.prevCursor.x, this.cursor.y - this.prevCursor.y);
       if (dist > 0.4) {
-        const speedPres = Math.min(1, dist / 32);
-        const effectivePres = Math.max(0.04, speedPres * (0.15 + iv * 0.85));
-        const phx = PHX[this.emotion] || PHX.neutral;
-        phx(this.ac, this.cursor.x, this.cursor.y, this.prevCursor.x, this.prevCursor.y, effectivePres);
-      }
-    }
+        // Record point to AI
+        this.ai.addPoint(this.cursor.x, this.cursor.y, this._t);
 
-    // Ambient floating canvas dust
-    this._ambientTick++;
-    if (this._faceDetected && iv > 0.55 && this._ambientTick % 3 === 0) {
-      this._drawAmbient(iv);
+        // Render user permanent stroke segment
+        const userPoints = [this.prevCursor, this.cursor];
+        const phx = PHX[this.emotion] || PHX.neutral;
+        phx(this.ac, userPoints, iv, false);
+
+        // Generate AI Prediction extension (L3/L4 unlock)
+        const predictSteps = iv < 0.30 ? 0 : iv < 0.55 ? 12 : iv < 0.80 ? 25 : 45;
+        if (predictSteps > 0) {
+          this.ai.predict(predictSteps, this.emotion, iv);
+          // Render predicted extension in real-time as an ethereal glow path (on GLOW canvas)
+          if (this.ai.predictedPath.length > 1) {
+            phx(this.gc, this.ai.predictedPath, iv, true);
+          }
+        }
+      }
     }
 
     this.prevCursor = { ...this.cursor };
 
-    // Update UI panels
-    this._updateBadge();
-    this._updateIntensityBar(iv);
-    this._checkUnlockLevels(iv);
+    // Ambient floating canvas particles (PEAK energy)
+    this._ambientTick++;
+    if (this._faceDetected && iv > 0.60 && this._ambientTick % 4 === 0) {
+      this._drawAmbient(iv);
+    }
+
+    // UI Updates
+    this._updateUI(iv);
 
     requestAnimationFrame(() => this._loop());
   }
 
   _drawAmbient(iv) {
     const col = SCI[this.emotion].rgb;
-    const n = ((iv - 0.55) / 0.45 * 6) | 0;
     this.ac.save();
-    for (let i = 0; i < n; i++) {
-      const x = Math.random() * this.W;
-      const y = Math.random() * this.H;
-      this.ac.globalAlpha = 0.004 + Math.random() * 0.008 * (iv - 0.55);
-      this.ac.fillStyle = `rgb(${col[0]},${col[1]},${col[2]})`;
-      this.ac.beginPath(); ctx.arc(x,y, Math.random()*1.8, 0, Math.PI*2); ctx.fill();
-    }
+    const x = Math.random() * this.W;
+    const y = Math.random() * this.H;
+    this.ac.globalAlpha = 0.003 + Math.random() * 0.005 * (iv - 0.6);
+    this.ac.fillStyle = `rgb(${col[0]},${col[1]},${col[2]})`;
+    this.ac.beginPath(); this.ac.arc(x,y, Math.random()*1.5, 0, Math.PI*2); this.ac.fill();
     this.ac.restore();
   }
 
-  _updateBadge() {
-    if (this.emotion !== this.prevEmotion) {
-      const s = SCI[this.emotion];
-      const lbl = document.getElementById('em-label');
-      const name = document.getElementById('em-name');
-      lbl.textContent = s.label;
-      lbl.style.color = s.css + 'cc';
-      name.textContent = s.name;
-      name.style.color = s.css + '55';
-      this.prevEmotion = this.emotion;
-    }
-  }
+  _updateUI(iv) {
+    const s = SCI[this.emotion];
+    
+    // Emotion labels
+    document.getElementById('em-label').textContent = s.label;
+    document.getElementById('em-label').style.color = s.css + 'aa';
+    document.getElementById('em-name').textContent = s.name;
+    document.getElementById('em-name').style.color = s.css + '55';
 
-  _updateIntensityBar(iv) {
-    const fill = document.getElementById('intensity-fill');
-    const pct = document.getElementById('intensity-pct');
-    const col = SCI[this.emotion].css;
-    fill.style.height = (iv * 100).toFixed(1) + '%';
-    fill.style.background = col;
-    pct.textContent = Math.round(iv * 100) + '%';
-    pct.style.color = col + 'aa';
+    // Intensity bar
+    document.getElementById('bar-fill').style.height = (iv * 100).toFixed(1) + '%';
+    document.getElementById('bar-fill').style.background = s.css;
+    document.getElementById('intensity-pct').textContent = Math.round(iv * 100) + '%';
+    document.getElementById('intensity-pct').style.color = s.css + 'aa';
 
-    // Levels dots activation
-    const currentLvl = iv < LVL_THRESH[1] ? 0 : iv < LVL_THRESH[2] ? 1 : iv < LVL_THRESH[3] ? 2 : 3;
+    // AI Resonance Panel updates
+    document.getElementById('ai-res').textContent = Math.round(this.ai.coupling * 100) + '%';
+    document.getElementById('ai-res').style.color = s.css;
+    document.getElementById('ai-pattern').textContent = this.ai.inferredPattern;
+    
+    const predictSteps = iv < 0.30 ? 0 : iv < 0.55 ? 12 : iv < 0.80 ? 25 : 45;
+    document.getElementById('ai-steps').textContent = `+${predictSteps}`;
+    
+    // Level dot activations
+    const level = iv < 0.30 ? 0 : iv < 0.55 ? 1 : iv < 0.80 ? 2 : 3;
     for (let i = 1; i <= 4; i++) {
       const dot = document.getElementById(`dot-${i}`);
-      const lbl = document.getElementById(`lbl-${i}`);
-      const on = i <= currentLvl + 1 && iv > 0.02;
-      dot.className = on ? 'lvl-dot on' : 'lvl-dot';
-      dot.style.color = col;
-      dot.style.background = on ? col : '#111';
-      lbl.className = on ? 'lvl-lbl on' : 'lvl-lbl';
-      if (on) lbl.style.color = col + 'dd';
-      else lbl.style.color = '';
+      const on = i <= level + 1 && iv > 0.02;
+      dot.classList.toggle('on', on);
+      dot.style.color = s.css;
     }
   }
 
-  _checkUnlockLevels(iv) {
-    const currentLvl = iv < LVL_THRESH[1] ? 0 : iv < LVL_THRESH[2] ? 1 : iv < LVL_THRESH[3] ? 2 : 3;
-    if (currentLvl > this._currentLevel && iv > 0.02) {
-      this._currentLevel = currentLvl;
-      this._showUnlockToast(currentLvl);
-    }
-    if (iv < 0.02) this._currentLevel = 0;
-  }
-
-  _showUnlockToast(lvl) {
-    const toast = document.getElementById('unlock-toast');
-    const tl = document.getElementById('ut-level');
-    const tn = document.getElementById('ut-name');
-    const s = SCI[this.emotion];
-    tl.textContent = `${LVL_NAMES[lvl]} UNLOCKED`;
-    tn.textContent = s.name;
-    tn.style.color = s.css;
-    toast.classList.add('on');
-    setTimeout(() => toast.classList.remove('on'), 2500);
+  _setupUI() {
+    document.getElementById('act-clear').addEventListener('click', () => this._clear());
+    document.getElementById('act-save').addEventListener('click', () => this._save());
   }
 
   _save() {
     const flash = document.getElementById('save-flash');
     flash.classList.add('on');
     setTimeout(() => flash.classList.remove('on'), 250);
+
     const link = document.createElement('a');
     const date = new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);
     link.download = `masterpiece_${this.emotion}_${date}.png`;
-    link.href = this.artCanvas.toDataURL('image/png');
+    link.href = this.artC.toDataURL('image/png');
     link.click();
   }
 
   _clear() {
     this._fillBlack();
-    this._currentLevel = 0;
-    this.isDrawing = false;
+    this.ai.reset();
   }
 
   _prog(p, msg) {
@@ -998,7 +1060,7 @@ class VoidLuminCreator {
   }
 }
 
-// Start
+// Boot
 new VoidLuminCreator().init().catch(console.error);
 </script>
 </body>
