@@ -3,158 +3,208 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<title>void.lumin — Create</title>
-<meta name="description" content="Draw with your emotions. Your face unlocks more power the stronger you feel.">
+<title>void.lumin — Masterpiece Creator</title>
+<meta name="description" content="Paint in the air with hand tracking and biometric emotional states. Uncover levels of design expression as your emotion intensifies.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+<!-- face-api.js for facial expressions -->
 <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<!-- MediaPipe Hands for air-drawing -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:100%;background:#000;overflow:hidden;user-select:none;-webkit-user-select:none;font-family:'Space Mono',monospace}
+html,body{
+  width:100%;height:100%;background:#000;overflow:hidden;
+  user-select:none;-webkit-user-select:none;
+  font-family:'Outfit',sans-serif;color:#fff;
+}
 
-/* ── Canvases ── */
-#art{position:fixed;top:0;left:0;touch-action:none;cursor:none;display:block}
-#glow{position:fixed;top:0;left:0;pointer-events:none}
+/* Canvases */
+#art{position:fixed;top:0;left:0;display:block;z-index:1}
+#glow{position:fixed;top:0;left:0;pointer-events:none;z-index:2}
 
-/* ── Hidden camera ── */
-#cam{position:fixed;opacity:0;top:-9999px;pointer-events:none}
+/* Hidden video feed */
+#cam{position:fixed;opacity:0;top:-9999px;left:-9999px;pointer-events:none}
 
 /* ═══════════════════════
-   LOADING
+   LOADING SCREEN
 ═══════════════════════ */
 #load{
-  position:fixed;inset:0;background:#000;
+  position:fixed;inset:0;background:#050505;
   display:flex;flex-direction:column;
   align-items:center;justify-content:center;
-  z-index:200;transition:opacity 1s ease;
+  z-index:200;transition:opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 #load.out{opacity:0;pointer-events:none}
 .l-logo{
-  font-size:clamp(2rem,6vw,4.5rem);font-weight:700;letter-spacing:.2em;
-  background:linear-gradient(135deg,#fff 0%,#555 60%,#111 100%);
+  font-family:'Space Mono',monospace;
+  font-size:clamp(2.5rem,8vw,5rem);font-weight:700;letter-spacing:.25em;
+  background:linear-gradient(135deg,#fff 30%,#555 70%,#111 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:glitch 4s infinite alternate;
 }
-.l-sub{font-size:.65rem;letter-spacing:.4em;color:#1e1e1e;text-transform:uppercase;margin:.6rem 0 3rem}
-.l-track{width:min(320px,50vw);height:1px;background:#0e0e0e;overflow:hidden;margin-bottom:1.2rem}
-#l-bar{height:100%;width:0%;background:linear-gradient(90deg,#1a1a1a,#888);transition:width .4s ease}
-#l-msg{font-size:.6rem;color:#1e1e1e;letter-spacing:.1em}
+.l-sub{
+  font-family:'Space Mono',monospace;
+  font-size:.7rem;letter-spacing:.5em;color:#333;
+  text-transform:uppercase;margin:1rem 0 3.5rem;
+}
+.l-track{width:min(350px,60vw);height:2px;background:#111;overflow:hidden;margin-bottom:1.5rem;border-radius:2px}
+#l-bar{height:100%;width:0%;background:linear-gradient(90deg,#333,#fff);transition:width .4s ease}
+#l-msg{font-family:'Space Mono',monospace;font-size:.65rem;color:#444;letter-spacing:.12em;text-transform:uppercase}
 
 /* ═══════════════════════
-   START PROMPT
+   INTERACTIVE INSTRUCTIONS
 ═══════════════════════ */
-#start{
-  position:fixed;inset:0;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  z-index:40;pointer-events:none;transition:opacity .8s ease;
+#setup-guide{
+  position:fixed;inset:0;background:rgba(0,0,0,0.92);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:150;transition:opacity 0.6s ease;
+  padding:20px;text-align:center;
 }
-#start.out{opacity:0}
-.start-text{font-size:clamp(.55rem,1.5vw,.78rem);color:#161616;letter-spacing:.35em;text-transform:uppercase;animation:breathe 3s ease-in-out infinite}
-@keyframes breathe{0%,100%{opacity:.25}50%{opacity:.65}}
+#setup-guide.out{opacity:0;pointer-events:none}
+.g-title{font-size:2rem;font-weight:300;letter-spacing:.15em;margin-bottom:2.5rem;background:linear-gradient(to right,#fff,#888);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.g-steps{
+  display:flex;gap:40px;max-width:900px;margin-bottom:3.5rem;
+  flex-wrap:wrap;justify-content:center;
+}
+.g-step{
+  flex:1;min-width:240px;max-width:280px;background:rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.05);border-radius:16px;padding:30px 24px;
+}
+.g-num{font-family:'Space Mono',monospace;font-size:.9rem;color:#ffb800;margin-bottom:12px;display:block}
+.g-txt{font-size:.88rem;color:#888;line-height:1.7}
+.g-btn{
+  font-family:'Space Mono',monospace;font-size:.75rem;letter-spacing:.2em;
+  color:#fff;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);
+  padding:14px 36px;border-radius:30px;cursor:pointer;transition:all 0.3s ease;
+}
+.g-btn:hover{background:#fff;color:#000;box-shadow:0 0 25px rgba(255,255,255,0.2)}
 
 /* ═══════════════════════
-   UNLOCK TOAST
+   UNLOCK NOTIFICATION
 ═══════════════════════ */
 #unlock-toast{
-  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  position:fixed;top:20%;left:50%;transform:translate(-50%,-50%);
   z-index:90;pointer-events:none;
-  opacity:0;transition:opacity .3s ease;text-align:center;
+  opacity:0;transition:all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-#unlock-toast.on{opacity:1}
-.ut-level{font-size:.5rem;letter-spacing:.4em;color:#333;margin-bottom:.3rem;text-transform:uppercase}
-.ut-name{font-size:clamp(1rem,3vw,1.6rem);font-weight:700;letter-spacing:.15em;text-transform:uppercase}
+#unlock-toast.on{opacity:1;top:25%}
+.ut-card{
+  background:rgba(5,5,5,0.85);border:1px solid rgba(255,255,255,0.08);
+  border-radius:30px;padding:12px 30px;backdrop-filter:blur(20px);
+  display:flex;flex-direction:column;align-items:center;
+}
+.ut-level{font-family:'Space Mono',monospace;font-size:.55rem;letter-spacing:.3em;color:#ffb800;margin-bottom:3px}
+.ut-name{font-size:1.1rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
 
 /* ═══════════════════════
-   MAIN UI OVERLAY
+   HUD INTERFACE (Premium Glass)
 ═══════════════════════ */
 #ui{position:fixed;inset:0;pointer-events:none;z-index:30;opacity:0;transition:opacity 1s ease}
 #ui.on{opacity:1}
 
-/* ── Emotion badge (top center) ── */
-#em-badge{
-  position:absolute;top:22px;left:50%;transform:translateX(-50%);
-  display:flex;flex-direction:column;align-items:center;gap:3px;
+/* Top center status */
+#status-badge{
+  position:absolute;top:24px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;
 }
 #em-label{
-  font-size:.62rem;letter-spacing:.28em;color:#0e0e0e;
-  text-transform:uppercase;transition:color .7s ease;
+  font-family:'Space Mono',monospace;font-size:.65rem;letter-spacing:.3em;
+  color:#444;transition:color .6s ease;text-transform:uppercase;
 }
 #em-name{
-  font-size:.48rem;letter-spacing:.22em;color:#0a0a0a;
-  transition:color .7s ease;text-transform:uppercase;
+  font-size:.9rem;font-weight:300;letter-spacing:.15em;
+  color:#888;transition:color .6s ease;margin-top:2px;text-transform:uppercase;
 }
 
-/* ── Intensity bar (left side) ── */
-#intensity-wrap{
-  position:absolute;left:20px;top:50%;transform:translateY(-50%);
-  display:flex;flex-direction:column;align-items:center;gap:8px;
-}
-#intensity-track{
-  width:2px;height:180px;background:#080808;border-radius:2px;
-  position:relative;overflow:hidden;
-}
-#intensity-fill{
-  position:absolute;bottom:0;width:100%;border-radius:2px;
-  transition:height .25s ease,background .6s ease;background:#1a1a1a;
-}
-#intensity-pct{
-  font-size:.48rem;color:#111;letter-spacing:.05em;
-  transition:color .6s ease;
-}
-/* Level notches on the bar */
-.notch{
-  position:absolute;left:-3px;width:8px;height:1px;background:#111;
-}
-
-/* ── Levels indicator dots (right of intensity bar) ── */
-#level-dots{
+/* Left controls: Intensity bar */
+#control-panel{
   position:absolute;left:28px;top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+}
+#intensity-pct{font-family:'Space Mono',monospace;font-size:.6rem;color:#444}
+#bar-track{
+  width:3px;height:220px;background:rgba(255,255,255,0.03);border-radius:3px;
+  position:relative;
+}
+#bar-fill{
+  position:absolute;bottom:0;width:100%;border-radius:3px;
+  background:#fff;transition:height 0.2s cubic-bezier(0.1, 0.8, 0.2, 1);
+}
+.bar-notch{
+  position:absolute;left:-4px;width:11px;height:1px;background:rgba(255,255,255,0.12);
+}
+
+/* Right indicators: Unlocked features */
+#level-panel{
+  position:absolute;left:42px;top:50%;transform:translateY(-50%);
   display:flex;flex-direction:column-reverse;justify-content:space-between;
-  height:180px;
+  height:220px;
 }
-.ldot{
-  width:4px;height:4px;border-radius:50%;
-  background:#0d0d0d;transition:background .5s ease,box-shadow .5s ease;
+.lvl-indicator{
+  display:flex;align-items:center;gap:10px;
 }
-.ldot.on{box-shadow:0 0 6px 2px currentColor}
+.lvl-dot{
+  width:6px;height:6px;border-radius:50%;background:#111;
+  transition:all 0.4s ease;
+}
+.lvl-dot.on{background:#fff;box-shadow:0 0 10px 2px currentColor}
+.lvl-lbl{
+  font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.15em;
+  color:#1c1c1c;transition:color 0.4s ease;text-transform:uppercase;
+}
+.lvl-lbl.on{color:#fff}
 
-/* ── Camera preview circle (bottom right) ── */
-#face-wrap{
-  position:absolute;bottom:56px;right:20px;
-  display:flex;flex-direction:column;align-items:center;gap:5px;
+/* Face & Hand Camera monitors (bottom right) */
+#monitor-panel{
+  position:absolute;bottom:24px;right:28px;
+  display:flex;flex-direction:column;align-items:flex-end;gap:12px;
 }
-#face-preview{
-  width:88px;height:88px;border-radius:50%;
-  border:1px solid #0e0e0e;overflow:hidden;
-  transition:border-color .6s ease,box-shadow .6s ease;
-  display:block;background:#050505;
+.monitor-window{
+  width:96px;height:96px;border-radius:50%;
+  border:1px solid rgba(255,255,255,0.05);overflow:hidden;
+  background:#030303;transition:all 0.5s ease;
+  position:relative;
 }
-#face-label{
-  font-size:.46rem;letter-spacing:.12em;color:#0e0e0e;
-  text-align:center;transition:color .6s ease;text-transform:uppercase;
+.m-canvas{width:100%;height:100%;object-fit:cover;display:block}
+.m-state{
+  position:absolute;bottom:-18px;right:0;left:0;text-align:center;
+  font-family:'Space Mono',monospace;font-size:.48rem;letter-spacing:.12em;
+  color:#333;text-transform:uppercase;transition:color 0.4s ease;
 }
 
-/* ── Save / Clear buttons (bottom center) ── */
-#actions{
-  position:absolute;bottom:18px;left:50%;transform:translateX(-50%);
-  display:flex;gap:20px;pointer-events:all;
+/* Pinch State overlay indicator (top left) */
+#pinch-state{
+  position:absolute;top:28px;left:28px;
+  display:flex;align-items:center;gap:8px;
+}
+.ps-dot{
+  width:8px;height:8px;border-radius:50%;background:#c0392b;
+  transition:all 0.3s ease;
+}
+.ps-dot.on{background:#2ecc71;box-shadow:0 0 10px #2ecc71}
+.ps-lbl{
+  font-family:'Space Mono',monospace;font-size:.55rem;letter-spacing:.2em;
+  color:#333;text-transform:uppercase;transition:color 0.3s ease;
+}
+
+/* Actions bottom center */
+#action-panel{
+  position:absolute;bottom:24px;left:50%;transform:translateX(-50%);
+  display:flex;gap:30px;pointer-events:all;
 }
 .action-btn{
-  font-family:'Space Mono',monospace;
-  font-size:.54rem;letter-spacing:.28em;
-  color:#0e0e0e;background:none;border:none;cursor:pointer;
-  text-transform:uppercase;padding:8px 14px;
-  transition:color .3s ease,text-shadow .3s ease;
+  font-family:'Space Mono',monospace;font-size:.58rem;letter-spacing:.3em;
+  color:#333;background:none;border:none;cursor:pointer;
+  text-transform:uppercase;padding:10px 20px;transition:all 0.3s ease;
 }
-.action-btn:hover{color:#4a4a4a;text-shadow:0 0 18px rgba(255,255,255,.06)}
+.action-btn:hover{color:#fff;text-shadow:0 0 15px rgba(255,255,255,0.3)}
 
-/* ── Save flash ── */
+/* Interactive canvas flash */
 #save-flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:100;transition:opacity .15s ease}
-#save-flash.on{opacity:.15}
-
-/* ── Camera error ── */
-#cam-err{position:fixed;inset:0;background:#000;z-index:300;display:none;flex-direction:column;align-items:center;justify-content:center;gap:.8rem}
-.ce-t{font-size:.82rem;color:#282828;letter-spacing:.14em}
-.ce-m{color:#141414;font-size:.62rem;text-align:center;max-width:320px;line-height:2}
+#save-flash.on{opacity:.2}
 </style>
 </head>
 <body>
@@ -163,68 +213,99 @@ html,body{width:100%;height:100%;background:#000;overflow:hidden;user-select:non
 <canvas id="glow"></canvas>
 <video id="cam" playsinline muted autoplay></video>
 
-<!-- Loading -->
+<!-- 1. LOADING -->
 <div id="load">
   <div class="l-logo">void.lumin</div>
-  <div class="l-sub">Create</div>
+  <div class="l-sub">air paint instrument</div>
   <div class="l-track"><div id="l-bar"></div></div>
-  <div id="l-msg">Requesting camera access…</div>
+  <div id="l-msg">Initializing engines…</div>
 </div>
 
-<!-- Cam error -->
-<div id="cam-err">
-  <div class="ce-t">Camera Required</div>
-  <div class="ce-m">void.lumin reads your emotional state.<br>Allow camera access and reload.<br><br>Without camera the canvas works in neutral mode.</div>
+<!-- 2. SETUP GUIDE -->
+<div id="setup-guide" class="out" style="display:none">
+  <h1 class="g-title">Air Paint Calibration</h1>
+  <div class="g-steps">
+    <div class="g-step">
+      <span class="g-num">STEP 1</span>
+      <p class="g-txt">Position yourself so the camera can see your face and drawing hand clearly.</p>
+    </div>
+    <div class="g-step">
+      <span class="g-num">STEP 2</span>
+      <p class="g-txt"><strong>Pinch</strong> your index finger & thumb together to start drawing in the air.</p>
+    </div>
+    <div class="g-step">
+      <span class="g-num">STEP 3</span>
+      <p class="g-txt">Your facial expression (Joy, Sadness, Anger, Fear) unlocks and morphs the brush physics.</p>
+    </div>
+  </div>
+  <button class="g-btn" id="start-btn">ENTER INSTRUMENT</button>
 </div>
 
-<!-- Start prompt -->
-<div id="start"><div class="start-text">click or touch to begin creating</div></div>
-
-<!-- Unlock toast -->
+<!-- 3. UNLOCK NOTIFICATION -->
 <div id="unlock-toast">
-  <div class="ut-level" id="ut-level">LEVEL 2 UNLOCKED</div>
-  <div class="ut-name" id="ut-name">GOLDEN RADIANCE</div>
+  <div class="ut-card">
+    <div class="ut-level" id="ut-level">LEVEL 2 UNLOCKED</div>
+    <div class="ut-name" id="ut-name">GOLDEN RADIANCE</div>
+  </div>
 </div>
 
-<!-- Main UI -->
+<!-- 4. HUD INTERFACE -->
 <div id="ui">
+  <!-- Pinch/Drawing indicator -->
+  <div id="pinch-state">
+    <span class="ps-dot" id="ps-dot"></span>
+    <span class="ps-lbl" id="ps-lbl">hovering</span>
+  </div>
 
-  <!-- Emotion badge top center -->
-  <div id="em-badge">
+  <!-- State Badge (top center) -->
+  <div id="status-badge">
     <div id="em-label">NEUTRAL</div>
     <div id="em-name">Silver Thread</div>
   </div>
 
-  <!-- Intensity bar left -->
-  <div id="intensity-wrap">
-    <div id="intensity-track">
-      <div id="intensity-fill"></div>
-      <!-- notches at 30%, 55%, 80% -->
-      <div class="notch" style="bottom:30%"></div>
-      <div class="notch" style="bottom:55%"></div>
-      <div class="notch" style="bottom:80%"></div>
-    </div>
+  <!-- Intensity Bar (left) -->
+  <div id="control-panel">
     <div id="intensity-pct">0%</div>
+    <div id="bar-track">
+      <div id="bar-fill"></div>
+      <div class="bar-notch" style="bottom:30%"></div>
+      <div class="bar-notch" style="bottom:55%"></div>
+      <div class="bar-notch" style="bottom:80%"></div>
+    </div>
   </div>
 
-  <!-- Level dots right of bar -->
-  <div id="level-dots">
-    <div class="ldot" id="dot-1" title="Level 1: Basic"></div>
-    <div class="ldot" id="dot-2" title="Level 2: Bloom"></div>
-    <div class="ldot" id="dot-3" title="Level 3: Full Power"></div>
-    <div class="ldot" id="dot-4" title="Level 4: PEAK"></div>
+  <!-- Level Indicators -->
+  <div id="level-panel">
+    <div class="lvl-indicator">
+      <span class="lvl-dot" id="dot-1"></span>
+      <span class="lvl-lbl" id="lbl-1">L1: Thread</span>
+    </div>
+    <div class="lvl-indicator">
+      <span class="lvl-dot" id="dot-2"></span>
+      <span class="lvl-lbl" id="lbl-2">L2: Bloom</span>
+    </div>
+    <div class="lvl-indicator">
+      <span class="lvl-dot" id="dot-3"></span>
+      <span class="lvl-lbl" id="lbl-3">L3: Field</span>
+    </div>
+    <div class="lvl-indicator">
+      <span class="lvl-dot" id="dot-4"></span>
+      <span class="lvl-lbl" id="lbl-4">L4: Peak</span>
+    </div>
   </div>
 
-  <!-- Camera preview bottom right -->
-  <div id="face-wrap">
-    <canvas id="face-preview" width="176" height="176"></canvas>
-    <div id="face-label">no face</div>
+  <!-- Monitors (bottom right) -->
+  <div id="monitor-panel">
+    <div class="monitor-window" id="mon-face">
+      <canvas id="face-preview" class="m-canvas" width="120" height="120"></canvas>
+      <span class="m-state" id="mon-face-lbl">no face</span>
+    </div>
   </div>
 
-  <!-- Actions bottom center -->
-  <div id="actions">
-    <button class="action-btn" id="btn-clear">CLEAR</button>
-    <button class="action-btn" id="btn-save">SAVE MASTERPIECE</button>
+  <!-- Actions -->
+  <div id="action-panel">
+    <button class="action-btn" id="act-clear">CLEAR</button>
+    <button class="action-btn" id="act-save">SAVE MASTERPIECE</button>
   </div>
 </div>
 
@@ -234,10 +315,10 @@ html,body{width:100%;height:100%;background:#000;overflow:hidden;user-select:non
 'use strict';
 
 // ═══════════════════════════════════════════════════════
-//  EMOTION DATA
+//  EMOTION MAPPINGS (Colors, Physics modifiers)
 // ═══════════════════════════════════════════════════════
 const SCI = {
-  neutral:   { label:'NEUTRAL',  name:'Silver Thread',    css:'#b4b4b4', rgb:[180,180,180] },
+  neutral:   { label:'NEUTRAL',  name:'Silver Thread',    css:'#cccccc', rgb:[204,204,204] },
   happy:     { label:'HAPPY',    name:'Golden Radiance',  css:'#ffb800', rgb:[255,184,  0] },
   sad:       { label:'SAD',      name:'Blue Gravity',     css:'#1438cc', rgb:[ 20, 56,204] },
   angry:     { label:'ANGRY',    name:'Crimson Fracture', css:'#dc1212', rgb:[220, 18, 18] },
@@ -246,29 +327,28 @@ const SCI = {
   disgusted: { label:'DISGUST',  name:'Green Recoil',     css:'#2e8a08', rgb:[ 46,138,  8] },
 };
 
-// Level thresholds
-const LVL = [0, 0.30, 0.55, 0.80];
-const LVL_NAMES = ['Awakening','Unlocked','Full Power','PEAK'];
+const LVL_NAMES = ['L1: THREAD', 'L2: BLOOM', 'L3: DYNAMICS', 'L4: PEAK FORCE'];
+const LVL_THRESH = [0, 0.30, 0.55, 0.80];
 
 // ═══════════════════════════════════════════════════════
-//  DRAWING PHENOMENA  — scale dramatically with intensity
+//  DYNAMIC BRUSH PHYSICS
 // ═══════════════════════════════════════════════════════
 const PHX = {
-
   neutral(ctx, x, y, px, py, iv) {
     ctx.save();
-    ctx.globalAlpha = 0.10 + iv * 0.15;
-    ctx.strokeStyle = `hsl(0,0%,${72 + iv*18}%)`;
-    ctx.lineWidth   = 0.5 + iv * 2.5;
+    ctx.globalAlpha = 0.08 + iv * 0.16;
+    ctx.strokeStyle = `hsl(0,0%,${75 + iv*15}%)`;
+    ctx.lineWidth = 0.6 + iv * 2.8;
     ctx.lineCap = 'round';
     ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(x,y); ctx.stroke();
-    // Scatter filaments — more at higher intensity
-    const nf = (iv * 5) | 0;
-    for (let i = 0; i < nf; i++) {
-      const a = Math.atan2(y-py,x-px) + (Math.random()-.5)*(1.2+iv*0.8);
-      const len = 6 + Math.random()*28*iv;
-      ctx.globalAlpha = 0.04 + Math.random()*0.06*iv;
-      ctx.lineWidth = 0.3 + Math.random()*0.5;
+
+    // Soft filament curves
+    const branches = (iv * 4) | 0;
+    for (let i = 0; i < branches; i++) {
+      const a = Math.atan2(y-py, x-px) + (Math.random()-.5)*(1.1+iv*0.6);
+      const len = 5 + Math.random()*22*iv;
+      ctx.globalAlpha = 0.03 + Math.random()*0.05*iv;
+      ctx.lineWidth = 0.3;
       ctx.beginPath(); ctx.moveTo(x,y);
       ctx.lineTo(x+Math.cos(a)*len, y+Math.sin(a)*len); ctx.stroke();
     }
@@ -277,43 +357,45 @@ const PHX = {
 
   happy(ctx, x, y, px, py, iv) {
     ctx.save();
-    // Core stroke
-    ctx.globalAlpha = 0.15 + iv * 0.25;
-    ctx.strokeStyle = `hsl(${30+Math.random()*20},100%,${55+iv*12}%)`;
-    ctx.lineWidth   = 1.5 + iv * 6;
+    // Core radiance stroke
+    ctx.globalAlpha = 0.12 + iv * 0.28;
+    ctx.strokeStyle = `hsl(${35+Math.random()*15},100%,${55+iv*10}%)`;
+    ctx.lineWidth = 1.2 + iv * 7;
     ctx.lineCap = 'round';
     ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(x,y); ctx.stroke();
 
-    // Bloom particles — quantity and distance scale hard with intensity
-    const n = (3 + iv * 22) | 0;
-    for (let i = 0; i < n; i++) {
-      const r = 10 + Math.random() * 80 * iv;
-      const a = Math.random() * Math.PI * 2;
-      ctx.globalAlpha = 0.04 + Math.random() * 0.12 * iv;
-      ctx.fillStyle = `hsl(${20+Math.random()*50},100%,${55+iv*15}%)`;
-      ctx.beginPath();
-      ctx.arc(x+Math.cos(a)*r, y+Math.sin(a)*r, .8+Math.random()*(3+iv*3), 0, Math.PI*2);
-      ctx.fill();
-    }
-    // Ring echoes at higher levels
-    if (iv > 0.55) {
-      const rings = (iv * 4) | 0;
-      for (let r = 1; r <= rings; r++) {
-        ctx.globalAlpha = Math.max(0, 0.06 * iv - r * 0.012);
-        ctx.strokeStyle = `hsl(${38+r*5},100%,62%)`;
-        ctx.lineWidth = 0.5;
-        ctx.beginPath(); ctx.arc(x, y, r*18*iv, 0, Math.PI*2); ctx.stroke();
+    // Spore blooms (L2+)
+    if (iv > 0.30) {
+      const n = (3 + iv * 20) | 0;
+      for (let i = 0; i < n; i++) {
+        const r = 8 + Math.random()*70*iv;
+        const a = Math.random()*Math.PI*2;
+        ctx.globalAlpha = 0.03 + Math.random()*0.12*iv;
+        ctx.fillStyle = `hsl(${22+Math.random()*48},100%,${55+iv*12}%)`;
+        ctx.beginPath();
+        ctx.arc(x+Math.cos(a)*r, y+Math.sin(a)*r, .6+Math.random()*(3+iv*3), 0, Math.PI*2);
+        ctx.fill();
       }
     }
-    // PEAK: sunburst
+    // Orbit rings (L3+)
+    if (iv > 0.55) {
+      const rings = (iv * 3) | 0;
+      for (let r = 1; r <= rings; r++) {
+        ctx.globalAlpha = Math.max(0, 0.05*iv - r*0.01);
+        ctx.strokeStyle = `hsl(${40+r*4},100%,60%)`;
+        ctx.lineWidth = 0.4;
+        ctx.beginPath(); ctx.arc(x, y, r*15*iv, 0, Math.PI*2); ctx.stroke();
+      }
+    }
+    // Cosmic sunburst (L4 Peak)
     if (iv > 0.80) {
-      const spokes = 14;
-      for (let i = 0; i < spokes; i++) {
-        const a = (i/spokes)*Math.PI*2 + Math.random()*.2;
-        const len = 40 + Math.random()*100*iv;
-        ctx.globalAlpha = 0.06 + Math.random()*0.10;
-        ctx.strokeStyle = `hsl(${25+Math.random()*30},100%,70%)`;
-        ctx.lineWidth = 0.4 + Math.random()*1.2;
+      const beams = 16;
+      for (let i = 0; i < beams; i++) {
+        const a = (i/beams)*Math.PI*2 + Math.random()*.2;
+        const len = 35 + Math.random()*90*iv;
+        ctx.globalAlpha = 0.05 + Math.random()*0.08;
+        ctx.strokeStyle = `hsl(${28+Math.random()*25},100%,70%)`;
+        ctx.lineWidth = 0.4 + Math.random();
         ctx.beginPath(); ctx.moveTo(x,y);
         ctx.lineTo(x+Math.cos(a)*len, y+Math.sin(a)*len); ctx.stroke();
       }
@@ -323,29 +405,31 @@ const PHX = {
 
   sad(ctx, x, y, px, py, iv) {
     ctx.save();
-    ctx.globalAlpha = 0.12 + iv * 0.12;
-    ctx.strokeStyle = `hsl(${218+Math.random()*14},72%,${35+iv*16}%)`;
-    ctx.lineWidth   = 0.7 + iv * 2;
+    ctx.globalAlpha = 0.10 + iv * 0.15;
+    ctx.strokeStyle = `hsl(${220+Math.random()*12},70%,${32+iv*15}%)`;
+    ctx.lineWidth = 0.6 + iv * 2.5;
     ctx.lineCap = 'round';
     ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(x,y); ctx.stroke();
 
-    // Drips — more and longer with intensity
-    const n = (1 + iv * 8) | 0;
-    for (let i = 0; i < n; i++) {
-      const dx = (Math.random()-.5) * 30 * iv;
-      const dropH = 5 + Math.random() * 45 * iv;
-      ctx.globalAlpha = 0.05 + Math.random() * 0.09 * iv;
-      ctx.fillStyle = `hsl(${214+Math.random()*20},78%,${30+iv*20}%)`;
-      ctx.beginPath();
-      ctx.ellipse(x+dx, y+dropH*.6, 1.2+iv, dropH*.6, 0, 0, Math.PI*2);
-      ctx.fill();
+    // Drips falling downwards (L2+)
+    if (iv > 0.30) {
+      const drips = (1 + iv * 7) | 0;
+      for (let i = 0; i < drips; i++) {
+        const dx = (Math.random()-.5)*25*iv;
+        const h = 4 + Math.random()*40*iv;
+        ctx.globalAlpha = 0.04 + Math.random()*0.08*iv;
+        ctx.fillStyle = `hsl(${212+Math.random()*20},75%,${28+iv*18}%)`;
+        ctx.beginPath();
+        ctx.ellipse(x+dx, y+h*.6, 1+iv, h*.6, 0, 0, Math.PI*2);
+        ctx.fill();
+      }
     }
-    // Heavy wash at high intensity
+    // Atmospheric wash (L3+)
     if (iv > 0.55) {
-      ctx.globalAlpha = 0.025 * iv;
-      ctx.fillStyle = `hsl(222,65%,38%)`;
+      ctx.globalAlpha = 0.02 * iv;
+      ctx.fillStyle = `hsl(225,60%,34%)`;
       ctx.beginPath();
-      ctx.ellipse(x, y, 25+iv*40, 12+iv*18, 0, 0, Math.PI*2);
+      ctx.ellipse(x, y, 20+iv*35, 10+iv*15, 0,0,Math.PI*2);
       ctx.fill();
     }
     ctx.restore();
@@ -353,31 +437,32 @@ const PHX = {
 
   angry(ctx, x, y, px, py, iv) {
     ctx.save();
-    // Bold stroke
-    ctx.globalAlpha = 0.22 + iv * 0.22;
-    ctx.strokeStyle = `hsl(${355+Math.random()*10},96%,${42+iv*14}%)`;
-    ctx.lineWidth   = 2 + iv * 8;
+    ctx.globalAlpha = 0.20 + iv * 0.25;
+    ctx.strokeStyle = `hsl(${355+Math.random()*10},95%,${40+iv*15}%)`;
+    ctx.lineWidth = 1.8 + iv * 7.5;
     ctx.lineCap = 'square';
     ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(x,y); ctx.stroke();
 
-    // Shards — quantity and range explode with intensity
-    const n = (3 + iv * 16) | 0;
-    for (let i = 0; i < n; i++) {
-      const a = Math.random() * Math.PI * 2;
-      const len = 15 + Math.random() * 90 * iv;
-      ctx.globalAlpha = 0.08 + Math.random() * 0.18 * iv;
-      ctx.strokeStyle = `hsl(${358+Math.random()*22},100%,${46+iv*16}%)`;
-      ctx.lineWidth   = 0.4 + Math.random() * 2.5 * iv;
-      ctx.beginPath(); ctx.moveTo(x,y);
-      ctx.lineTo(x+Math.cos(a)*len, y+Math.sin(a)*len); ctx.stroke();
+    // Fracture shards (L2+)
+    if (iv > 0.30) {
+      const n = (3 + iv * 15) | 0;
+      for (let i = 0; i < n; i++) {
+        const a = Math.random()*Math.PI*2;
+        const len = 12 + Math.random()*80*iv;
+        ctx.globalAlpha = 0.06 + Math.random()*0.15*iv;
+        ctx.strokeStyle = `hsl(${358+Math.random()*20},100%,${45+iv*15}%)`;
+        ctx.lineWidth = 0.4 + Math.random()*2*iv;
+        ctx.beginPath(); ctx.moveTo(x,y);
+        ctx.lineTo(x+Math.cos(a)*len, y+Math.sin(a)*len); ctx.stroke();
+      }
     }
-    // PEAK: concentric impact shockwave
+    // Kinetic impact waves (L4 Peak)
     if (iv > 0.80) {
       for (let r = 1; r <= 3; r++) {
-        ctx.globalAlpha = Math.max(0, 0.10 - r*0.03);
-        ctx.strokeStyle = `hsl(0,100%,55%)`;
-        ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.arc(x, y, r*22*iv, 0, Math.PI*2); ctx.stroke();
+        ctx.globalAlpha = Math.max(0, 0.08 - r*0.02);
+        ctx.strokeStyle = `hsl(0,100%,50%)`;
+        ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.arc(x,y,r*18*iv,0,Math.PI*2); ctx.stroke();
       }
     }
     ctx.restore();
@@ -385,29 +470,31 @@ const PHX = {
 
   fearful(ctx, x, y, px, py, iv) {
     ctx.save();
-    ctx.globalAlpha = 0.10 + iv * 0.10;
-    ctx.strokeStyle = `hsl(${272+Math.random()*16},62%,${32+iv*16}%)`;
-    ctx.lineWidth   = 0.6 + iv * 1.6;
+    ctx.globalAlpha = 0.08 + iv * 0.12;
+    ctx.strokeStyle = `hsl(${272+Math.random()*15},60%,${30+iv*15}%)`;
+    ctx.lineWidth = 0.5 + iv * 1.8;
     ctx.lineCap = 'round';
     ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(x,y); ctx.stroke();
 
-    // Contracting rings — more rings, tighter at high intensity
-    const rings = (1 + iv * 5) | 0;
-    for (let r = 1; r <= rings; r++) {
-      const rad = r * 8 * (1.2 - iv * 0.5);
-      ctx.globalAlpha = Math.max(0, 0.06 - r * 0.01);
-      ctx.strokeStyle = `hsl(${276+r*4},58%,${28+r*5}%)`;
-      ctx.lineWidth = 0.5;
-      ctx.beginPath(); ctx.arc(x, y, rad, 0, Math.PI*2); ctx.stroke();
+    // Tightening contracting loops (L2+)
+    if (iv > 0.30) {
+      const loops = (1 + iv * 4) | 0;
+      for (let r = 1; r <= loops; r++) {
+        const rad = r * 8 * (1.1 - iv * 0.4);
+        ctx.globalAlpha = Math.max(0, 0.05 - r * 0.008);
+        ctx.strokeStyle = `hsl(${275+r*3},55%,${26+r*4}%)`;
+        ctx.lineWidth = 0.4;
+        ctx.beginPath(); ctx.arc(x, y, rad, 0, Math.PI*2); ctx.stroke();
+      }
     }
-    // Dense cluster at high intensity
+    // High-intensity background tension (L3+)
     if (iv > 0.55) {
-      const nc = (iv * 8) | 0;
-      for (let i = 0; i < nc; i++) {
-        ctx.globalAlpha = 0.04 * iv;
-        ctx.fillStyle = `hsl(280,58%,24%)`;
+      const points = (iv * 8) | 0;
+      for (let i = 0; i < points; i++) {
+        ctx.globalAlpha = 0.035 * iv;
+        ctx.fillStyle = `hsl(282,55%,22%)`;
         ctx.beginPath();
-        ctx.arc(x+(Math.random()-.5)*20, y+(Math.random()-.5)*20, 1+Math.random()*3, 0, Math.PI*2);
+        ctx.arc(x+(Math.random()-.5)*18, y+(Math.random()-.5)*18, 1+Math.random()*2.5, 0, Math.PI*2);
         ctx.fill();
       }
     }
@@ -416,116 +503,121 @@ const PHX = {
 
   surprised(ctx, x, y, px, py, iv) {
     ctx.save();
-    // Starburst — more spokes, longer at higher intensity
-    const n = (6 + iv * 18) | 0;
-    for (let i = 0; i < n; i++) {
-      const a = (i/n)*Math.PI*2 + Math.random()*0.25;
-      const len = 12 + Math.random() * 80 * iv;
-      ctx.globalAlpha = 0.08 + Math.random() * 0.14 * iv;
-      ctx.strokeStyle = `hsl(${186+Math.random()*16},100%,${60+iv*18}%)`;
-      ctx.lineWidth   = 0.4 + Math.random() * 2 * iv;
+    const beams = (6 + iv * 16) | 0;
+    for (let i = 0; i < beams; i++) {
+      const a = (i/beams)*Math.PI*2 + Math.random()*0.2;
+      const len = 10 + Math.random()*75*iv;
+      ctx.globalAlpha = 0.07 + Math.random()*0.12*iv;
+      ctx.strokeStyle = `hsl(${185+Math.random()*15},100%,${58+iv*16}%)`;
+      ctx.lineWidth = 0.4 + Math.random()*1.8*iv;
       ctx.beginPath(); ctx.moveTo(x,y);
       ctx.lineTo(x+Math.cos(a)*len, y+Math.sin(a)*len); ctx.stroke();
     }
-    // Bright center
-    ctx.globalAlpha = 0.20 + iv * 0.30;
+    ctx.globalAlpha = 0.18 + iv * 0.28;
     ctx.fillStyle = '#00ecff';
-    ctx.beginPath(); ctx.arc(x, y, 1.2 + iv*3.5, 0, Math.PI*2); ctx.fill();
-    // Connecting trail
-    ctx.globalAlpha = 0.07;
-    ctx.strokeStyle = '#00e0ff'; ctx.lineWidth = 0.5;
-    ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(x,y); ctx.stroke();
+    ctx.beginPath(); ctx.arc(x,y,1+iv*3, 0, Math.PI*2); ctx.fill();
     ctx.restore();
   },
 
   disgusted(ctx, x, y, px, py, iv) {
     ctx.save();
-    ctx.globalAlpha = 0.12 + iv * 0.12;
-    ctx.strokeStyle = `hsl(${84+Math.random()*20},52%,${28+iv*16}%)`;
-    ctx.lineWidth   = 1.2 + iv * 3;
+    ctx.globalAlpha = 0.10 + iv * 0.10;
+    ctx.strokeStyle = `hsl(${84+Math.random()*18},50%,${26+iv*14}%)`;
+    ctx.lineWidth = 1 + iv * 2.8;
     ctx.lineCap = 'round';
     ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(x,y); ctx.stroke();
-    const n = (2 + iv * 8) | 0;
-    for (let i = 0; i < n; i++) {
-      const a = Math.random()*Math.PI*2;
-      const dist = 18 + Math.random()*55*iv;
-      ctx.globalAlpha = 0.04 + Math.random()*0.06*iv;
-      ctx.fillStyle = `hsl(${88+Math.random()*18},48%,${26+iv*16}%)`;
-      ctx.beginPath();
-      ctx.arc(x+Math.cos(a)*dist, y+Math.sin(a)*dist, 1.5+Math.random()*3.5*iv, 0, Math.PI*2);
-      ctx.fill();
+    if (iv > 0.30) {
+      const clusters = (2 + iv * 6) | 0;
+      for (let i = 0; i < clusters; i++) {
+        const a = Math.random()*Math.PI*2;
+        const d = 15 + Math.random()*45*iv;
+        ctx.globalAlpha = 0.03 + Math.random()*0.05*iv;
+        ctx.fillStyle = `hsl(${86+Math.random()*16},45%,${24+iv*14}%)`;
+        ctx.beginPath();
+        ctx.arc(x+Math.cos(a)*d, y+Math.sin(a)*d, 1.2+Math.random()*3*iv, 0, Math.PI*2);
+        ctx.fill();
+      }
     }
     ctx.restore();
   },
 };
 
 // ═══════════════════════════════════════════════════════
-//  CURSOR GLOW  — shows emotional state, non-permanent
+//  CURSOR GLOW (Air point cursor feedback)
 // ═══════════════════════════════════════════════════════
-function renderGlow(ctx, x, y, emotion, intensity, isDrawing, t) {
+function drawCursorGlow(ctx, x, y, emotion, iv, active, t) {
   const w = ctx.canvas.width, h = ctx.canvas.height;
   ctx.clearRect(0,0,w,h);
   if (x === null) return;
   const col = SCI[emotion].rgb;
-  const breathe = isDrawing
-    ? 1 + 0.22 * Math.sin(t * 9)
-    : 0.65 + 0.35 * Math.sin(t * 2);
-  const r = (16 + intensity * 28) * breathe;
+  const pulse = active
+    ? 1 + 0.20 * Math.sin(t * 9)
+    : 0.70 + 0.30 * Math.sin(t * 2);
+  const r = (16 + iv * 25) * pulse;
 
-  // Outer aura (scales with intensity)
-  const aura = ctx.createRadialGradient(x,y,0,x,y,r*4);
-  const baseA = isDrawing ? 0.12 + intensity*0.18 : 0.04 + intensity*0.06;
-  aura.addColorStop(0,   `rgba(${col[0]},${col[1]},${col[2]},${baseA.toFixed(3)})`);
-  aura.addColorStop(0.5, `rgba(${col[0]},${col[1]},${col[2]},${(baseA*0.4).toFixed(3)})`);
+  // Ambient aura
+  const aura = ctx.createRadialGradient(x,y,0,x,y,r*3.5);
+  const alpha = active ? 0.10 + iv * 0.15 : 0.03 + iv * 0.05;
+  aura.addColorStop(0,   `rgba(${col[0]},${col[1]},${col[2]},${alpha.toFixed(3)})`);
+  aura.addColorStop(0.5, `rgba(${col[0]},${col[1]},${col[2]},${(alpha*0.35).toFixed(3)})`);
   aura.addColorStop(1,   'rgba(0,0,0,0)');
   ctx.fillStyle = aura;
-  ctx.beginPath(); ctx.arc(x,y,r*4,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x,y,r*3.5,0,Math.PI*2); ctx.fill();
 
-  // Crosshair ring
-  ctx.strokeStyle = `rgba(${col[0]},${col[1]},${col[2]},${isDrawing ? .55 : .20})`;
+  // Circle crosshair
+  ctx.strokeStyle = `rgba(${col[0]},${col[1]},${col[2]},${active ? .55 : .22})`;
   ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.arc(x,y,r*.5,0,Math.PI*2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(x,y,r*0.5,0,Math.PI*2); ctx.stroke();
 
-  // Center dot
-  ctx.fillStyle = `rgba(${col[0]},${col[1]},${col[2]},${isDrawing ? .85 : .35})`;
+  // Center tip dot
+  ctx.fillStyle = `rgba(${col[0]},${col[1]},${col[2]},${active ? .85 : .35})`;
   ctx.beginPath(); ctx.arc(x,y,2,0,Math.PI*2); ctx.fill();
 }
 
 // ═══════════════════════════════════════════════════════
-//  MAIN APPLICATION
+//  VOID LUMIN INSTRUMENT CONTROLLER
 // ═══════════════════════════════════════════════════════
 class VoidLuminCreator {
   constructor() {
-    this.artC = document.getElementById('art');
-    this.glwC = document.getElementById('glow');
-    this.faceC = document.getElementById('face-preview');
+    this.artCanvas = document.getElementById('art');
+    this.glwCanvas = document.getElementById('glow');
+    this.faceCanvas = document.getElementById('face-preview');
     this.video = document.getElementById('cam');
-    this.ac = this.artC.getContext('2d');
-    this.gc = this.glwC.getContext('2d');
-    this.fc = this.faceC.getContext('2d');
 
-    this.emotion    = 'neutral';
+    this.ac = this.artCanvas.getContext('2d');
+    this.gc = this.glwCanvas.getContext('2d');
+    this.fc = this.faceCanvas.getContext('2d');
+
+    this.emotion = 'neutral';
     this.prevEmotion = 'neutral';
-    this.intensity  = 0;        // 0–1, raw from face-api
-    this.smoothIv   = 0;        // lerped intensity
-    this.isDrawing  = false;
-    this.cursor     = {x:null,y:null};
-    this.prev       = {x:null,y:null};
-    this.hasStarted = false;
-    this._running   = false;
-    this._t         = 0;
-    this._DPR       = Math.min(window.devicePixelRatio||1, 2);
+    this.intensity = 0;
+    this.smoothIv = 0;
+
+    // Hand tracking & drawing state
+    this.isDrawing = false;
+    this.cursor = {x:null, y:null};
+    this.prevCursor = {x:null, y:null};
+    this.isPinching = false;
+    this.handVisible = false;
+
+    this.cameraOK = false;
+    this.faceAPIok = false;
+    this.handsAPIok = false;
+
+    this._running = false;
+    this._t = 0;
+    this._DPR = Math.min(window.devicePixelRatio||1, 2);
     this._faceDetected = false;
     this._currentLevel = 0;
-    this._ambientTick  = 0;
+    this._ambientTick = 0;
   }
 
   async init() {
-    this._prog(5, 'Requesting camera…');
+    this._prog(5, 'Requesting camera access…');
     this._resize();
     window.addEventListener('resize', () => this._resize());
 
-    // Camera
+    // Camera setup
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video:{width:{ideal:1280},height:{ideal:720},facingMode:'user'},audio:false
@@ -536,46 +628,103 @@ class VoidLuminCreator {
       this.cameraOK = true;
     } catch(_) {
       this.cameraOK = false;
+      document.getElementById('load').style.display='none';
+      document.getElementById('cam-err').style.display='flex';
+      return;
     }
 
-    this._prog(25, 'Loading emotion models…');
-
-    if (this.cameraOK) {
-      const URLS = [
-        'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights',
-        'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model',
-      ];
-      for (const url of URLS) {
-        try {
-          await faceapi.nets.tinyFaceDetector.loadFromUri(url);
-          this._prog(62,'Loading expression model…');
-          await faceapi.nets.faceExpressionNet.loadFromUri(url);
-          this.faceAPIok = true; break;
-        } catch(_) {}
+    // Load face-api.js models
+    this._prog(25, 'Loading face models…');
+    const modelUrl = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model';
+    try {
+      await faceapi.nets.tinyFaceDetector.loadFromUri(modelUrl);
+      this._prog(45, 'Loading expressions…');
+      await faceapi.nets.faceExpressionNet.loadFromUri(modelUrl);
+      this.faceAPIok = true;
+    } catch(_) {
+      console.warn('FaceAPI failed to load via fast CDN, trying backup...');
+      try {
+        const backupUrl = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights';
+        await faceapi.nets.tinyFaceDetector.loadFromUri(backupUrl);
+        await faceapi.nets.faceExpressionNet.loadFromUri(backupUrl);
+        this.faceAPIok = true;
+      } catch(e) {
+        console.error('FaceAPI failed completely:', e);
       }
-      if (this.faceAPIok) this._detectLoop();
     }
 
-    this._prog(92,'Preparing canvas…');
+    // Load MediaPipe Hands
+    this._prog(65, 'Loading hand tracking…');
+    try {
+      this.hands = new Hands({locateFile: (file) => {
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+      }});
+      this.hands.setOptions({
+        maxNumHands: 1,
+        modelComplexity: 1,
+        minDetectionConfidence: 0.55,
+        minTrackingConfidence: 0.55
+      });
+      this.hands.onResults((res) => this._onHandResults(res));
+      this.handsAPIok = true;
+    } catch(e) {
+      console.error('MediaPipe Hands load failed:', e);
+    }
+
+    this._prog(88, 'Calibrating loops…');
     this._fillBlack();
-    this._setupInput();
     this._setupUI();
 
-    this._prog(100,'Ready.');
-    await new Promise(r => setTimeout(r,400));
+    // Start MediaPipe Camera helper to pipe frames
+    if (this.cameraOK) {
+      this.cameraHelper = new Camera(this.video, {
+        onFrame: async () => {
+          if (!this._running) return;
+          // Pipe frame to MediaPipe Hands
+          if (this.handsAPIok) await this.hands.send({image: this.video});
+        },
+        width: 1280,
+        height: 720
+      });
+      this.cameraHelper.start();
+    }
 
+    this._detectFaceLoop();
+
+    this._prog(100, 'Ready.');
+    await new Promise(r => setTimeout(r, 350));
+
+    // Show setup guide first
     document.getElementById('load').classList.add('out');
-    setTimeout(() => document.getElementById('load').style.display='none', 1000);
-    document.getElementById('ui').classList.add('on');
-
-    this._running = true;
-    this._loop();
+    setTimeout(() => document.getElementById('load').style.display='none', 800);
+    
+    const guide = document.getElementById('setup-guide');
+    guide.style.display = 'flex';
+    setTimeout(() => guide.classList.remove('out'), 50);
   }
 
-  // ── Resize ───────────────────────────────────────
+  _setupUI() {
+    document.getElementById('start-btn').addEventListener('click', () => {
+      const guide = document.getElementById('setup-guide');
+      guide.classList.add('out');
+      setTimeout(() => guide.style.display = 'none', 600);
+      document.getElementById('ui').classList.add('on');
+      this._running = true;
+      this._loop();
+    });
+
+    document.getElementById('act-clear').addEventListener('click', () => this._clear());
+    document.getElementById('act-save').addEventListener('click', () => this._save());
+
+    document.addEventListener('keydown', e => {
+      if (e.code==='KeyS' && !e.ctrlKey) this._save();
+      if (e.code==='KeyC' && !e.ctrlKey) this._clear();
+    });
+  }
+
   _resize() {
     const w=window.innerWidth, h=window.innerHeight, D=this._DPR;
-    for (const c of [this.artC, this.glwC]) {
+    for (const c of [this.artCanvas, this.glwCanvas]) {
       c.width=w*D; c.height=h*D;
       c.style.width=w+'px'; c.style.height=h+'px';
     }
@@ -588,243 +737,259 @@ class VoidLuminCreator {
     this.ac.save();
     this.ac.setTransform(1,0,0,1,0,0);
     this.ac.fillStyle='#000';
-    this.ac.fillRect(0,0,this.artC.width,this.artC.height);
+    this.ac.fillRect(0,0,this.artCanvas.width,this.artCanvas.height);
     this.ac.restore();
   }
 
-  // ── Face detection (async, ~4fps) ────────────────
-  _detectLoop() {
+  // ── Hand tracking results ────────────────────────
+  _onHandResults(res) {
+    if (!this._running) return;
+
+    if (res.multiHandLandmarks && res.multiHandLandmarks.length > 0) {
+      this.handVisible = true;
+      const landmarks = res.multiHandLandmarks[0];
+
+      // Landmark index tip (8) and thumb tip (4)
+      const indexTip = landmarks[8];
+      const thumbTip = landmarks[4];
+
+      // Map index to screen (X is inverted because video is mirrored)
+      const screenX = (1 - indexTip.x) * this.W;
+      const screenY = indexTip.y * this.H;
+
+      this.cursor = { x: screenX, y: screenY };
+
+      // Pinch distance detection
+      const dx = indexTip.x - thumbTip.x;
+      const dy = indexTip.y - thumbTip.y;
+      const dz = indexTip.z - thumbTip.z;
+      const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+
+      // Threshold for pinch (~0.03-0.04 normalized hand distance)
+      const isPinchingNow = dist < 0.038;
+
+      if (isPinchingNow && !this.isPinching) {
+        // Pinch start: pen down
+        this.isPinching = true;
+        this.isDrawing = true;
+        this.prevCursor = { ...this.cursor };
+      } else if (!isPinchingNow && this.isPinching) {
+        // Pinch release: pen up
+        this.isPinching = false;
+        this.isDrawing = false;
+      }
+
+      this._updatePinchIndicator();
+    } else {
+      this.handVisible = false;
+      this.isDrawing = false;
+      this.isPinching = false;
+      this.cursor = { x: null, y: null };
+      this._updatePinchIndicator();
+    }
+  }
+
+  _updatePinchIndicator() {
+    const dot = document.getElementById('ps-dot');
+    const lbl = document.getElementById('ps-lbl');
+    if (!this.handVisible) {
+      dot.style.background = '#333';
+      dot.style.boxShadow = 'none';
+      lbl.textContent = 'no hand';
+      lbl.style.color = '#333';
+    } else if (this.isPinching) {
+      dot.className = 'ps-dot on';
+      lbl.textContent = 'painting';
+      lbl.style.color = SCI[this.emotion].css;
+    } else {
+      dot.className = 'ps-dot';
+      lbl.textContent = 'hovering';
+      lbl.style.color = '#555';
+    }
+  }
+
+  // ── Face expression detection (async) ────────────
+  _detectFaceLoop() {
     const run = async () => {
-      if (!this._running) return;
       try {
-        const opts = new faceapi.TinyFaceDetectorOptions({inputSize:320,scoreThreshold:.42});
+        const opts = new faceapi.TinyFaceDetectorOptions({inputSize:224,scoreThreshold:.4});
         const dets = await faceapi.detectAllFaces(this.video,opts).withFaceExpressions();
         if (dets.length > 0) {
-          const ex  = dets[0].expressions;
+          const ex = dets[0].expressions;
           const dom = Object.keys(ex).reduce((a,b) => ex[a]>ex[b]?a:b);
           if (SCI[dom]) {
-            this.emotion   = dom;
-            this.intensity = ex[dom];  // confidence 0–1
+            this.emotion = dom;
+            this.intensity = ex[dom];
           }
           this._faceDetected = true;
-          this._updateFacePreview(true);
+          this._updateFaceBadge(true);
         } else {
           this._faceDetected = false;
           this.intensity = 0;
-          this._updateFacePreview(false);
+          this._updateFaceBadge(false);
         }
       } catch(_) {}
-      setTimeout(run, 220);
+      setTimeout(run, 250);
     };
     run();
   }
 
-  _updateFacePreview(detected) {
-    const fl = document.getElementById('face-label');
-    const fw = document.getElementById('face-wrap');
-    const s  = SCI[this.emotion];
-
+  _updateFaceBadge(detected) {
+    const lbl = document.getElementById('mon-face-lbl');
+    const s = SCI[this.emotion];
     if (detected) {
-      fl.textContent = s.label;
-      fl.style.color = s.css + 'aa';
-      document.getElementById('face-preview').style.borderColor = s.css + '55';
-      document.getElementById('face-preview').style.boxShadow =
-        `0 0 18px 4px ${s.css}22`;
+      lbl.textContent = s.label;
+      lbl.style.color = s.css + 'aa';
+      document.getElementById('mon-face').style.borderColor = s.css + '44';
+      document.getElementById('mon-face').style.boxShadow = `0 0 14px 2px ${s.css}11`;
     } else {
-      fl.textContent = 'no face';
-      fl.style.color = '#0e0e0e';
-      document.getElementById('face-preview').style.borderColor = '#0e0e0e';
-      document.getElementById('face-preview').style.boxShadow = 'none';
+      lbl.textContent = 'no face';
+      lbl.style.color = '#333';
+      document.getElementById('mon-face').style.borderColor = 'rgba(255,255,255,0.05)';
+      document.getElementById('mon-face').style.boxShadow = 'none';
     }
   }
 
-  // ── Main loop ─────────────────────────────────────
+  // ── Main animation loop ──────────────────────────
   _loop() {
     if (!this._running) return;
     this._t = performance.now() / 1000;
 
-    // Smooth intensity
+    // Smooth emotion intensity
     this.smoothIv += (this.intensity - this.smoothIv) * 0.08;
     const iv = this.smoothIv;
 
-    // Draw camera to face preview
+    // Render local face monitor
     if (this.cameraOK && this.video.readyState >= 2) {
-      const s = 88; // display size
       this.fc.save();
-      this.fc.clearRect(0,0,176,176);
-      // Clip to circle
-      this.fc.beginPath();
-      this.fc.arc(88,88,86,0,Math.PI*2);
-      this.fc.clip();
-      // Mirror
+      this.fc.clearRect(0,0,120,120);
+      this.fc.beginPath(); this.fc.arc(60,60,58,0,Math.PI*2); this.fc.clip();
       this.fc.scale(-1,1);
-      this.fc.drawImage(this.video, -176,0,176,176);
+      this.fc.drawImage(this.video, -120,0,120,120);
       this.fc.restore();
-      // Emotion color ring
-      this.fc.strokeStyle = SCI[this.emotion].css + (this._faceDetected ? '66' : '11');
-      this.fc.lineWidth = 2;
-      this.fc.beginPath(); this.fc.arc(88,88,85,0,Math.PI*2); this.fc.stroke();
+      
+      this.fc.strokeStyle = SCI[this.emotion].css + (this._faceDetected ? '55' : '11');
+      this.fc.lineWidth = 1.5;
+      this.fc.beginPath(); this.fc.arc(60,60,58,0,Math.PI*2); this.fc.stroke();
     }
 
-    // Glow cursor
-    renderGlow(this.gc, this.cursor.x, this.cursor.y, this.emotion, iv, this.isDrawing, this._t);
+    // Glow cursor following hand pointer location
+    drawCursorGlow(this.gc, this.cursor.x, this.cursor.y, this.emotion, iv, this.isPinching, this._t);
 
-    // Drawing marks (permanent)
-    if (this.isDrawing && this.cursor.x !== null && this.prev.x !== null) {
-      const dist = Math.hypot(this.cursor.x - this.prev.x, this.cursor.y - this.prev.y);
+    // If pinching: draw permanently with effective pressure
+    if (this.isDrawing && this.cursor.x !== null && this.prevCursor.x !== null) {
+      const dist = Math.hypot(this.cursor.x - this.prevCursor.x, this.cursor.y - this.prevCursor.y);
       if (dist > 0.4) {
-        const speedPressure = Math.min(1, dist / 35);
-        // Combined pressure: speed × intensity (so face matters A LOT)
-        const effectivePressure = Math.max(0.02, speedPressure * (0.15 + iv * 0.85));
+        const speedPres = Math.min(1, dist / 32);
+        const effectivePres = Math.max(0.04, speedPres * (0.15 + iv * 0.85));
         const phx = PHX[this.emotion] || PHX.neutral;
-        phx(this.ac, this.cursor.x, this.cursor.y,
-            this.prev.x, this.prev.y, effectivePressure);
+        phx(this.ac, this.cursor.x, this.cursor.y, this.prevCursor.x, this.prevCursor.y, effectivePres);
       }
     }
 
-    // Ambient particles at high intensity — canvas reacts to face even without drawing
+    // Ambient floating canvas dust
     this._ambientTick++;
     if (this._faceDetected && iv > 0.55 && this._ambientTick % 3 === 0) {
       this._drawAmbient(iv);
     }
 
-    this.prev = {...this.cursor};
+    this.prevCursor = { ...this.cursor };
 
-    // UI updates
+    // Update UI panels
     this._updateBadge();
     this._updateIntensityBar(iv);
-    this._checkUnlockLevel(iv);
+    this._checkUnlockLevels(iv);
 
     requestAnimationFrame(() => this._loop());
   }
 
   _drawAmbient(iv) {
-    // Floating ambient dust on canvas when face detected at high intensity
     const col = SCI[this.emotion].rgb;
-    const n = ((iv - 0.55) / 0.45 * 5) | 0;
+    const n = ((iv - 0.55) / 0.45 * 6) | 0;
     this.ac.save();
     for (let i = 0; i < n; i++) {
       const x = Math.random() * this.W;
       const y = Math.random() * this.H;
-      this.ac.globalAlpha = 0.005 + Math.random() * 0.008 * (iv - 0.55);
+      this.ac.globalAlpha = 0.004 + Math.random() * 0.008 * (iv - 0.55);
       this.ac.fillStyle = `rgb(${col[0]},${col[1]},${col[2]})`;
-      this.ac.beginPath();
-      this.ac.arc(x, y, Math.random() * 1.5, 0, Math.PI*2);
-      this.ac.fill();
+      this.ac.beginPath(); ctx.arc(x,y, Math.random()*1.8, 0, Math.PI*2); ctx.fill();
     }
     this.ac.restore();
   }
 
-  // ── UI updates ────────────────────────────────────
   _updateBadge() {
     if (this.emotion !== this.prevEmotion) {
       const s = SCI[this.emotion];
-      const el = document.getElementById('em-label');
-      const en = document.getElementById('em-name');
-      el.textContent = s.label;
-      el.style.color = s.css + 'cc';
-      en.textContent = s.name;
-      en.style.color = s.css + '66';
+      const lbl = document.getElementById('em-label');
+      const name = document.getElementById('em-name');
+      lbl.textContent = s.label;
+      lbl.style.color = s.css + 'cc';
+      name.textContent = s.name;
+      name.style.color = s.css + '55';
       this.prevEmotion = this.emotion;
     }
   }
 
   _updateIntensityBar(iv) {
     const fill = document.getElementById('intensity-fill');
-    const pct  = document.getElementById('intensity-pct');
-    const col  = SCI[this.emotion].css;
+    const pct = document.getElementById('intensity-pct');
+    const col = SCI[this.emotion].css;
     fill.style.height = (iv * 100).toFixed(1) + '%';
     fill.style.background = col;
-    pct.textContent  = Math.round(iv * 100) + '%';
-    pct.style.color  = col + 'aa';
+    pct.textContent = Math.round(iv * 100) + '%';
+    pct.style.color = col + 'aa';
 
-    // Level dots
-    const level = iv < LVL[1] ? 0 : iv < LVL[2] ? 1 : iv < LVL[3] ? 2 : 3;
+    // Levels dots activation
+    const currentLvl = iv < LVL_THRESH[1] ? 0 : iv < LVL_THRESH[2] ? 1 : iv < LVL_THRESH[3] ? 2 : 3;
     for (let i = 1; i <= 4; i++) {
       const dot = document.getElementById(`dot-${i}`);
-      const on  = i <= level + 1 && iv > 0.05;
-      dot.classList.toggle('on', on);
-      dot.style.background = on ? col : '#0d0d0d';
+      const lbl = document.getElementById(`lbl-${i}`);
+      const on = i <= currentLvl + 1 && iv > 0.02;
+      dot.className = on ? 'lvl-dot on' : 'lvl-dot';
       dot.style.color = col;
+      dot.style.background = on ? col : '#111';
+      lbl.className = on ? 'lvl-lbl on' : 'lvl-lbl';
+      if (on) lbl.style.color = col + 'dd';
+      else lbl.style.color = '';
     }
   }
 
-  _checkUnlockLevel(iv) {
-    const level = iv < LVL[1] ? 0 : iv < LVL[2] ? 1 : iv < LVL[3] ? 2 : 3;
-    if (level > this._currentLevel && iv > 0.05) {
-      this._currentLevel = level;
-      this._showUnlock(level);
+  _checkUnlockLevels(iv) {
+    const currentLvl = iv < LVL_THRESH[1] ? 0 : iv < LVL_THRESH[2] ? 1 : iv < LVL_THRESH[3] ? 2 : 3;
+    if (currentLvl > this._currentLevel && iv > 0.02) {
+      this._currentLevel = currentLvl;
+      this._showUnlockToast(currentLvl);
     }
-    // Reset level tracking when emotion drops
-    if (iv < 0.05) this._currentLevel = 0;
+    if (iv < 0.02) this._currentLevel = 0;
   }
 
-  _showUnlock(level) {
+  _showUnlockToast(lvl) {
     const toast = document.getElementById('unlock-toast');
-    const tl    = document.getElementById('ut-level');
-    const tn    = document.getElementById('ut-name');
-    const s     = SCI[this.emotion];
-    tl.textContent = `LEVEL ${level + 1} — ${LVL_NAMES[level]}`;
+    const tl = document.getElementById('ut-level');
+    const tn = document.getElementById('ut-name');
+    const s = SCI[this.emotion];
+    tl.textContent = `${LVL_NAMES[lvl]} UNLOCKED`;
     tn.textContent = s.name;
     tn.style.color = s.css;
     toast.classList.add('on');
-    setTimeout(() => toast.classList.remove('on'), 2200);
-  }
-
-  // ── Input ─────────────────────────────────────────
-  _setupInput() {
-    const toLocal = e => {
-      const r = this.artC.getBoundingClientRect();
-      return { x: e.clientX - r.left, y: e.clientY - r.top };
-    };
-    this.artC.addEventListener('pointerdown', e => {
-      e.preventDefault();
-      this.artC.setPointerCapture(e.pointerId);
-      const p = toLocal(e);
-      this.cursor = p; this.prev = p;
-      this.isDrawing = true;
-      if (!this.hasStarted) {
-        this.hasStarted = true;
-        const sp = document.getElementById('start');
-        sp.classList.add('out');
-        setTimeout(()=>sp.style.display='none',800);
-      }
-    });
-    this.artC.addEventListener('pointermove', e => {
-      e.preventDefault();
-      this.cursor = toLocal(e);
-    });
-    this.artC.addEventListener('pointerup',    e => { e.preventDefault(); this.isDrawing=false; });
-    this.artC.addEventListener('pointerleave', e => { this.isDrawing=false; this.cursor={x:null,y:null}; });
-  }
-
-  // ── UI ────────────────────────────────────────────
-  _setupUI() {
-    document.getElementById('btn-save').addEventListener('click',  () => this._save());
-    document.getElementById('btn-clear').addEventListener('click', () => this._clear());
-    document.addEventListener('keydown', e => {
-      if (e.code==='KeyS'&&!e.ctrlKey) this._save();
-      if (e.code==='KeyC'&&!e.ctrlKey) this._clear();
-    });
+    setTimeout(() => toast.classList.remove('on'), 2500);
   }
 
   _save() {
-    const fl = document.getElementById('save-flash');
-    fl.classList.add('on');
-    setTimeout(() => fl.classList.remove('on'), 280);
+    const flash = document.getElementById('save-flash');
+    flash.classList.add('on');
+    setTimeout(() => flash.classList.remove('on'), 250);
     const link = document.createElement('a');
-    const ts   = new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);
-    link.download = `void_lumin_${ts}.png`;
-    link.href = this.artC.toDataURL('image/png');
+    const date = new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);
+    link.download = `masterpiece_${this.emotion}_${date}.png`;
+    link.href = this.artCanvas.toDataURL('image/png');
     link.click();
   }
 
   _clear() {
     this._fillBlack();
     this._currentLevel = 0;
-    this.hasStarted = false;
-    const sp = document.getElementById('start');
-    sp.style.display=''; sp.classList.remove('out'); sp.style.opacity='1';
+    this.isDrawing = false;
   }
 
   _prog(p, msg) {
@@ -833,7 +998,7 @@ class VoidLuminCreator {
   }
 }
 
-// Boot
+// Start
 new VoidLuminCreator().init().catch(console.error);
 </script>
 </body>
