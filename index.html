@@ -3,11 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<title>void.lumin — Cognitive Instrument</title>
-<meta name="description" content="Co-create with an AI that learns your stroke physics and responds to your biometric emotions.">
+<title>void.lumin — Creative Instrument</title>
+<meta name="description" content="An interactive canvas that learns your stroke physics and responds to your state. Choose from Nebula, Sacred Geometry, Molecular Crystal, and Silk Flow.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@200;400;600&display=swap" rel="stylesheet">
-<!-- face-api.js for facial expressions -->
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@200;300;400;600&display=swap" rel="stylesheet">
+
+<!-- Vladmandic face-api for expressions -->
 <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
 <!-- MediaPipe Hands for air-drawing -->
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
@@ -21,173 +22,122 @@ html,body{
   font-family:'Outfit',sans-serif;color:#fff;
 }
 
-/* Masterpiece Canvas (permanent art) */
+/* Masterpiece Canvas (permanent drawing) */
 #art{position:fixed;top:0;left:0;display:block;z-index:1}
-/* UI overlay canvas (prediction trails, cursor) */
+/* UI overlay canvas (prediction trails, temporary feedback) */
 #glow{position:fixed;top:0;left:0;pointer-events:none;z-index:2}
 
 /* Hidden video feed */
 #cam{position:fixed;opacity:0;top:-9999px;left:-9999px;pointer-events:none}
 
 /* ═══════════════════════
-   LOADING SCREEN
+   PREMIUM GLASS UI
 ═══════════════════════ */
-#load{
-  position:fixed;inset:0;background:#050505;
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  z-index:200;transition:opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+#ui{
+  position:fixed;inset:0;pointer-events:none;z-index:10;
+  opacity:0;transition:opacity 0.8s ease;
 }
-#load.out{opacity:0;pointer-events:none}
-.l-logo{
-  font-family:'Space Mono',monospace;
-  font-size:clamp(2rem,6vw,4rem);font-weight:700;letter-spacing:.3em;
-  background:linear-gradient(135deg,#fff 30%,#444 70%,#111 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-}
-.l-sub{
-  font-family:'Space Mono',monospace;
-  font-size:.6rem;letter-spacing:.6em;color:#2c2c2c;
-  text-transform:uppercase;margin:1rem 0 3rem;
-}
-.l-track{width:min(320px,50vw);height:2px;background:#111;overflow:hidden;margin-bottom:1.5rem}
-#l-bar{height:100%;width:0%;background:linear-gradient(90deg,#333,#fff);transition:width 0.3s ease}
-#l-msg{font-family:'Space Mono',monospace;font-size:.55rem;color:#444;letter-spacing:.1em;text-transform:uppercase}
-#l-err-fallback{
-  margin-top:2rem;display:none;flex-direction:column;align-items:center;gap:15px;
-}
-.fb-btn{
-  font-family:'Space Mono',monospace;font-size:.65rem;letter-spacing:.2em;
-  color:#ffb800;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.2);
-  padding:10px 24px;border-radius:20px;cursor:pointer;transition:all 0.3s ease;
-}
-.fb-btn:hover{background:#ffb800;color:#000}
-
-/* ═══════════════════════
-   CALIBRATION / ENTRY
-═══════════════════════ */
-#setup-guide{
-  position:fixed;inset:0;background:rgba(2,2,2,0.96);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  z-index:150;transition:opacity 0.6s ease;
-  padding:20px;text-align:center;
-}
-#setup-guide.out{opacity:0;pointer-events:none}
-.g-title{font-size:1.8rem;font-weight:200;letter-spacing:.2em;margin-bottom:2.5rem;text-transform:uppercase}
-.g-steps{
-  display:flex;gap:30px;max-width:850px;margin-bottom:3.5rem;
-  flex-wrap:wrap;justify-content:center;
-}
-.g-step{
-  flex:1;min-width:240px;max-width:260px;background:rgba(255,255,255,0.01);
-  border:1px solid rgba(255,255,255,0.04);border-radius:12px;padding:24px;
-}
-.g-num{font-family:'Space Mono',monospace;font-size:.8rem;color:#ffb800;margin-bottom:10px;display:block}
-.g-txt{font-size:.82rem;color:#777;line-height:1.6}
-.g-btn-wrap{display:flex;gap:20px}
-
-/* ═══════════════════════
-   HUD INTERFACE
-═══════════════════════ */
-#ui{position:fixed;inset:0;pointer-events:none;z-index:30;opacity:0;transition:opacity 1s ease}
 #ui.on{opacity:1}
 
-/* Top center status */
-#status-badge{
-  position:absolute;top:24px;left:50%;transform:translateX(-50%);
-  display:flex;flex-direction:column;align-items:center;
+/* Top bar: Title & Theme Selector */
+#top-bar{
+  position:absolute;top:20px;left:20px;right:20px;
+  display:flex;justify-content:space-between;align-items:center;
 }
-#em-label{
-  font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.3em;
-  color:#333;transition:color .6s ease;text-transform:uppercase;
+.brand{
+  font-family:'Space Mono',monospace;font-size:.85rem;font-weight:700;
+  letter-spacing:.25em;color:#ffb800;text-transform:uppercase;
+  text-shadow:0 0 10px rgba(255,184,0,0.2);
 }
-#em-name{
-  font-size:.85rem;font-weight:300;letter-spacing:.18em;
-  color:#666;transition:color .6s ease;margin-top:2px;text-transform:uppercase;
+#themes{
+  display:flex;gap:4px;background:rgba(10,10,10,0.7);
+  border:1px solid rgba(255,255,255,0.06);border-radius:30px;
+  padding:4px;backdrop-filter:blur(20px);pointer-events:all;
 }
+.theme-btn{
+  background:none;border:none;color:#555;
+  font-family:'Space Mono',monospace;font-size:.56rem;
+  letter-spacing:.15em;padding:6px 14px;border-radius:20px;
+  cursor:pointer;transition:all 0.25s ease;text-transform:uppercase;
+}
+.theme-btn:hover{color:#aaa}
+.theme-btn.active{background:rgba(255,255,255,0.08);color:#fff}
 
 /* Left controls: Intensity bar */
-#control-panel{
-  position:absolute;left:28px;top:50%;transform:translateY(-50%);
+#left-panel{
+  position:absolute;left:20px;top:50%;transform:translateY(-50%);
   display:flex;flex-direction:column;align-items:center;gap:12px;
 }
-#intensity-pct{font-family:'Space Mono',monospace;font-size:.58rem;color:#333}
+#intensity-pct{font-family:'Space Mono',monospace;font-size:.56rem;color:#444}
 #bar-track{
-  width:2px;height:180px;background:rgba(255,255,255,0.02);border-radius:2px;
+  width:2px;height:160px;background:rgba(255,255,255,0.03);border-radius:2px;
   position:relative;
 }
 #bar-fill{
   position:absolute;bottom:0;width:100%;border-radius:2px;
-  background:#fff;transition:height 0.25s ease;
+  background:#fff;transition:height 0.3s ease;
 }
 
 /* AI Resonance Panel (Right side) */
 #ai-panel{
-  position:absolute;right:28px;top:50%;transform:translateY(-50%);
-  background:rgba(5,5,5,0.65);border:1px solid rgba(255,255,255,0.03);
-  border-radius:16px;padding:20px;width:210px;
-  font-family:'Space Mono',monospace;backdrop-filter:blur(15px);
+  position:absolute;right:20px;top:50%;transform:translateY(-50%);
+  background:rgba(5,5,5,0.7);border:1px solid rgba(255,255,255,0.04);
+  border-radius:16px;padding:16px;width:180px;
+  font-family:'Space Mono',monospace;backdrop-filter:blur(20px);
 }
-.ai-title{font-size:.65rem;color:#555;letter-spacing:.15em;margin-bottom:12px}
-.ai-row{display:flex;justify-content:space-between;margin-bottom:8px;font-size:.52rem}
+.ai-title{font-size:.6rem;color:#444;letter-spacing:.15em;margin-bottom:10px}
+.ai-row{display:flex;justify-content:space-between;margin-bottom:6px;font-size:.5rem}
 .ai-lbl{color:#333}
-.ai-val{color:#888;transition:color .4s ease}
+.ai-val{color:#888;transition:color .3s ease}
 
-/* Pinch State overlay indicator (top left) */
-#pinch-state{
-  position:absolute;top:28px;left:28px;
-  display:flex;align-items:center;gap:8px;
+/* Camera/Expression state (bottom right) */
+#cam-panel{
+  position:absolute;bottom:20px;right:20px;
+  display:flex;flex-direction:column;align-items:flex-end;gap:10px;
+  pointer-events:all;
 }
-.ps-dot{
-  width:6px;height:6px;border-radius:50%;background:#333;
-  transition:all 0.3s ease;
+#camera-btn{
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
+  color:#666;font-family:'Space Mono',monospace;font-size:.54rem;
+  letter-spacing:.15em;padding:8px 16px;border-radius:20px;
+  cursor:pointer;transition:all 0.3s ease;
 }
-.ps-dot.on{background:#2ecc71;box-shadow:0 0 8px #2ecc71}
-.ps-lbl{
-  font-family:'Space Mono',monospace;font-size:.52rem;letter-spacing:.2em;
-  color:#333;text-transform:uppercase;
+#camera-btn:hover{color:#fff;background:rgba(255,255,255,0.08)}
+#camera-btn.active{color:#ffb800;border-color:rgba(255,184,0,0.3);background:rgba(255,184,0,0.05)}
+.monitor{
+  width:72px;height:72px;border-radius:50%;
+  border:1px solid rgba(255,255,255,0.05);overflow:hidden;
+  background:#030303;display:none;position:relative;
 }
-
-/* Monitors (bottom right) */
-#monitor-panel{
-  position:absolute;bottom:24px;right:28px;
-  display:flex;align-items:flex-end;gap:12px;
-}
-.monitor-window{
-  width:80px;height:80px;border-radius:50%;
-  border:1px solid rgba(255,255,255,0.04);overflow:hidden;
-  background:#030303;transition:all 0.5s ease;
-  position:relative;
-}
-.m-canvas{width:100%;height:100%;object-fit:cover;display:block}
-.m-state{
+.monitor-canvas{width:100%;height:100%;object-fit:cover;display:block}
+.monitor-lbl{
   position:absolute;bottom:-18px;right:0;left:0;text-align:center;
-  font-family:'Space Mono',monospace;font-size:.45rem;letter-spacing:.12em;
+  font-family:'Space Mono',monospace;font-size:.44rem;letter-spacing:.12em;
   color:#222;text-transform:uppercase;
 }
 
 /* Actions bottom center */
 #action-panel{
-  position:absolute;bottom:24px;left:50%;transform:translateX(-50%);
-  display:flex;gap:30px;pointer-events:all;
+  position:absolute;bottom:20px;left:50%;transform:translateX(-50%);
+  display:flex;gap:20px;pointer-events:all;
 }
 .action-btn{
-  font-family:'Space Mono',monospace;font-size:.54rem;letter-spacing:.3em;
-  color:#252525;background:none;border:none;cursor:pointer;
-  text-transform:uppercase;padding:10px 20px;transition:all 0.3s ease;
+  font-family:'Space Mono',monospace;font-size:.54rem;letter-spacing:.25em;
+  color:#333;background:none;border:none;cursor:pointer;
+  text-transform:uppercase;padding:8px 16px;transition:all 0.3s ease;
 }
-.action-btn:hover{color:#fff;text-shadow:0 0 15px rgba(255,255,255,0.3)}
+.action-btn:hover{color:#fff}
 
-/* Interactive canvas flash */
-#save-flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:100;transition:opacity .15s ease}
-#save-flash.on{opacity:.18}
-
-/* Help text overlay */
-#help-hint{
-  position:absolute;bottom:75px;left:50%;transform:translateX(-50%);
-  font-family:'Space Mono',monospace;font-size:.48rem;color:#1c1c1c;
+/* Interactive tutorial hint */
+#hint-box{
+  position:absolute;bottom:70px;left:50%;transform:translateX(-50%);
+  font-family:'Space Mono',monospace;font-size:.48rem;color:#181818;
   letter-spacing:.15em;text-transform:uppercase;text-align:center;
 }
+
+/* Flash screen */
+#save-flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:100;transition:opacity .15s ease}
+#save-flash.on{opacity:.25}
 </style>
 </head>
 <body>
@@ -196,56 +146,21 @@ html,body{
 <canvas id="glow"></canvas>
 <video id="cam" playsinline muted autoplay></video>
 
-<!-- 1. LOADING -->
-<div id="load">
-  <div class="l-logo">void.lumin</div>
-  <div class="l-sub">air paint instrument</div>
-  <div class="l-track"><div id="l-bar"></div></div>
-  <div id="l-msg">Initializing engine layers…</div>
-  <div id="l-err-fallback">
-    <button class="fb-btn" id="btn-force-mouse">LOAD MOUSE/TOUCH ONLY</button>
-  </div>
-</div>
-
-<!-- 2. SETUP GUIDE -->
-<div id="setup-guide" class="out" style="display:none">
-  <h1 class="g-title">Instrument Calibration</h1>
-  <div class="g-steps">
-    <div class="g-step">
-      <span class="g-num">STEP 1</span>
-      <p class="g-txt">Position yourself so the camera can see your face and drawing hand clearly.</p>
-    </div>
-    <div class="g-step">
-      <span class="g-num">STEP 2</span>
-      <p class="g-txt"><strong>Pinch</strong> index finger + thumb to paint in the air. Hover to plan.</p>
-    </div>
-    <div class="g-step">
-      <span class="g-num">STEP 3</span>
-      <p class="g-txt">The AI partner learns your stroke physics and completes your lines, morphing with your emotion.</p>
-    </div>
-  </div>
-  <div class="g-btn-wrap">
-    <button class="g-btn" id="start-camera-btn">START CO-CREATION</button>
-    <button class="g-btn" style="background:rgba(255,255,255,0.02);border-color:rgba(255,255,255,0.05)" id="start-mouse-btn">DRAW WITH MOUSE/TOUCH</button>
-  </div>
-</div>
-
-<!-- 4. HUD INTERFACE -->
+<!-- MAIN UI -->
 <div id="ui">
-  <!-- Pinch/Drawing indicator -->
-  <div id="pinch-state">
-    <span class="ps-dot" id="ps-dot"></span>
-    <span class="ps-lbl" id="ps-lbl">hovering</span>
+  <!-- Top bar -->
+  <div id="top-bar">
+    <div class="brand">void.lumin</div>
+    <div id="themes">
+      <button class="theme-btn active" data-t="nebula">Nebula</button>
+      <button class="theme-btn" data-t="geometry">Geometry</button>
+      <button class="theme-btn" data-t="crystal">Crystal</button>
+      <button class="theme-btn" data-t="silk">Silk</button>
+    </div>
   </div>
 
-  <!-- State Badge (top center) -->
-  <div id="status-badge">
-    <div id="em-label">NEUTRAL</div>
-    <div id="em-name">Silver Thread</div>
-  </div>
-
-  <!-- Intensity Bar (left) -->
-  <div id="control-panel">
+  <!-- Left: Intensity bar -->
+  <div id="left-panel">
     <div id="intensity-pct">0%</div>
     <div id="bar-track">
       <div id="bar-fill"></div>
@@ -255,7 +170,7 @@ html,body{
     </div>
   </div>
 
-  <!-- AI Resonance / Predictive metrics (Right) -->
+  <!-- Right: AI Resonance -->
   <div id="ai-panel">
     <div class="ai-title">NEURAL CO-CREATION</div>
     <div class="ai-row">
@@ -263,34 +178,35 @@ html,body{
       <span class="ai-val" id="ai-res">0%</span>
     </div>
     <div class="ai-row">
-      <span class="ai-lbl">Intent Pattern</span>
+      <span class="ai-lbl">Geometry</span>
       <span class="ai-val" id="ai-pattern">Linear</span>
     </div>
     <div class="ai-row">
-      <span class="ai-lbl">Predict Steps</span>
-      <span class="ai-val" id="ai-steps">+0</span>
+      <span class="ai-lbl">Prediction</span>
+      <span class="ai-val" id="ai-steps">+0 steps</span>
     </div>
     <div class="ai-row" style="margin-top:12px;border-top:1px solid rgba(255,255,255,0.05);padding-top:8px">
-      <span class="ai-lbl">Input Mode</span>
-      <span class="ai-val" id="ai-mode" style="color:#ffb800">Camera</span>
+      <span class="ai-lbl">Biometrics</span>
+      <span class="ai-val" id="bio-status" style="color:#555">OFF</span>
     </div>
   </div>
 
-  <!-- Monitors (bottom right) -->
-  <div id="monitor-panel">
-    <div class="monitor-window" id="mon-face" style="display:none">
-      <canvas id="face-preview" class="m-canvas" width="120" height="120"></canvas>
-      <span class="m-state" id="mon-face-lbl">no face</span>
-    </div>
-  </div>
+  <!-- Bottom Hint -->
+  <div id="hint-box">drag mouse or touch to draw. click enable camera for biometric morphing.</div>
 
-  <!-- Mode hint -->
-  <div id="help-hint">Pinch fingers (or drag mouse) to draw. AI will predict & co-create.</div>
-
-  <!-- Actions -->
+  <!-- Bottom center actions -->
   <div id="action-panel">
-    <button class="action-btn" id="act-clear">CLEAR</button>
-    <button class="action-btn" id="act-save">SAVE MASTERPIECE</button>
+    <button class="action-btn" id="act-clear">Clear</button>
+    <button class="action-btn" id="act-save">Save Masterpiece</button>
+  </div>
+
+  <!-- Bottom right camera panel -->
+  <div id="cam-panel">
+    <div class="monitor" id="mon-window">
+      <canvas id="face-preview" class="monitor-canvas" width="100" height="100"></canvas>
+      <span class="monitor-lbl" id="mon-lbl">no face</span>
+    </div>
+    <button id="camera-btn">Enable Camera</button>
   </div>
 </div>
 
@@ -300,161 +216,184 @@ html,body{
 'use strict';
 
 // ═══════════════════════════════════════════════════════
-//  EMOTION MAPPINGS
+//  EMOTIONS & THEME PHYSICS
 // ═══════════════════════════════════════════════════════
 const SCI = {
-  neutral:   { label:'NEUTRAL',  name:'Silver Spline',    css:'#cccccc', rgb:[204,204,204] },
-  happy:     { label:'HAPPY',    name:'Golden Radiance',  css:'#ffb800', rgb:[255,184,  0] },
-  sad:       { label:'SAD',      name:'Blue Gravity',     css:'#1438cc', rgb:[ 20, 56,204] },
-  angry:     { label:'ANGRY',    name:'Crimson Fracture', css:'#dc1212', rgb:[220, 18, 18] },
-  fearful:   { label:'FEAR',     name:'Violet Spiral',    css:'#7810c4', rgb:[120, 16,196] },
-  surprised: { label:'SURPRISE', name:'Cyan Burst',       css:'#00dcff', rgb:[  0,220,255] },
-  disgusted: { label:'DISGUST',  name:'Green Recoil',     css:'#2e8a08', rgb:[ 46,138,  8] },
+  neutral:   { label:'NEUTRAL',  css:'#cccccc', rgb:[204,204,204] },
+  happy:     { label:'HAPPY',    css:'#ffb800', rgb:[255,184,  0] },
+  sad:       { label:'SAD',      css:'#1438cc', rgb:[ 20, 56,204] },
+  angry:     { label:'ANGRY',    css:'#dc1212', rgb:[220, 18, 18] },
+  fearful:   { label:'FEAR',     css:'#7810c4', rgb:[120, 16,196] },
+  surprised: { label:'SURPRISE', css:'#00dcff', rgb:[  0,220,255] },
+  disgusted: { label:'DISGUST',  css:'#2e8a08', rgb:[ 46,138,  8] },
 };
 
 // ═══════════════════════════════════════════════════════
-//  AI PREDICTIVE PARTNER & BIOMETRIC BRUSHES
-//  The machine learns your trajectory, acceleration, and curvature.
-//  It extends your stroke in real-time, matching your emotional state.
+//  THEME BRUSH SYSTEMS
 // ═══════════════════════════════════════════════════════
-const PHX = {
-  neutral(ctx, points, iv, isPrediction) {
-    if (points.length < 2) return;
-    ctx.save();
-    ctx.globalAlpha = isPrediction ? 0.05 + iv*0.05 : 0.12 + iv*0.12;
-    ctx.strokeStyle = `rgba(204,204,204,${isPrediction ? 0.35 : 1})`;
-    ctx.lineWidth = isPrediction ? 0.4 : 0.8 + iv * 1.5;
-    ctx.lineCap = 'round';
-    
-    ctx.beginPath();
-    ctx.moveTo(points[points.length-2].x, points[points.length-2].y);
-    ctx.lineTo(points[points.length-1].x, points[points.length-1].y);
-    ctx.stroke();
-    ctx.restore();
-  },
+const BRUSHES = {
 
-  happy(ctx, points, iv, isPrediction) {
-    if (points.length < 2) return;
-    const p1 = points[points.length-2], p2 = points[points.length-1];
-    ctx.save();
-    ctx.globalAlpha = isPrediction ? 0.06 + iv*0.08 : 0.15 + iv*0.25;
-    ctx.strokeStyle = `hsl(${34+Math.random()*15},100%,${55+iv*12}%)`;
-    ctx.lineWidth = isPrediction ? 0.5 : 1 + iv * 4;
-    ctx.lineCap = 'round';
-    
-    ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+  // ── NEBULA GALAXY ──────────────────────────────────
+  // Gaseous expanding clouds with stardust noise
+  nebula: {
+    draw(ctx, points, emotion, iv, isPrediction) {
+      if (points.length < 2) return;
+      const p1 = points[points.length-2], p2 = points[points.length-1];
+      const col = SCI[emotion].rgb;
+      const glowCol = `rgba(${col[0]}, ${col[1]}, ${col[2]}, ${isPrediction ? 0.08 : 0.22})`;
 
-    // AI organic blooms along the path
-    if (iv > 0.30 && !isPrediction && Math.random() < 0.4) {
-      const dist = Math.hypot(p2.x-p1.x, p2.y-p1.y);
-      const r = 4 + Math.random()*50*iv;
-      const a = Math.random()*Math.PI*2;
-      ctx.globalAlpha = 0.02 + Math.random()*0.08*iv;
-      ctx.fillStyle = `hsl(${22+Math.random()*45},100%,${55+iv*15}%)`;
-      ctx.beginPath();
-      ctx.arc(p2.x+Math.cos(a)*r, p2.y+Math.sin(a)*r, 0.5+Math.random()*(2+iv*2), 0, Math.PI*2);
-      ctx.fill();
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+      
+      // Expand gaseous nebula brush
+      const brushRadius = (isPrediction ? 10 : 18) + iv * 32;
+      const grad = ctx.createRadialGradient(p2.x, p2.y, 0, p2.x, p2.y, brushRadius);
+      grad.addColorStop(0, glowCol);
+      grad.addColorStop(0.35, `rgba(${col[0]}, ${col[1]}, ${col[2]}, ${isPrediction ? 0.03 : 0.08})`);
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+
+      ctx.fillStyle = grad;
+      ctx.beginPath(); ctx.arc(p2.x, p2.y, brushRadius, 0, Math.PI*2); ctx.fill();
+
+      // Core hot line
+      ctx.strokeStyle = `rgba(${col[0]}, ${col[1]}, ${col[2]}, ${isPrediction ? 0.25 : 0.8})`;
+      ctx.lineWidth = isPrediction ? 0.5 : 1.2 + iv * 2.8;
+      ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+
+      // Cosmic dust particles (only permanent)
+      if (!isPrediction && Math.random() < 0.45) {
+        const dustCount = (1 + iv * 8) | 0;
+        for (let i = 0; i < dustCount; i++) {
+          const a = Math.random() * Math.PI*2;
+          const r = Math.random() * brushRadius * 0.9;
+          ctx.fillStyle = `rgba(255, 255, 255, ${0.12 + Math.random()*0.35})`;
+          ctx.beginPath();
+          ctx.arc(p2.x + Math.cos(a)*r, p2.y + Math.sin(a)*r, 0.4 + Math.random()*1.2, 0, Math.PI*2);
+          ctx.fill();
+        }
+      }
+      ctx.restore();
     }
-    ctx.restore();
   },
 
-  sad(ctx, points, iv, isPrediction) {
-    if (points.length < 2) return;
-    const p1 = points[points.length-2], p2 = points[points.length-1];
-    ctx.save();
-    ctx.globalAlpha = isPrediction ? 0.04 + iv*0.04 : 0.10 + iv*0.15;
-    ctx.strokeStyle = `hsl(${218+Math.random()*12},72%,${35+iv*15}%)`;
-    ctx.lineWidth = isPrediction ? 0.3 : 0.7 + iv * 1.8;
-    
-    ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+  // ── SACRED GEOMETRY ────────────────────────────────
+  // Kaleidoscope symmetrical geometry
+  geometry: {
+    draw(ctx, points, emotion, iv, isPrediction) {
+      if (points.length < 2) return;
+      const p1 = points[points.length-2], p2 = points[points.length-1];
+      const col = SCI[emotion].rgb;
+      
+      const width = ctx.canvas.width / (window.devicePixelRatio || 1);
+      const height = ctx.canvas.height / (window.devicePixelRatio || 1);
+      const cx = width / 2;
+      const cy = height / 2;
 
-    // Drips (fall downward, only for permanent strokes)
-    if (iv > 0.30 && !isPrediction && Math.random() < 0.25) {
-      const h = 5 + Math.random()*40*iv;
-      ctx.globalAlpha = 0.03 + Math.random()*0.07*iv;
-      ctx.fillStyle = `hsl(${212+Math.random()*20},75%,${28+iv*15}%)`;
-      ctx.beginPath();
-      ctx.ellipse(p2.x, p2.y + h*.5, 1, h*.5, 0, 0, Math.PI*2);
-      ctx.fill();
+      ctx.save();
+      ctx.strokeStyle = `rgba(${col[0]}, ${col[1]}, ${col[2]}, ${isPrediction ? 0.35 : 0.85})`;
+      ctx.lineWidth = isPrediction ? 0.4 : 0.6 + iv * 2.5;
+
+      const sym = iv < 0.30 ? 4 : iv < 0.55 ? 6 : iv < 0.80 ? 8 : 12;
+
+      for (let i = 0; i < sym; i++) {
+        const angle = (i / sym) * Math.PI * 2;
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(angle);
+        
+        // Mirror reflection
+        ctx.beginPath();
+        ctx.moveTo(p1.x - cx, p1.y - cy);
+        ctx.lineTo(p2.x - cx, p2.y - cy);
+        ctx.stroke();
+
+        // Mirrored reflect
+        ctx.scale(1, -1);
+        ctx.beginPath();
+        ctx.moveTo(p1.x - cx, p1.y - cy);
+        ctx.lineTo(p2.x - cx, p2.y - cy);
+        ctx.stroke();
+
+        ctx.restore();
+      }
+      ctx.restore();
     }
-    ctx.restore();
   },
 
-  angry(ctx, points, iv, isPrediction) {
-    if (points.length < 2) return;
-    const p1 = points[points.length-2], p2 = points[points.length-1];
-    ctx.save();
-    ctx.globalAlpha = isPrediction ? 0.08 + iv*0.08 : 0.22 + iv*0.25;
-    ctx.strokeStyle = `hsl(${355+Math.random()*10},95%,${40+iv*15}%)`;
-    ctx.lineWidth = isPrediction ? 0.6 : 1.5 + iv * 5;
-    ctx.lineCap = 'square';
-    
-    ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+  // ── MOLECULAR CRYSTAL ──────────────────────────────
+  // Branching lattice grid connections
+  crystal: {
+    draw(ctx, points, emotion, iv, isPrediction) {
+      if (points.length < 2) return;
+      const p1 = points[points.length-2], p2 = points[points.length-1];
+      const col = SCI[emotion].rgb;
 
-    // Fractures (sharp projections)
-    if (iv > 0.30 && !isPrediction && Math.random() < 0.35) {
-      const a = Math.random()*Math.PI*2;
-      const len = 10 + Math.random()*60*iv;
-      ctx.globalAlpha = 0.04 + Math.random()*0.10*iv;
-      ctx.strokeStyle = `hsl(358,100%,${45+iv*15}%)`;
-      ctx.lineWidth = 0.3 + iv;
-      ctx.beginPath(); ctx.moveTo(p2.x, p2.y);
-      ctx.lineTo(p2.x+Math.cos(a)*len, p2.y+Math.sin(a)*len); ctx.stroke();
+      ctx.save();
+      ctx.strokeStyle = `rgba(${col[0]}, ${col[1]}, ${col[2]}, ${isPrediction ? 0.35 : 0.85})`;
+      ctx.lineWidth = isPrediction ? 0.4 : 0.8 + iv * 1.8;
+
+      ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+
+      // Sharp crystal lattices branching off at 60-degree angle
+      if (!isPrediction && Math.random() < 0.28) {
+        const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x) + (Math.random() < 0.5 ? 1 : -1) * Math.PI/3;
+        const len = 8 + Math.random() * 32 * iv;
+        ctx.beginPath();
+        ctx.moveTo(p2.x, p2.y);
+        ctx.lineTo(p2.x + Math.cos(angle)*len, p2.y + Math.sin(angle)*len);
+        ctx.stroke();
+
+        // Node dot
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(p2.x + Math.cos(angle)*len, p2.y + Math.sin(angle)*len, 1.5, 0, Math.PI*2);
+        ctx.fill();
+      }
+      ctx.restore();
     }
-    ctx.restore();
   },
 
-  fearful(ctx, points, iv, isPrediction) {
-    if (points.length < 2) return;
-    const p1 = points[points.length-2], p2 = points[points.length-1];
-    ctx.save();
-    ctx.globalAlpha = isPrediction ? 0.04 + iv*0.04 : 0.08 + iv*0.12;
-    ctx.strokeStyle = `hsl(${272+Math.random()*15},60%,${30+iv*15}%)`;
-    ctx.lineWidth = isPrediction ? 0.3 : 0.5 + iv * 1.5;
-    
-    ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+  // ── SILK FLOW ──────────────────────────────────────
+  // Swirling, organic ribbon flows
+  silk: {
+    draw(ctx, points, emotion, iv, isPrediction) {
+      if (points.length < 2) return;
+      const p1 = points[points.length-2], p2 = points[points.length-1];
+      const col = SCI[emotion].rgb;
 
-    if (iv > 0.30 && !isPrediction && Math.random() < 0.3) {
-      const rad = 6 + Math.random()*25*iv;
-      ctx.globalAlpha = 0.02 + Math.random()*0.04*iv;
-      ctx.strokeStyle = `hsl(278,55%,26%)`;
-      ctx.lineWidth = 0.3;
-      ctx.beginPath(); ctx.arc(p2.x, p2.y, rad, 0, Math.PI*2); ctx.stroke();
+      ctx.save();
+      const n = (3 + iv * 10) | 0;
+      for (let i = 0; i < n; i++) {
+        ctx.globalAlpha = isPrediction ? 0.03 : 0.05 + (0.12 * iv);
+        ctx.strokeStyle = `rgba(${col[0]}, ${col[1]}, ${col[2]}, 1)`;
+        ctx.lineWidth = 0.4 + Math.random()*0.8;
+        
+        const offsetRange = i * (2 + iv*12);
+        const ox = (Math.random() - 0.5) * offsetRange;
+        const oy = (Math.random() - 0.5) * offsetRange;
+
+        ctx.beginPath();
+        ctx.moveTo(p1.x + ox, p1.y + oy);
+        ctx.quadraticCurveTo(
+          (p1.x+p2.x)*0.5 + ox*1.5, (p1.y+p2.y)*0.5 + oy*1.5,
+          p2.x + ox, p2.y + oy
+        );
+        ctx.stroke();
+      }
+      ctx.restore();
     }
-    ctx.restore();
-  },
-
-  surprised(ctx, points, iv, isPrediction) {
-    if (points.length < 2) return;
-    const p1 = points[points.length-2], p2 = points[points.length-1];
-    ctx.save();
-    ctx.globalAlpha = isPrediction ? 0.08 : 0.18 + iv * 0.22;
-    ctx.strokeStyle = `hsl(${185+Math.random()*15},100%,${58+iv*16}%)`;
-    ctx.lineWidth = isPrediction ? 0.4 : 0.8 + iv * 2.5;
-    ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
-    ctx.restore();
-  },
-
-  disgusted(ctx, points, iv, isPrediction) {
-    if (points.length < 2) return;
-    const p1 = points[points.length-2], p2 = points[points.length-1];
-    ctx.save();
-    ctx.globalAlpha = isPrediction ? 0.04 : 0.10 + iv * 0.10;
-    ctx.strokeStyle = `hsl(${84+Math.random()*18},50%,${26+iv*14}%)`;
-    ctx.lineWidth = isPrediction ? 0.3 : 0.8 + iv * 2;
-    ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
-    ctx.restore();
   }
 };
 
 // ═══════════════════════════════════════════════════════
-//  AI TRAJECTORY PREDICTION ENGINE
+//  AI PREDICTIVE PARTNER & LEARNING ENGINE
 // ═══════════════════════════════════════════════════════
 class AILearningEngine {
   constructor() {
-    this.strokeHistory = []; // stores points of the current stroke
-    this.coupling = 0;       // how closely the AI matches the user's rhythm (0-1)
-    this.predictedPath = []; // predicted future points
+    this.strokeHistory = [];
+    this.coupling = 0;
+    this.predictedPath = [];
     this.inferredPattern = 'Linear';
   }
 
@@ -467,7 +406,7 @@ class AILearningEngine {
 
   addPoint(x, y, t) {
     this.strokeHistory.push({ x, y, t });
-    if (this.strokeHistory.length > 50) this.strokeHistory.shift();
+    if (this.strokeHistory.length > 40) this.strokeHistory.shift();
     this.learnPattern();
   }
 
@@ -475,9 +414,7 @@ class AILearningEngine {
     const H = this.strokeHistory;
     if (H.length < 5) return;
 
-    // 1. Calculate speeds and headings
-    let totalVel = 0;
-    let headingChanges = 0;
+    let totalVel = 0, headingChanges = 0;
     const headings = [];
 
     for (let i = 1; i < H.length; i++) {
@@ -491,113 +428,68 @@ class AILearningEngine {
       headings.push(heading);
       if (headings.length > 1) {
         let diff = heading - headings[headings.length - 2];
-        // normalize
         diff = Math.atan2(Math.sin(diff), Math.cos(diff));
         headingChanges += Math.abs(diff);
       }
     }
 
-    const avgVel = totalVel / (H.length - 1);
     const avgCurvature = headingChanges / (H.length - 2);
+    if (avgCurvature < 0.08) this.inferredPattern = 'Linear Spline';
+    else if (avgCurvature < 0.28) this.inferredPattern = 'Harmonic Curve';
+    else this.inferredPattern = 'Organic Spiral';
 
-    // Predict pattern
-    if (avgCurvature < 0.08) {
-      this.inferredPattern = 'Linear Spline';
-    } else if (avgCurvature < 0.32) {
-      this.inferredPattern = 'Harmonic Curve';
-    } else {
-      this.inferredPattern = 'Organic Spiral';
-    }
-
-    // Dynamic coupling based on drawing stability
-    this.coupling = Math.max(0.1, Math.min(0.95, 1 - avgCurvature * 0.8));
+    this.coupling = Math.max(0.1, Math.min(0.95, 1 - avgCurvature * 0.7));
   }
 
-  // Generate predictive stroke extension based on physical derivatives
   predict(steps, emotion, intensity) {
     const H = this.strokeHistory;
-    if (H.length < 4) {
-      this.predictedPath = [];
-      return;
-    }
+    if (H.length < 4) { this.predictedPath = []; return; }
 
-    const last = H[H.length - 1];
-    const prev = H[H.length - 2];
-    const pprev = H[H.length - 3];
-
-    // Compute velocity vectors
+    const last = H[H.length-1], prev = H[H.length-2], pprev = H[H.length-3];
     const dt1 = (last.t - prev.t) || 0.016;
     let vx = (last.x - prev.x) / dt1;
     let vy = (last.y - prev.y) / dt1;
 
-    // Compute acceleration vectors
     const dt2 = (prev.t - pprev.t) || 0.016;
-    const pvx = (prev.x - pprev.x) / dt2;
-    const pvy = (prev.y - pprev.y) / dt2;
+    const pvx = (prev.x - prev.x) / dt2;
+    const pvy = (prev.y - prev.y) / dt2;
     const ax = (vx - pvx) / dt1;
     const ay = (vy - pvy) / dt1;
 
     this.predictedPath = [{ x: last.x, y: last.y }];
-
-    let currX = last.x;
-    let currY = last.y;
-    let stepSize = 0.016; // 60fps step simulation
-
-    const s = SCI[emotion].rgb;
+    let currX = last.x, currY = last.y;
 
     for (let step = 1; step <= steps; step++) {
-      const t = step * stepSize;
-      
-      // Standard physics extension: x = x0 + vt + 0.5at^2
+      const t = step * 0.016;
       let dx = vx * t + 0.5 * ax * t * t;
       let dy = vy * t + 0.5 * ay * t * t;
 
-      // Emotion-induced physical forces on the AI prediction
       if (emotion === 'happy') {
-        // Golden Radiance pulls predictions into logarithmic curves
-        const spiralForce = 0.05 * intensity * step;
-        const ang = t * 15;
-        dx += Math.cos(ang) * spiralForce * 15;
-        dy += Math.sin(ang) * spiralForce * 15;
+        const f = 0.04 * intensity * step;
+        dx += Math.cos(t * 12) * f * 12;
+        dy += Math.sin(t * 12) * f * 12;
       } else if (emotion === 'sad') {
-        // Sadness exerts downward gravity
-        dy += 0.85 * intensity * step * step;
+        dy += 0.8 * intensity * step * step * 0.08;
       } else if (emotion === 'angry') {
-        // Anger forces sharp angular offsets
-        const jitter = (Math.random() - 0.5) * 8 * intensity;
-        dx += jitter;
-        dy += jitter;
-      } else if (emotion === 'fearful') {
-        // Fear contracts the path back toward the center of the stroke history
-        let cx = 0, cy = 0;
-        H.forEach(p => { cx += p.x; cy += p.y; });
-        cx /= H.length; cy /= H.length;
-        const pull = 0.02 * intensity;
-        dx += (cx - currX) * pull;
-        dy += (cy - currY) * pull;
+        dx += (Math.random() - 0.5) * 5 * intensity;
+        dy += (Math.random() - 0.5) * 5 * intensity;
       }
 
-      this.predictedPath.push({
-        x: currX + dx,
-        y: currY + dy
-      });
-
-      // Update state for next step simulation
-      currX += dx;
-      currY += dy;
+      currX += dx; currY += dy;
+      this.predictedPath.push({ x: currX, y: currY });
     }
   }
 }
 
 // ═══════════════════════════════════════════════════════
-//  COGNITIVE APP CONTROLLER
+//  APPLICATION INITIALIZER
 // ═══════════════════════════════════════════════════════
 class VoidLuminCreator {
   constructor() {
     this.artC = document.getElementById('art');
     this.glwC = document.getElementById('glow');
-    this.faceC = document.getElementById('face-preview');
     this.video = document.getElementById('cam');
+    this.faceC = document.getElementById('face-preview');
 
     this.ac = this.artC.getContext('2d');
     this.gc = this.glwC.getContext('2d');
@@ -605,6 +497,7 @@ class VoidLuminCreator {
 
     this.ai = new AILearningEngine();
 
+    this.theme = 'nebula';
     this.emotion = 'neutral';
     this.intensity = 0;
     this.smoothIv = 0;
@@ -613,362 +506,238 @@ class VoidLuminCreator {
     this.cursor = { x: null, y: null };
     this.prevCursor = { x: null, y: null };
 
-    this.inputMode = 'mouse'; // 'camera' or 'mouse' fallback
-    this.cameraOK = false;
-    this.faceAPIok = false;
-    this.handsAPIok = false;
-
-    this._running = false;
-    this._t = 0;
+    this.cameraActive = false;
     this._DPR = Math.min(window.devicePixelRatio||1, 2);
-    this._faceDetected = false;
-    this._currentLevel = 0;
-    this._ambientTick = 0;
   }
 
-  async init() {
-    this._prog(10, 'Initializing canvases…');
+  init() {
     this._resize();
     window.addEventListener('resize', () => this._resize());
-
-    // Setup clear UI bindings for entry
-    this._setupEntryControls();
-
-    // Check camera availability
-    try {
-      this._prog(25, 'Scanning webcam sensors…');
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'user' }, audio: false
-      });
-      this.video.srcObject = stream;
-      await new Promise(r => this.video.addEventListener('loadedmetadata', r, { once: true }));
-      await this.video.play();
-      this.cameraOK = true;
-    } catch(e) {
-      console.warn('Camera failed:', e);
-      this.cameraOK = false;
-    }
-
-    if (this.cameraOK) {
-      this._prog(45, 'Loading facial networks…');
-      const modelUrl = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model';
-      try {
-        await faceapi.nets.tinyFaceDetector.loadFromUri(modelUrl);
-        await faceapi.nets.faceExpressionNet.loadFromUri(modelUrl);
-        this.faceAPIok = true;
-      } catch(err) {
-        console.warn('FaceAPI CDN failed, using backup...');
-        try {
-          const backupUrl = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights';
-          await faceapi.nets.tinyFaceDetector.loadFromUri(backupUrl);
-          await faceapi.nets.faceExpressionNet.loadFromUri(backupUrl);
-          this.faceAPIok = true;
-        } catch(e) {
-          console.error('All face model CDN paths failed:', e);
-        }
-      }
-
-      this._prog(70, 'Loading MediaPipe hand matrices…');
-      try {
-        this.hands = new Hands({locateFile: (file) => {
-          return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-        }});
-        this.hands.setOptions({
-          maxNumHands: 1,
-          modelComplexity: 1,
-          minDetectionConfidence: 0.55,
-          minTrackingConfidence: 0.55
-        });
-        this.hands.onResults((res) => this._onHandResults(res));
-        this.handsAPIok = true;
-      } catch(e) {
-        console.error('MediaPipe Hands load failed:', e);
-      }
-    }
-
-    this._prog(90, 'Preparing interface…');
     this._fillBlack();
+
     this._setupUI();
+    this._setupInput();
 
-    // Finish loading
-    document.getElementById('load').classList.add('out');
-    setTimeout(() => document.getElementById('load').style.display='none', 800);
-
-    const guide = document.getElementById('setup-guide');
-    guide.style.display = 'flex';
-    setTimeout(() => guide.classList.remove('out'), 50);
-  }
-
-  _setupEntryControls() {
-    // Start camera co-creation
-    document.getElementById('start-camera-btn').addEventListener('click', () => {
-      if (this.cameraOK && this.handsAPIok) {
-        this.inputMode = 'camera';
-        this.cameraHelper = new Camera(this.video, {
-          onFrame: async () => {
-            if (this._running && this.handsAPIok) {
-              await this.hands.send({ image: this.video });
-            }
-          },
-          width: 1280,
-          height: 720
-        });
-        this.cameraHelper.start();
-        this._detectFaceLoop();
-        document.getElementById('mon-face').style.display = 'block';
-      } else {
-        alert('Webcam sensor failed to initialize. Falling back to mouse/touch drawing.');
-        this.inputMode = 'mouse';
-      }
-      this._enterInstrument();
-    });
-
-    // Start mouse co-creation
-    document.getElementById('start-mouse-btn').addEventListener('click', () => {
-      this.inputMode = 'mouse';
-      this._enterInstrument();
-    });
-
-    // Fallback load on loading screen
-    document.getElementById('btn-force-mouse').addEventListener('click', () => {
-      this.inputMode = 'mouse';
-      this._enterInstrument();
-    });
-
-    // Show fallback option if loading takes too long
-    setTimeout(() => {
-      document.getElementById('l-err-fallback').style.display = 'flex';
-    }, 4500);
-  }
-
-  _enterInstrument() {
-    const guide = document.getElementById('setup-guide');
-    guide.classList.add('out');
-    setTimeout(() => guide.style.display = 'none', 600);
     document.getElementById('ui').classList.add('on');
-
-    if (this.inputMode === 'mouse') {
-      this._setupMouseInput();
-      document.getElementById('mon-face').style.display = 'none';
-      document.getElementById('ai-mode').textContent = 'Mouse/Touch';
-      document.getElementById('ai-mode').style.color = '#50dcff';
-    } else {
-      document.getElementById('ai-mode').textContent = 'Webcam Air';
-      document.getElementById('ai-mode').style.color = '#2ecc71';
-    }
-
-    this._running = true;
     this._loop();
   }
 
   _resize() {
-    const w=window.innerWidth, h=window.innerHeight, D=this._DPR;
+    const w = window.innerWidth, h = window.innerHeight, D = this._DPR;
     for (const c of [this.artC, this.glwC]) {
-      c.width=w*D; c.height=h*D;
-      c.style.width=w+'px'; c.style.height=h+'px';
+      c.width = w * D; c.height = h * D;
+      c.style.width = w + 'px'; c.style.height = h + 'px';
     }
-    this.ac.scale(D,D); this.gc.scale(D,D);
-    this.W=w; this.H=h;
+    this.ac.scale(D, D); this.gc.scale(D, D);
+    this.W = w; this.H = h;
     this._fillBlack();
   }
 
   _fillBlack() {
-    this.ac.save();
-    this.ac.setTransform(1,0,0,1,0,0);
-    this.ac.fillStyle='#020202';
-    this.ac.fillRect(0,0,this.artC.width,this.artC.height);
-    this.ac.restore();
+    this.ac.fillStyle = '#020202';
+    this.ac.fillRect(0,0,this.W,this.H);
   }
 
-  // ── Mouse & Touch Drawing setup ─────────────────
-  _setupMouseInput() {
+  _setupInput() {
     const toLocal = e => {
       const r = this.artC.getBoundingClientRect();
-      return { x: e.clientX - r.left, y: e.clientY - r.top };
+      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+      return { x: clientX - r.left, y: clientY - r.top };
     };
 
-    const handleDown = p => {
-      this.cursor = p;
-      this.prevCursor = p;
+    const down = p => {
+      this.cursor = p; this.prevCursor = p;
       this.isDrawing = true;
       this.ai.reset();
       this.ai.addPoint(p.x, p.y, performance.now()/1000);
-      this._updatePinchIndicators(true);
+      document.getElementById('ps-dot').classList.add('on');
+      document.getElementById('ps-lbl').textContent = 'painting';
+      document.getElementById('ps-lbl').style.color = SCI[this.emotion].css;
     };
 
-    const handleMove = p => {
-      this.cursor = p;
-    };
+    const move = p => { this.cursor = p; };
 
-    const handleUp = () => {
+    const up = () => {
       this.isDrawing = false;
-      this._updatePinchIndicators(false);
-      
-      // When user lifts pen, AI permanently commits its final prediction trail as a co-creative echo!
+      document.getElementById('ps-dot').classList.remove('on');
+      document.getElementById('ps-lbl').textContent = 'hovering';
+      document.getElementById('ps-lbl').style.color = '';
+
       if (this.ai.predictedPath.length > 1) {
-        const phx = PHX[this.emotion] || PHX.neutral;
-        phx(this.ac, this.ai.predictedPath, this.smoothIv, false);
+        const sys = BRUSHES[this.theme] || BRUSHES.nebula;
+        sys.draw(this.ac, this.ai.predictedPath, this.emotion, this.smoothIv, false);
       }
       this.ai.reset();
     };
 
-    this.artC.addEventListener('mousedown', e => handleDown(toLocal(e)));
-    this.artC.addEventListener('mousemove', e => handleMove(toLocal(e)));
-    window.addEventListener('mouseup', handleUp);
+    this.artC.addEventListener('mousedown', e => down(toLocal(e)));
+    this.artC.addEventListener('mousemove', e => move(toLocal(e)));
+    window.addEventListener('mouseup', up);
 
     this.artC.addEventListener('touchstart', e => {
-      if (e.touches.length > 0) handleDown(toLocal(e.touches[0]));
-    });
+      e.preventDefault();
+      if (e.touches.length > 0) down(toLocal(e.touches[0]));
+    }, {passive:false});
     this.artC.addEventListener('touchmove', e => {
-      if (e.touches.length > 0) handleMove(toLocal(e.touches[0]));
+      e.preventDefault();
+      if (e.touches.length > 0) move(toLocal(e.touches[0]));
+    }, {passive:false});
+    window.addEventListener('touchend', up);
+  }
+
+  _setupUI() {
+    // Theme selectors
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.theme = btn.dataset.t;
+      });
     });
-    window.addEventListener('touchend', handleUp);
+
+    // Actions
+    document.getElementById('act-clear').addEventListener('click', () => this._fillBlack());
+    document.getElementById('act-save').addEventListener('click', () => this._save());
+
+    // Camera toggle
+    const camBtn = document.getElementById('camera-btn');
+    camBtn.addEventListener('click', async () => {
+      if (this.cameraActive) {
+        this._stopCamera();
+      } else {
+        this._startCamera();
+      }
+    });
   }
 
-  _updatePinchIndicators(active) {
-    const dot = document.getElementById('ps-dot');
-    const lbl = document.getElementById('ps-lbl');
-    dot.classList.toggle('on', active);
-    lbl.textContent = active ? 'drawing' : 'hovering';
-    lbl.style.color = active ? SCI[this.emotion].css : '#333';
-  }
+  async _startCamera() {
+    const camBtn = document.getElementById('camera-btn');
+    camBtn.textContent = 'Starting…';
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+      this.video.srcObject = stream;
+      await this.video.play();
+      
+      this.cameraActive = true;
+      camBtn.textContent = 'Disable Camera';
+      camBtn.classList.add('active');
+      document.getElementById('mon-window').style.display = 'block';
+      document.getElementById('bio-status').textContent = 'ACTIVE';
+      document.getElementById('bio-status').style.color = '#ffb800';
 
-  // ── MediaPipe Hand tracking ──────────────────────
-  _onHandResults(res) {
-    if (!this._running || this.inputMode !== 'camera') return;
-
-    if (res.multiHandLandmarks && res.multiHandLandmarks.length > 0) {
-      const landmarks = res.multiHandLandmarks[0];
-      const indexTip = landmarks[8];
-      const thumbTip = landmarks[4];
-
-      const screenX = (1 - indexTip.x) * this.W;
-      const screenY = indexTip.y * this.H;
-
-      this.cursor = { x: screenX, y: screenY };
-
-      const dx = indexTip.x - thumbTip.x;
-      const dy = indexTip.y - thumbTip.y;
-      const dz = indexTip.z - thumbTip.z;
-      const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
-
-      const isPinchingNow = dist < 0.038;
-
-      if (isPinchingNow && !this.isDrawing) {
-        this.isDrawing = true;
-        this.prevCursor = { ...this.cursor };
-        this.ai.reset();
-        this.ai.addPoint(screenX, screenY, this._t);
-      } else if (!isPinchingNow && this.isDrawing) {
-        this.isDrawing = false;
-        
-        // Commit AI prediction on lift
-        if (this.ai.predictedPath.length > 1) {
-          const phx = PHX[this.emotion] || PHX.neutral;
-          phx(this.ac, this.ai.predictedPath, this.smoothIv, false);
-        }
-        this.ai.reset();
-      }
-
-      this._updatePinchIndicators(this.isDrawing);
-    } else {
-      if (this.isDrawing) {
-        this.isDrawing = false;
-        this.ai.reset();
-      }
-      this.cursor = { x: null, y: null };
-      this._updatePinchIndicators(false);
+      this._startBiometricDetection();
+    } catch(e) {
+      console.error('Camera sensor failed:', e);
+      camBtn.textContent = 'Enable Camera';
+      alert('Camera access denied or sensor unavailable.');
     }
   }
 
-  // ── Face expression detection ────────────────────
-  _detectFaceLoop() {
-    const run = async () => {
-      if (this.inputMode !== 'camera') return;
+  _stopCamera() {
+    const camBtn = document.getElementById('camera-btn');
+    this.cameraActive = false;
+    camBtn.textContent = 'Enable Camera';
+    camBtn.classList.remove('active');
+    document.getElementById('mon-window').style.display = 'none';
+    document.getElementById('bio-status').textContent = 'OFF';
+    document.getElementById('bio-status').style.color = '';
+    
+    if (this.video.srcObject) {
+      this.video.srcObject.getTracks().forEach(t => t.stop());
+    }
+    this.intensity = 0;
+    this.emotion = 'neutral';
+  }
+
+  async _startBiometricDetection() {
+    // Face API detector loop
+    const detectFace = async () => {
+      if (!this.cameraActive) return;
       try {
-        const opts = new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.4 });
-        const dets = await faceapi.detectAllFaces(this.video, opts).withFaceExpressions();
-        if (dets.length > 0) {
-          const ex = dets[0].expressions;
-          const dom = Object.keys(ex).reduce((a, b) => ex[a] > ex[b] ? a : b);
-          if (SCI[dom]) {
-            this.emotion = dom;
-            this.intensity = ex[dom];
+        if (typeof faceapi !== 'undefined' && faceapi.nets.tinyFaceDetector.params) {
+          const opts = new faceapi.TinyFaceDetectorOptions({ inputSize: 160, scoreThreshold: 0.4 });
+          const dets = await faceapi.detectAllFaces(this.video, opts).withFaceExpressions();
+          if (dets.length > 0) {
+            const ex = dets[0].expressions;
+            const dom = Object.keys(ex).reduce((a,b) => ex[a] > ex[b] ? a : b);
+            if (SCI[dom]) {
+              this.emotion = dom;
+              this.intensity = ex[dom];
+            }
+            this._faceDetected = true;
+          } else {
+            this._faceDetected = false;
+            this.intensity = 0;
           }
-          this._faceDetected = true;
-          this._updateFaceBadge(true);
-        } else {
-          this._faceDetected = false;
-          this.intensity = 0;
-          this._updateFaceBadge(false);
         }
       } catch(_) {}
-      setTimeout(run, 250);
+      setTimeout(detectFace, 250);
     };
-    run();
-  }
 
-  _updateFaceBadge(detected) {
-    const lbl = document.getElementById('mon-face-lbl');
-    const s = SCI[this.emotion];
-    if (detected) {
-      lbl.textContent = s.label;
-      lbl.style.color = s.css + 'aa';
-      document.getElementById('mon-face').style.borderColor = s.css + '44';
-    } else {
-      lbl.textContent = 'no face';
-      lbl.style.color = '#333';
-      document.getElementById('mon-face').style.borderColor = 'rgba(255,255,255,0.04)';
+    // Load FaceAPI models on demand
+    const modelUrl = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model';
+    if (typeof faceapi !== 'undefined' && !faceapi.nets.tinyFaceDetector.params) {
+      try {
+        await faceapi.nets.tinyFaceDetector.loadFromUri(modelUrl);
+        await faceapi.nets.faceExpressionNet.loadFromUri(modelUrl);
+      } catch(e) {
+        console.warn('FaceAPI models load failed:', e);
+      }
     }
+    detectFace();
   }
 
-  // ── Render loop ──────────────────────────────────
   _loop() {
-    if (!this._running) return;
     this._t = performance.now() / 1000;
-
-    // Smooth intensity
     this.smoothIv += (this.intensity - this.smoothIv) * 0.08;
     const iv = this.smoothIv;
 
-    // Local face preview
-    if (this.inputMode === 'camera' && this.cameraOK && this.video.readyState >= 2) {
+    // Draw camera preview (if active)
+    if (this.cameraActive && this.video.readyState >= 2) {
       this.fc.save();
-      this.fc.clearRect(0,0,120,120);
-      this.fc.beginPath(); this.fc.arc(60,60,58,0,Math.PI*2); this.fc.clip();
-      this.fc.scale(-1,1);
-      this.fc.drawImage(this.video, -120,0,120,120);
+      this.fc.clearRect(0,0,100,100);
+      this.fc.beginPath(); this.fc.arc(50,50,48,0,Math.PI*2); this.fc.clip();
+      this.fc.scale(-1, 1);
+      this.fc.drawImage(this.video, -100, 0, 100, 100);
       this.fc.restore();
-      
-      this.fc.strokeStyle = SCI[this.emotion].css + (this._faceDetected ? '55' : '11');
-      this.fc.lineWidth = 1.5;
-      this.fc.beginPath(); this.fc.arc(60,60,58,0,Math.PI*2); this.fc.stroke();
+
+      const col = SCI[this.emotion].css;
+      this.fc.strokeStyle = col + (this._faceDetected ? '66' : '11');
+      this.fc.lineWidth = 2;
+      this.fc.beginPath(); this.fc.arc(50,50,48,0,Math.PI*2); this.fc.stroke();
+      document.getElementById('mon-lbl').textContent = this._faceDetected ? this.emotion : 'no face';
+      document.getElementById('mon-lbl').style.color = col;
     }
 
-    // Glow overlay (clears every frame, non-permanent)
+    // Glow Canvas (temporary display)
     this.gc.clearRect(0,0,this.W,this.H);
 
     // Draw active drawing cursor
-    drawCursorGlow(this.gc, this.cursor.x, this.cursor.y, this.emotion, iv, this.isDrawing, this._t);
+    if (this.cursor.x !== null) {
+      const col = SCI[this.emotion].rgb;
+      const r = (12 + iv * 18) * (1 + 0.15 * Math.sin(this._t * 6));
+      this.gc.fillStyle = `rgba(${col[0]},${col[1]},${col[2]}, 0.3)`;
+      this.gc.beginPath(); this.gc.arc(this.cursor.x, this.cursor.y, r, 0, Math.PI*2); this.gc.fill();
+    }
 
+    // Render permanent user strokes
     if (this.isDrawing && this.cursor.x !== null && this.prevCursor.x !== null) {
       const dist = Math.hypot(this.cursor.x - this.prevCursor.x, this.cursor.y - this.prevCursor.y);
       if (dist > 0.4) {
-        // Record point to AI
         this.ai.addPoint(this.cursor.x, this.cursor.y, this._t);
-
-        // Render user permanent stroke segment
+        
+        // Draw user stroke segment
         const userPoints = [this.prevCursor, this.cursor];
-        const phx = PHX[this.emotion] || PHX.neutral;
-        phx(this.ac, userPoints, iv, false);
+        const sys = BRUSHES[this.theme] || BRUSHES.nebula;
+        sys.draw(this.ac, userPoints, this.emotion, iv, false);
 
-        // Generate AI Prediction extension (L3/L4 unlock)
-        const predictSteps = iv < 0.30 ? 0 : iv < 0.55 ? 12 : iv < 0.80 ? 25 : 45;
-        if (predictSteps > 0) {
-          this.ai.predict(predictSteps, this.emotion, iv);
-          // Render predicted extension in real-time as an ethereal glow path (on GLOW canvas)
+        // Generate AI Prediction
+        const steps = iv < 0.30 ? 0 : iv < 0.55 ? 12 : iv < 0.80 ? 25 : 45;
+        if (steps > 0) {
+          this.ai.predict(steps, this.emotion, iv);
           if (this.ai.predictedPath.length > 1) {
-            phx(this.gc, this.ai.predictedPath, iv, true);
+            sys.draw(this.gc, this.ai.predictedPath, this.emotion, iv, true);
           }
         }
       }
@@ -976,65 +745,27 @@ class VoidLuminCreator {
 
     this.prevCursor = { ...this.cursor };
 
-    // Ambient floating canvas particles (PEAK energy)
-    this._ambientTick++;
-    if (this._faceDetected && iv > 0.60 && this._ambientTick % 4 === 0) {
-      this._drawAmbient(iv);
-    }
-
-    // UI Updates
+    // Update UI elements
     this._updateUI(iv);
 
     requestAnimationFrame(() => this._loop());
   }
 
-  _drawAmbient(iv) {
-    const col = SCI[this.emotion].rgb;
-    this.ac.save();
-    const x = Math.random() * this.W;
-    const y = Math.random() * this.H;
-    this.ac.globalAlpha = 0.003 + Math.random() * 0.005 * (iv - 0.6);
-    this.ac.fillStyle = `rgb(${col[0]},${col[1]},${col[2]})`;
-    this.ac.beginPath(); this.ac.arc(x,y, Math.random()*1.5, 0, Math.PI*2); this.ac.fill();
-    this.ac.restore();
-  }
-
   _updateUI(iv) {
     const s = SCI[this.emotion];
     
-    // Emotion labels
-    document.getElementById('em-label').textContent = s.label;
-    document.getElementById('em-label').style.color = s.css + 'aa';
-    document.getElementById('em-name').textContent = s.name;
-    document.getElementById('em-name').style.color = s.css + '55';
-
-    // Intensity bar
+    // Intensity Bar
     document.getElementById('bar-fill').style.height = (iv * 100).toFixed(1) + '%';
     document.getElementById('bar-fill').style.background = s.css;
     document.getElementById('intensity-pct').textContent = Math.round(iv * 100) + '%';
     document.getElementById('intensity-pct').style.color = s.css + 'aa';
 
-    // AI Resonance Panel updates
+    // AI Panel
     document.getElementById('ai-res').textContent = Math.round(this.ai.coupling * 100) + '%';
     document.getElementById('ai-res').style.color = s.css;
     document.getElementById('ai-pattern').textContent = this.ai.inferredPattern;
-    
-    const predictSteps = iv < 0.30 ? 0 : iv < 0.55 ? 12 : iv < 0.80 ? 25 : 45;
-    document.getElementById('ai-steps').textContent = `+${predictSteps}`;
-    
-    // Level dot activations
-    const level = iv < 0.30 ? 0 : iv < 0.55 ? 1 : iv < 0.80 ? 2 : 3;
-    for (let i = 1; i <= 4; i++) {
-      const dot = document.getElementById(`dot-${i}`);
-      const on = i <= level + 1 && iv > 0.02;
-      dot.classList.toggle('on', on);
-      dot.style.color = s.css;
-    }
-  }
-
-  _setupUI() {
-    document.getElementById('act-clear').addEventListener('click', () => this._clear());
-    document.getElementById('act-save').addEventListener('click', () => this._save());
+    const steps = iv < 0.30 ? 0 : iv < 0.55 ? 12 : iv < 0.80 ? 25 : 45;
+    document.getElementById('ai-steps').textContent = `+${steps} steps`;
   }
 
   _save() {
@@ -1044,24 +775,17 @@ class VoidLuminCreator {
 
     const link = document.createElement('a');
     const date = new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);
-    link.download = `masterpiece_${this.emotion}_${date}.png`;
+    link.download = `masterpiece_${this.theme}_${date}.png`;
     link.href = this.artC.toDataURL('image/png');
     link.click();
   }
-
-  _clear() {
-    this._fillBlack();
-    this.ai.reset();
-  }
-
-  _prog(p, msg) {
-    document.getElementById('l-bar').style.width = p + '%';
-    document.getElementById('l-msg').textContent = msg;
-  }
 }
 
-// Boot
-new VoidLuminCreator().init().catch(console.error);
+// Launch instantly
+window.addEventListener('load', () => {
+  document.getElementById('load').style.display = 'none';
+  new VoidLuminCreator().init();
+});
 </script>
 </body>
 </html>
