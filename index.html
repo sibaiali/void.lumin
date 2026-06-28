@@ -1,791 +1,236 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<title>void.lumin — Creative Instrument</title>
-<meta name="description" content="An interactive canvas that learns your stroke physics and responds to your state. Choose from Nebula, Sacred Geometry, Molecular Crystal, and Silk Flow.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@200;300;400;600&display=swap" rel="stylesheet">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#050506">
+  <meta name="description" content="Draw with your hand. Let your expression change the laws of the canvas.">
+  <title>void.lumin — Emotional Drawing Instrument</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --paper: #f1eee8;
+      --muted: rgba(241,238,232,.45);
+      --quiet: rgba(241,238,232,.2);
+      --line: rgba(241,238,232,.11);
+      --emotion: 202,202,205;
+      --serif: "Instrument Serif", Georgia, serif;
+      --sans: "DM Sans", system-ui, sans-serif;
+    }
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#050506}
+    body{color:var(--paper);font-family:var(--sans);user-select:none;-webkit-user-select:none}
+    button,input{font:inherit} button{color:inherit}
+    canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+    #art{background:#050506}
+    #field{z-index:2;touch-action:none;cursor:none}
+    .atmosphere{position:fixed;inset:0;z-index:3;pointer-events:none;background:radial-gradient(circle at 50% 45%,rgba(var(--emotion),.035),transparent 48%),radial-gradient(circle at 50% 50%,transparent 35%,rgba(0,0,0,.72));transition:background 1s ease}
+    .grain{position:fixed;inset:-50%;z-index:4;pointer-events:none;opacity:.026;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");animation:grain .35s steps(2) infinite}
+    @keyframes grain{0%{transform:translate(1%,-1%)}50%{transform:translate(-1%,1%)}100%{transform:translate(1%,1%)}}
 
-<!-- Vladmandic face-api for expressions -->
-<script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
-<!-- MediaPipe Hands for air-drawing -->
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    /* Entrance */
+    #opening{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:28px;background:radial-gradient(circle at 72% 22%,rgba(118,86,255,.1),transparent 32%),radial-gradient(circle at 18% 82%,rgba(255,174,80,.07),transparent 30%),#050506;transition:opacity .9s ease,visibility .9s ease}
+    #opening.gone{opacity:0;visibility:hidden}
+    .wordmark{position:absolute;top:28px;left:34px;font-size:11px;font-weight:500;letter-spacing:.24em;text-transform:uppercase}
+    .edition{position:absolute;top:29px;right:34px;color:var(--quiet);font-size:9px;letter-spacing:.18em;text-transform:uppercase}
+    .opening-copy{width:min(900px,100%);text-align:center;transform:translateY(-15px)}
+    .eyebrow{margin:0 0 28px;color:rgba(241,238,232,.4);font-size:9px;letter-spacing:.29em;text-transform:uppercase}
+    h1{max-width:830px;margin:0 auto;font-family:var(--serif);font-size:clamp(55px,8.4vw,118px);font-weight:400;line-height:.88;letter-spacing:-.045em}
+    h1 em{color:rgba(241,238,232,.45);font-weight:400}
+    .lede{max-width:520px;margin:28px auto 0;color:var(--muted);font-size:clamp(14px,1.4vw,17px);font-weight:300;line-height:1.65}
+    .entry-actions{display:flex;justify-content:center;gap:11px;margin-top:37px}
+    .primary,.secondary{min-height:49px;padding:0 22px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.03);cursor:pointer;transition:transform .25s ease,background .25s ease,border-color .25s ease}
+    .primary{color:#080809;background:var(--paper);border-color:var(--paper)}
+    .primary:hover,.secondary:hover{transform:translateY(-2px)} .primary:hover{background:#fff}.secondary:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.24)}
+    .privacy{margin-top:14px;color:rgba(241,238,232,.24);font-size:9px;letter-spacing:.07em}
+    .principles{position:absolute;left:34px;right:34px;bottom:27px;display:grid;grid-template-columns:repeat(3,1fr);gap:28px;padding-top:18px;border-top:1px solid rgba(255,255,255,.08);text-align:left}
+    .principle{display:grid;grid-template-columns:24px 1fr;gap:11px}.principle i{color:rgba(241,238,232,.22);font-family:var(--serif)}.principle strong{display:block;margin-bottom:3px;font-size:10px;font-weight:500;letter-spacing:.05em}.principle span{color:rgba(241,238,232,.3);font-size:10px;line-height:1.45}
 
-<style>
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html,body{
-  width:100%;height:100%;background:#020202;overflow:hidden;
-  user-select:none;-webkit-user-select:none;
-  font-family:'Outfit',sans-serif;color:#fff;
-}
+    /* Loading */
+    #loading{position:fixed;inset:0;z-index:140;display:grid;place-items:center;background:#050506;opacity:0;visibility:hidden;transition:opacity .3s ease,visibility .3s ease}
+    #loading.on{opacity:1;visibility:visible}.loader{width:min(330px,70vw);text-align:center}.loader-orb{width:40px;height:40px;margin:0 auto 23px;border:1px solid rgba(255,255,255,.18);border-radius:50%;box-shadow:inset 9px 0 18px rgba(118,88,255,.25),0 0 30px rgba(255,255,255,.04);animation:orbit 1.4s linear infinite}@keyframes orbit{to{transform:rotate(360deg)}}
+    #load-message{color:rgba(255,255,255,.4);font-size:9px;letter-spacing:.16em;text-transform:uppercase}.load-track{height:1px;margin-top:17px;overflow:hidden;background:rgba(255,255,255,.08)}#load-fill{height:100%;width:0;background:#eeeae3;transition:width .4s ease}
 
-/* Masterpiece Canvas (permanent drawing) */
-#art{position:fixed;top:0;left:0;display:block;z-index:1}
-/* UI overlay canvas (prediction trails, temporary feedback) */
-#glow{position:fixed;top:0;left:0;pointer-events:none;z-index:2}
+    /* Instrument */
+    #ui{position:fixed;inset:0;z-index:20;pointer-events:none;opacity:0;transition:opacity 1s ease}#ui.on{opacity:1}
+    .topbar{position:absolute;top:max(22px,env(safe-area-inset-top));left:26px;right:26px;display:flex;align-items:flex-start;justify-content:space-between}
+    .brand-name{font-size:10px;font-weight:500;letter-spacing:.22em;text-transform:uppercase}.brand-mode{margin-top:7px;color:var(--quiet);font-size:8px;letter-spacing:.16em;text-transform:uppercase}
+    .actions{display:flex;gap:8px;pointer-events:auto}.quiet-button{min-height:34px;padding:0 14px;border:1px solid rgba(255,255,255,.1);border-radius:999px;background:rgba(5,5,6,.35);backdrop-filter:blur(14px);color:rgba(255,255,255,.5);font-size:9px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:.25s ease}.quiet-button:hover{color:#fff;border-color:rgba(255,255,255,.28);background:rgba(255,255,255,.05)}
+    .emotion{position:absolute;top:50%;left:26px;width:115px;transform:translateY(-50%)}.micro{color:rgba(255,255,255,.27);font-size:7px;letter-spacing:.2em;text-transform:uppercase}#emotion-name{margin-top:9px;color:rgb(var(--emotion));font-family:var(--serif);font-size:28px;line-height:1;transition:color .7s ease}#emotion-action{min-height:29px;margin-top:8px;color:rgba(255,255,255,.3);font-size:9px;line-height:1.4}.signal{width:60px;height:1px;margin-top:13px;overflow:hidden;background:rgba(255,255,255,.1)}#signal-fill{height:100%;width:0;background:rgb(var(--emotion));transition:width .6s ease}
+    .radiance{position:absolute;top:50%;right:27px;width:150px;transform:translateY(-50%)}.radiance-head{display:flex;align-items:baseline;justify-content:space-between}#joy-value{color:rgba(255,255,255,.58);font-family:var(--serif);font-size:19px;font-style:italic}.radiance-track{height:1px;margin:11px 0 15px;background:rgba(255,255,255,.1)}#joy-fill{height:100%;width:0;background:linear-gradient(90deg,#d99439,#fff0ba);box-shadow:0 0 14px rgba(255,211,124,.55);transition:width .7s ease}.unlock-list{display:grid;gap:8px}.unlock{display:flex;align-items:center;justify-content:space-between;color:rgba(255,255,255,.15);font-size:7px;letter-spacing:.14em;text-transform:uppercase;transition:color .6s ease,transform .6s ease}.unlock::after{content:"";width:4px;height:4px;border:1px solid currentColor;border-radius:50%}.unlock.open{color:rgba(255,223,159,.75);transform:translateX(-3px)}.unlock.open::after{background:currentColor;box-shadow:0 0 8px currentColor}
+    .mirror{position:absolute;left:24px;bottom:max(22px,env(safe-area-inset-bottom));width:166px;pointer-events:auto}.mirror-frame{position:relative;height:104px;overflow:hidden;border:1px solid rgba(255,255,255,.1);border-radius:11px;background:rgba(255,255,255,.02)}#camera{width:100%;height:100%;object-fit:cover;transform:scaleX(-1);opacity:.43;filter:grayscale(1) contrast(1.08)}.scan{position:absolute;inset:0;background:linear-gradient(transparent 48%,rgba(var(--emotion),.11) 50%,transparent 52%);background-size:100% 32px;animation:scan 4s linear infinite}@keyframes scan{to{background-position-y:104px}}.sensor-state{display:flex;justify-content:space-between;padding-top:9px;color:rgba(255,255,255,.25);font-size:7px;letter-spacing:.12em;text-transform:uppercase}.sensor-state .live{color:rgba(194,255,210,.66)}
+    #hint{position:absolute;left:50%;bottom:max(29px,env(safe-area-inset-bottom));transform:translateX(-50%);color:rgba(255,255,255,.3);font-size:8px;letter-spacing:.17em;text-align:center;text-transform:uppercase;transition:opacity .7s ease}
+    #toast{position:absolute;top:21%;left:50%;min-width:250px;padding:14px 18px;transform:translate(-50%,12px);border:1px solid rgba(255,226,176,.18);border-radius:999px;background:rgba(10,8,6,.68);backdrop-filter:blur(18px);opacity:0;text-align:center;transition:.45s ease}#toast.show{opacity:1;transform:translate(-50%,0)}#toast small{color:rgba(255,226,176,.4);font-size:7px;letter-spacing:.2em;text-transform:uppercase}#toast strong{display:block;margin-top:4px;color:#ffe5af;font-family:var(--serif);font-size:19px;font-weight:400}
 
-/* Hidden video feed */
-#cam{position:fixed;opacity:0;top:-9999px;left:-9999px;pointer-events:none}
-
-/* ═══════════════════════
-   PREMIUM GLASS UI
-═══════════════════════ */
-#ui{
-  position:fixed;inset:0;pointer-events:none;z-index:10;
-  opacity:0;transition:opacity 0.8s ease;
-}
-#ui.on{opacity:1}
-
-/* Top bar: Title & Theme Selector */
-#top-bar{
-  position:absolute;top:20px;left:20px;right:20px;
-  display:flex;justify-content:space-between;align-items:center;
-}
-.brand{
-  font-family:'Space Mono',monospace;font-size:.85rem;font-weight:700;
-  letter-spacing:.25em;color:#ffb800;text-transform:uppercase;
-  text-shadow:0 0 10px rgba(255,184,0,0.2);
-}
-#themes{
-  display:flex;gap:4px;background:rgba(10,10,10,0.7);
-  border:1px solid rgba(255,255,255,0.06);border-radius:30px;
-  padding:4px;backdrop-filter:blur(20px);pointer-events:all;
-}
-.theme-btn{
-  background:none;border:none;color:#555;
-  font-family:'Space Mono',monospace;font-size:.56rem;
-  letter-spacing:.15em;padding:6px 14px;border-radius:20px;
-  cursor:pointer;transition:all 0.25s ease;text-transform:uppercase;
-}
-.theme-btn:hover{color:#aaa}
-.theme-btn.active{background:rgba(255,255,255,0.08);color:#fff}
-
-/* Left controls: Intensity bar */
-#left-panel{
-  position:absolute;left:20px;top:50%;transform:translateY(-50%);
-  display:flex;flex-direction:column;align-items:center;gap:12px;
-}
-#intensity-pct{font-family:'Space Mono',monospace;font-size:.56rem;color:#444}
-#bar-track{
-  width:2px;height:160px;background:rgba(255,255,255,0.03);border-radius:2px;
-  position:relative;
-}
-#bar-fill{
-  position:absolute;bottom:0;width:100%;border-radius:2px;
-  background:#fff;transition:height 0.3s ease;
-}
-
-/* AI Resonance Panel (Right side) */
-#ai-panel{
-  position:absolute;right:20px;top:50%;transform:translateY(-50%);
-  background:rgba(5,5,5,0.7);border:1px solid rgba(255,255,255,0.04);
-  border-radius:16px;padding:16px;width:180px;
-  font-family:'Space Mono',monospace;backdrop-filter:blur(20px);
-}
-.ai-title{font-size:.6rem;color:#444;letter-spacing:.15em;margin-bottom:10px}
-.ai-row{display:flex;justify-content:space-between;margin-bottom:6px;font-size:.5rem}
-.ai-lbl{color:#333}
-.ai-val{color:#888;transition:color .3s ease}
-
-/* Camera/Expression state (bottom right) */
-#cam-panel{
-  position:absolute;bottom:20px;right:20px;
-  display:flex;flex-direction:column;align-items:flex-end;gap:10px;
-  pointer-events:all;
-}
-#camera-btn{
-  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
-  color:#666;font-family:'Space Mono',monospace;font-size:.54rem;
-  letter-spacing:.15em;padding:8px 16px;border-radius:20px;
-  cursor:pointer;transition:all 0.3s ease;
-}
-#camera-btn:hover{color:#fff;background:rgba(255,255,255,0.08)}
-#camera-btn.active{color:#ffb800;border-color:rgba(255,184,0,0.3);background:rgba(255,184,0,0.05)}
-.monitor{
-  width:72px;height:72px;border-radius:50%;
-  border:1px solid rgba(255,255,255,0.05);overflow:hidden;
-  background:#030303;display:none;position:relative;
-}
-.monitor-canvas{width:100%;height:100%;object-fit:cover;display:block}
-.monitor-lbl{
-  position:absolute;bottom:-18px;right:0;left:0;text-align:center;
-  font-family:'Space Mono',monospace;font-size:.44rem;letter-spacing:.12em;
-  color:#222;text-transform:uppercase;
-}
-
-/* Actions bottom center */
-#action-panel{
-  position:absolute;bottom:20px;left:50%;transform:translateX(-50%);
-  display:flex;gap:20px;pointer-events:all;
-}
-.action-btn{
-  font-family:'Space Mono',monospace;font-size:.54rem;letter-spacing:.25em;
-  color:#333;background:none;border:none;cursor:pointer;
-  text-transform:uppercase;padding:8px 16px;transition:all 0.3s ease;
-}
-.action-btn:hover{color:#fff}
-
-/* Interactive tutorial hint */
-#hint-box{
-  position:absolute;bottom:70px;left:50%;transform:translateX(-50%);
-  font-family:'Space Mono',monospace;font-size:.48rem;color:#181818;
-  letter-spacing:.15em;text-transform:uppercase;text-align:center;
-}
-
-/* Flash screen */
-#save-flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:100;transition:opacity .15s ease}
-#save-flash.on{opacity:.25}
-</style>
+    /* Finish */
+    .modal{position:fixed;inset:0;z-index:130;display:grid;place-items:center;padding:24px;background:rgba(3,3,4,.77);backdrop-filter:blur(18px);opacity:0;visibility:hidden;transition:opacity .4s ease,visibility .4s ease}.modal.open{opacity:1;visibility:visible}.modal-card{width:min(560px,100%);padding:30px;border:1px solid rgba(255,255,255,.11);border-radius:20px;background:rgba(10,10,11,.94);box-shadow:0 30px 90px rgba(0,0,0,.5)}.modal-kicker{color:rgba(255,255,255,.27);font-size:8px;letter-spacing:.22em;text-transform:uppercase}.modal h2{margin:14px 0 8px;font-family:var(--serif);font-size:44px;font-weight:400;letter-spacing:-.025em}.modal-copy{margin:0 0 24px;color:rgba(255,255,255,.38);font-size:11px;line-height:1.6}.title-label{display:block;color:rgba(255,255,255,.28);font-size:8px;letter-spacing:.16em;text-transform:uppercase}#art-title{width:100%;margin-top:8px;padding:11px 0;border:0;border-bottom:1px solid rgba(255,255,255,.15);outline:0;background:transparent;color:#fff;font-family:var(--serif);font-size:27px}#art-title:focus{border-color:rgba(255,255,255,.45)}.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0}.summary-cell{padding:13px;border:1px solid rgba(255,255,255,.08);border-radius:10px}.summary-cell span{display:block;color:rgba(255,255,255,.25);font-size:7px;letter-spacing:.13em;text-transform:uppercase}.summary-cell strong{display:block;overflow:hidden;margin-top:7px;color:rgba(255,255,255,.72);font-family:var(--serif);font-size:19px;font-weight:400;text-overflow:ellipsis;white-space:nowrap}.modal-actions{display:flex;justify-content:flex-end;gap:9px}.modal-actions button{min-height:44px}
+    @media(max-width:760px){.edition{display:none}.wordmark{top:22px;left:22px}.opening-copy{transform:translateY(-24px)}h1{font-size:clamp(49px,15vw,82px)}.principles{left:22px;right:22px;grid-template-columns:1fr}.principle:nth-child(n+2){display:none}.entry-actions{flex-direction:column;padding:0 20px}.topbar{left:20px;right:20px}.emotion{top:88px;left:20px;transform:none}.radiance{top:auto;right:20px;bottom:24px;width:120px;transform:none}.unlock-list{display:none}.mirror{left:20px;bottom:20px;width:116px}.mirror-frame{height:74px}#hint{bottom:112px;width:100%}.summary{grid-template-columns:1fr}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important}}
+  </style>
 </head>
 <body>
+  <canvas id="art" aria-label="Your permanent artwork"></canvas>
+  <canvas id="field" aria-label="Interactive emotional canvas"></canvas>
+  <div class="atmosphere"></div><div class="grain"></div>
 
-<canvas id="art"></canvas>
-<canvas id="glow"></canvas>
-<video id="cam" playsinline muted autoplay></video>
-
-<!-- MAIN UI -->
-<div id="ui">
-  <!-- Top bar -->
-  <div id="top-bar">
-    <div class="brand">void.lumin</div>
-    <div id="themes">
-      <button class="theme-btn active" data-t="nebula">Nebula</button>
-      <button class="theme-btn" data-t="geometry">Geometry</button>
-      <button class="theme-btn" data-t="crystal">Crystal</button>
-      <button class="theme-btn" data-t="silk">Silk</button>
+  <section id="opening" aria-labelledby="opening-title">
+    <div class="wordmark">void.lumin</div><div class="edition">Emotional drawing instrument / 01</div>
+    <div class="opening-copy">
+      <p class="eyebrow">Your movement makes the mark. Your expression changes its laws.</p>
+      <h1 id="opening-title">Draw what your face <em>cannot say.</em></h1>
+      <p class="lede">Move one finger through the air and the camera follows. Joy opens light. Calm finds order. Every expression changes what your gesture can become.</p>
+      <div class="entry-actions"><button class="primary" id="camera-start" type="button">Begin with camera</button><button class="secondary" id="pointer-start" type="button">Use touch or mouse</button></div>
+      <p class="privacy">Your camera stays on this device. Nothing is recorded or uploaded.</p>
     </div>
-  </div>
-
-  <!-- Left: Intensity bar -->
-  <div id="left-panel">
-    <div id="intensity-pct">0%</div>
-    <div id="bar-track">
-      <div id="bar-fill"></div>
-      <div class="bar-notch" style="bottom:30%"></div>
-      <div class="bar-notch" style="bottom:55%"></div>
-      <div class="bar-notch" style="bottom:80%"></div>
+    <div class="principles" aria-hidden="true">
+      <div class="principle"><i>01</i><div><strong>Point to draw</strong><span>Raise one index finger. Lower it to pause.</span></div></div>
+      <div class="principle"><i>02</i><div><strong>Become the physics</strong><span>Your expression transforms the behavior of every movement.</span></div></div>
+      <div class="principle"><i>03</i><div><strong>Unlock radiance</strong><span>Happiness reveals echoes, blooms, orbits, and aurora.</span></div></div>
     </div>
-  </div>
+  </section>
 
-  <!-- Right: AI Resonance -->
-  <div id="ai-panel">
-    <div class="ai-title">NEURAL CO-CREATION</div>
-    <div class="ai-row">
-      <span class="ai-lbl">Resonance</span>
-      <span class="ai-val" id="ai-res">0%</span>
-    </div>
-    <div class="ai-row">
-      <span class="ai-lbl">Geometry</span>
-      <span class="ai-val" id="ai-pattern">Linear</span>
-    </div>
-    <div class="ai-row">
-      <span class="ai-lbl">Prediction</span>
-      <span class="ai-val" id="ai-steps">+0 steps</span>
-    </div>
-    <div class="ai-row" style="margin-top:12px;border-top:1px solid rgba(255,255,255,0.05);padding-top:8px">
-      <span class="ai-lbl">Biometrics</span>
-      <span class="ai-val" id="bio-status" style="color:#555">OFF</span>
-    </div>
-  </div>
+  <div id="loading" role="status" aria-live="polite"><div class="loader"><div class="loader-orb"></div><div id="load-message">Opening the camera</div><div class="load-track"><div id="load-fill"></div></div></div></div>
 
-  <!-- Bottom Hint -->
-  <div id="hint-box">drag mouse or touch to draw. click enable camera for biometric morphing.</div>
+  <main id="ui" aria-label="void.lumin instrument controls">
+    <div class="topbar"><div><div class="brand-name">void.lumin</div><div class="brand-mode" id="input-mode">Camera instrument</div></div><div class="actions"><button class="quiet-button" id="new-button" type="button">New</button><button class="quiet-button" id="finish-button" type="button">Finish piece</button></div></div>
+    <aside class="emotion" aria-live="polite"><div class="micro">Expression</div><div id="emotion-name">Stillness</div><div id="emotion-action">holds a silver thread</div><div class="signal"><div id="signal-fill"></div></div></aside>
+    <aside class="radiance"><div class="radiance-head"><span class="micro">Happiness / radiance</span><span id="joy-value">0</span></div><div class="radiance-track"><div id="joy-fill"></div></div><div class="unlock-list"><div class="unlock" data-level="1">Echo · 18</div><div class="unlock" data-level="2">Bloom · 40</div><div class="unlock" data-level="3">Orbit · 65</div><div class="unlock" data-level="4">Aurora · 85</div></div></aside>
+    <aside class="mirror" id="mirror"><div class="mirror-frame"><video id="camera" playsinline muted autoplay></video><div class="scan"></div></div><div class="sensor-state"><span id="hand-state">Hand — seeking</span><span id="face-state">Face — seeking</span></div></aside>
+    <div id="hint">Raise one index finger to draw</div><div id="toast" aria-live="polite"><small>Radiance unlocked</small><strong>Echo</strong></div>
+  </main>
 
-  <!-- Bottom center actions -->
-  <div id="action-panel">
-    <button class="action-btn" id="act-clear">Clear</button>
-    <button class="action-btn" id="act-save">Save Masterpiece</button>
-  </div>
+  <section class="modal" id="finish-modal" role="dialog" aria-modal="true" aria-labelledby="finish-title"><div class="modal-card"><div class="modal-kicker">Your emotional record</div><h2 id="finish-title">This moment is yours.</h2><p class="modal-copy">Name it if you want. The saved piece carries a quiet record of the expression that shaped it.</p><label class="title-label" for="art-title">Title</label><input id="art-title" maxlength="54" value="A moment in light" autocomplete="off"><div class="summary"><div class="summary-cell"><span>Dominant state</span><strong id="summary-emotion">Stillness</strong></div><div class="summary-cell"><span>Peak radiance</span><strong id="summary-radiance">0</strong></div><div class="summary-cell"><span>Time inside</span><strong id="summary-time">00:00</strong></div></div><div class="modal-actions"><button class="secondary" id="finish-cancel" type="button">Return</button><button class="primary" id="save-button" type="button">Save artwork</button></div></div></section>
+  <section class="modal" id="new-modal" role="dialog" aria-modal="true" aria-labelledby="new-title"><div class="modal-card"><div class="modal-kicker">Begin again</div><h2 id="new-title">Release this piece?</h2><p class="modal-copy">The canvas will become empty. Save it first if this moment matters to you.</p><div class="modal-actions"><button class="secondary" id="new-cancel" type="button">Keep drawing</button><button class="primary" id="new-confirm" type="button">Clear canvas</button></div></div></section>
 
-  <!-- Bottom right camera panel -->
-  <div id="cam-panel">
-    <div class="monitor" id="mon-window">
-      <canvas id="face-preview" class="monitor-canvas" width="100" height="100"></canvas>
-      <span class="monitor-lbl" id="mon-lbl">no face</span>
-    </div>
-    <button id="camera-btn">Enable Camera</button>
-  </div>
-</div>
+  <script>
+    'use strict';
 
-<div id="save-flash"></div>
-
-<script>
-'use strict';
-
-// ═══════════════════════════════════════════════════════
-//  EMOTIONS & THEME PHYSICS
-// ═══════════════════════════════════════════════════════
-const SCI = {
-  neutral:   { label:'NEUTRAL',  css:'#cccccc', rgb:[204,204,204] },
-  happy:     { label:'HAPPY',    css:'#ffb800', rgb:[255,184,  0] },
-  sad:       { label:'SAD',      css:'#1438cc', rgb:[ 20, 56,204] },
-  angry:     { label:'ANGRY',    css:'#dc1212', rgb:[220, 18, 18] },
-  fearful:   { label:'FEAR',     css:'#7810c4', rgb:[120, 16,196] },
-  surprised: { label:'SURPRISE', css:'#00dcff', rgb:[  0,220,255] },
-  disgusted: { label:'DISGUST',  css:'#2e8a08', rgb:[ 46,138,  8] },
-};
-
-// ═══════════════════════════════════════════════════════
-//  THEME BRUSH SYSTEMS
-// ═══════════════════════════════════════════════════════
-const BRUSHES = {
-
-  // ── NEBULA GALAXY ──────────────────────────────────
-  // Gaseous expanding clouds with stardust noise
-  nebula: {
-    draw(ctx, points, emotion, iv, isPrediction) {
-      if (points.length < 2) return;
-      const p1 = points[points.length-2], p2 = points[points.length-1];
-      const col = SCI[emotion].rgb;
-      const glowCol = `rgba(${col[0]}, ${col[1]}, ${col[2]}, ${isPrediction ? 0.08 : 0.22})`;
-
-      ctx.save();
-      ctx.globalCompositeOperation = 'screen';
-      
-      // Expand gaseous nebula brush
-      const brushRadius = (isPrediction ? 10 : 18) + iv * 32;
-      const grad = ctx.createRadialGradient(p2.x, p2.y, 0, p2.x, p2.y, brushRadius);
-      grad.addColorStop(0, glowCol);
-      grad.addColorStop(0.35, `rgba(${col[0]}, ${col[1]}, ${col[2]}, ${isPrediction ? 0.03 : 0.08})`);
-      grad.addColorStop(1, 'rgba(0,0,0,0)');
-
-      ctx.fillStyle = grad;
-      ctx.beginPath(); ctx.arc(p2.x, p2.y, brushRadius, 0, Math.PI*2); ctx.fill();
-
-      // Core hot line
-      ctx.strokeStyle = `rgba(${col[0]}, ${col[1]}, ${col[2]}, ${isPrediction ? 0.25 : 0.8})`;
-      ctx.lineWidth = isPrediction ? 0.5 : 1.2 + iv * 2.8;
-      ctx.lineCap = 'round';
-      ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
-
-      // Cosmic dust particles (only permanent)
-      if (!isPrediction && Math.random() < 0.45) {
-        const dustCount = (1 + iv * 8) | 0;
-        for (let i = 0; i < dustCount; i++) {
-          const a = Math.random() * Math.PI*2;
-          const r = Math.random() * brushRadius * 0.9;
-          ctx.fillStyle = `rgba(255, 255, 255, ${0.12 + Math.random()*0.35})`;
-          ctx.beginPath();
-          ctx.arc(p2.x + Math.cos(a)*r, p2.y + Math.sin(a)*r, 0.4 + Math.random()*1.2, 0, Math.PI*2);
-          ctx.fill();
-        }
-      }
-      ctx.restore();
-    }
-  },
-
-  // ── SACRED GEOMETRY ────────────────────────────────
-  // Kaleidoscope symmetrical geometry
-  geometry: {
-    draw(ctx, points, emotion, iv, isPrediction) {
-      if (points.length < 2) return;
-      const p1 = points[points.length-2], p2 = points[points.length-1];
-      const col = SCI[emotion].rgb;
-      
-      const width = ctx.canvas.width / (window.devicePixelRatio || 1);
-      const height = ctx.canvas.height / (window.devicePixelRatio || 1);
-      const cx = width / 2;
-      const cy = height / 2;
-
-      ctx.save();
-      ctx.strokeStyle = `rgba(${col[0]}, ${col[1]}, ${col[2]}, ${isPrediction ? 0.35 : 0.85})`;
-      ctx.lineWidth = isPrediction ? 0.4 : 0.6 + iv * 2.5;
-
-      const sym = iv < 0.30 ? 4 : iv < 0.55 ? 6 : iv < 0.80 ? 8 : 12;
-
-      for (let i = 0; i < sym; i++) {
-        const angle = (i / sym) * Math.PI * 2;
-        ctx.save();
-        ctx.translate(cx, cy);
-        ctx.rotate(angle);
-        
-        // Mirror reflection
-        ctx.beginPath();
-        ctx.moveTo(p1.x - cx, p1.y - cy);
-        ctx.lineTo(p2.x - cx, p2.y - cy);
-        ctx.stroke();
-
-        // Mirrored reflect
-        ctx.scale(1, -1);
-        ctx.beginPath();
-        ctx.moveTo(p1.x - cx, p1.y - cy);
-        ctx.lineTo(p2.x - cx, p2.y - cy);
-        ctx.stroke();
-
-        ctx.restore();
-      }
-      ctx.restore();
-    }
-  },
-
-  // ── MOLECULAR CRYSTAL ──────────────────────────────
-  // Branching lattice grid connections
-  crystal: {
-    draw(ctx, points, emotion, iv, isPrediction) {
-      if (points.length < 2) return;
-      const p1 = points[points.length-2], p2 = points[points.length-1];
-      const col = SCI[emotion].rgb;
-
-      ctx.save();
-      ctx.strokeStyle = `rgba(${col[0]}, ${col[1]}, ${col[2]}, ${isPrediction ? 0.35 : 0.85})`;
-      ctx.lineWidth = isPrediction ? 0.4 : 0.8 + iv * 1.8;
-
-      ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
-
-      // Sharp crystal lattices branching off at 60-degree angle
-      if (!isPrediction && Math.random() < 0.28) {
-        const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x) + (Math.random() < 0.5 ? 1 : -1) * Math.PI/3;
-        const len = 8 + Math.random() * 32 * iv;
-        ctx.beginPath();
-        ctx.moveTo(p2.x, p2.y);
-        ctx.lineTo(p2.x + Math.cos(angle)*len, p2.y + Math.sin(angle)*len);
-        ctx.stroke();
-
-        // Node dot
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(p2.x + Math.cos(angle)*len, p2.y + Math.sin(angle)*len, 1.5, 0, Math.PI*2);
-        ctx.fill();
-      }
-      ctx.restore();
-    }
-  },
-
-  // ── SILK FLOW ──────────────────────────────────────
-  // Swirling, organic ribbon flows
-  silk: {
-    draw(ctx, points, emotion, iv, isPrediction) {
-      if (points.length < 2) return;
-      const p1 = points[points.length-2], p2 = points[points.length-1];
-      const col = SCI[emotion].rgb;
-
-      ctx.save();
-      const n = (3 + iv * 10) | 0;
-      for (let i = 0; i < n; i++) {
-        ctx.globalAlpha = isPrediction ? 0.03 : 0.05 + (0.12 * iv);
-        ctx.strokeStyle = `rgba(${col[0]}, ${col[1]}, ${col[2]}, 1)`;
-        ctx.lineWidth = 0.4 + Math.random()*0.8;
-        
-        const offsetRange = i * (2 + iv*12);
-        const ox = (Math.random() - 0.5) * offsetRange;
-        const oy = (Math.random() - 0.5) * offsetRange;
-
-        ctx.beginPath();
-        ctx.moveTo(p1.x + ox, p1.y + oy);
-        ctx.quadraticCurveTo(
-          (p1.x+p2.x)*0.5 + ox*1.5, (p1.y+p2.y)*0.5 + oy*1.5,
-          p2.x + ox, p2.y + oy
-        );
-        ctx.stroke();
-      }
-      ctx.restore();
-    }
-  }
-};
-
-// ═══════════════════════════════════════════════════════
-//  AI PREDICTIVE PARTNER & LEARNING ENGINE
-// ═══════════════════════════════════════════════════════
-class AILearningEngine {
-  constructor() {
-    this.strokeHistory = [];
-    this.coupling = 0;
-    this.predictedPath = [];
-    this.inferredPattern = 'Linear';
-  }
-
-  reset() {
-    this.strokeHistory = [];
-    this.predictedPath = [];
-    this.coupling = 0;
-    this.inferredPattern = 'Linear';
-  }
-
-  addPoint(x, y, t) {
-    this.strokeHistory.push({ x, y, t });
-    if (this.strokeHistory.length > 40) this.strokeHistory.shift();
-    this.learnPattern();
-  }
-
-  learnPattern() {
-    const H = this.strokeHistory;
-    if (H.length < 5) return;
-
-    let totalVel = 0, headingChanges = 0;
-    const headings = [];
-
-    for (let i = 1; i < H.length; i++) {
-      const dt = (H[i].t - H[i-1].t) || 0.016;
-      const dx = H[i].x - H[i-1].x;
-      const dy = H[i].y - H[i-1].y;
-      const dist = Math.hypot(dx, dy);
-      totalVel += dist / dt;
-
-      const heading = Math.atan2(dy, dx);
-      headings.push(heading);
-      if (headings.length > 1) {
-        let diff = heading - headings[headings.length - 2];
-        diff = Math.atan2(Math.sin(diff), Math.cos(diff));
-        headingChanges += Math.abs(diff);
-      }
-    }
-
-    const avgCurvature = headingChanges / (H.length - 2);
-    if (avgCurvature < 0.08) this.inferredPattern = 'Linear Spline';
-    else if (avgCurvature < 0.28) this.inferredPattern = 'Harmonic Curve';
-    else this.inferredPattern = 'Organic Spiral';
-
-    this.coupling = Math.max(0.1, Math.min(0.95, 1 - avgCurvature * 0.7));
-  }
-
-  predict(steps, emotion, intensity) {
-    const H = this.strokeHistory;
-    if (H.length < 4) { this.predictedPath = []; return; }
-
-    const last = H[H.length-1], prev = H[H.length-2], pprev = H[H.length-3];
-    const dt1 = (last.t - prev.t) || 0.016;
-    let vx = (last.x - prev.x) / dt1;
-    let vy = (last.y - prev.y) / dt1;
-
-    const dt2 = (prev.t - pprev.t) || 0.016;
-    const pvx = (prev.x - prev.x) / dt2;
-    const pvy = (prev.y - prev.y) / dt2;
-    const ax = (vx - pvx) / dt1;
-    const ay = (vy - pvy) / dt1;
-
-    this.predictedPath = [{ x: last.x, y: last.y }];
-    let currX = last.x, currY = last.y;
-
-    for (let step = 1; step <= steps; step++) {
-      const t = step * 0.016;
-      let dx = vx * t + 0.5 * ax * t * t;
-      let dy = vy * t + 0.5 * ay * t * t;
-
-      if (emotion === 'happy') {
-        const f = 0.04 * intensity * step;
-        dx += Math.cos(t * 12) * f * 12;
-        dy += Math.sin(t * 12) * f * 12;
-      } else if (emotion === 'sad') {
-        dy += 0.8 * intensity * step * step * 0.08;
-      } else if (emotion === 'angry') {
-        dx += (Math.random() - 0.5) * 5 * intensity;
-        dy += (Math.random() - 0.5) * 5 * intensity;
-      }
-
-      currX += dx; currY += dy;
-      this.predictedPath.push({ x: currX, y: currY });
-    }
-  }
-}
-
-// ═══════════════════════════════════════════════════════
-//  APPLICATION INITIALIZER
-// ═══════════════════════════════════════════════════════
-class VoidLuminCreator {
-  constructor() {
-    this.artC = document.getElementById('art');
-    this.glwC = document.getElementById('glow');
-    this.video = document.getElementById('cam');
-    this.faceC = document.getElementById('face-preview');
-
-    this.ac = this.artC.getContext('2d');
-    this.gc = this.glwC.getContext('2d');
-    this.fc = this.faceC.getContext('2d');
-
-    this.ai = new AILearningEngine();
-
-    this.theme = 'nebula';
-    this.emotion = 'neutral';
-    this.intensity = 0;
-    this.smoothIv = 0;
-
-    this.isDrawing = false;
-    this.cursor = { x: null, y: null };
-    this.prevCursor = { x: null, y: null };
-
-    this.cameraActive = false;
-    this._DPR = Math.min(window.devicePixelRatio||1, 2);
-  }
-
-  init() {
-    this._resize();
-    window.addEventListener('resize', () => this._resize());
-    this._fillBlack();
-
-    this._setupUI();
-    this._setupInput();
-
-    document.getElementById('ui').classList.add('on');
-    this._loop();
-  }
-
-  _resize() {
-    const w = window.innerWidth, h = window.innerHeight, D = this._DPR;
-    for (const c of [this.artC, this.glwC]) {
-      c.width = w * D; c.height = h * D;
-      c.style.width = w + 'px'; c.style.height = h + 'px';
-    }
-    this.ac.scale(D, D); this.gc.scale(D, D);
-    this.W = w; this.H = h;
-    this._fillBlack();
-  }
-
-  _fillBlack() {
-    this.ac.fillStyle = '#020202';
-    this.ac.fillRect(0,0,this.W,this.H);
-  }
-
-  _setupInput() {
-    const toLocal = e => {
-      const r = this.artC.getBoundingClientRect();
-      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-      return { x: clientX - r.left, y: clientY - r.top };
+    const EMOTIONS = {
+      neutral:{name:'Stillness',action:'holds a silver thread',color:[202,202,205],gravity:0,turbulence:.08},
+      happy:{name:'Joy',action:'opens the gesture outward',color:[255,181,62],gravity:-.1,turbulence:.22},
+      sad:{name:'Weight',action:'lets every trace descend',color:[48,91,224],gravity:.36,turbulence:.05},
+      angry:{name:'Heat',action:'fractures motion into force',color:[244,57,43],gravity:.03,turbulence:.72},
+      fearful:{name:'Tension',action:'pulls the field inward',color:[150,79,235],gravity:.08,turbulence:.58},
+      surprised:{name:'Wonder',action:'breaks the expected pattern',color:[58,218,255],gravity:-.05,turbulence:.46},
+      disgusted:{name:'Recoil',action:'pushes matter away',color:[105,185,74],gravity:.06,turbulence:.3}
     };
+    const UNLOCKS=[{threshold:18,name:'Echo'},{threshold:40,name:'Bloom'},{threshold:65,name:'Orbit'},{threshold:85,name:'Aurora'}];
+    const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));
+    const lerp=(a,b,t)=>a+(b-a)*t;
+    const rgba=(c,a)=>`rgba(${c[0]|0},${c[1]|0},${c[2]|0},${a})`;
 
-    const down = p => {
-      this.cursor = p; this.prevCursor = p;
-      this.isDrawing = true;
-      this.ai.reset();
-      this.ai.addPoint(p.x, p.y, performance.now()/1000);
-      document.getElementById('ps-dot').classList.add('on');
-      document.getElementById('ps-lbl').textContent = 'painting';
-      document.getElementById('ps-lbl').style.color = SCI[this.emotion].css;
-    };
-
-    const move = p => { this.cursor = p; };
-
-    const up = () => {
-      this.isDrawing = false;
-      document.getElementById('ps-dot').classList.remove('on');
-      document.getElementById('ps-lbl').textContent = 'hovering';
-      document.getElementById('ps-lbl').style.color = '';
-
-      if (this.ai.predictedPath.length > 1) {
-        const sys = BRUSHES[this.theme] || BRUSHES.nebula;
-        sys.draw(this.ac, this.ai.predictedPath, this.emotion, this.smoothIv, false);
+    class VoidLumin {
+      constructor(){
+        this.art=document.getElementById('art');this.field=document.getElementById('field');this.ac=this.art.getContext('2d',{alpha:false});this.fc=this.field.getContext('2d');this.video=document.getElementById('camera');
+        this.dpr=Math.min(devicePixelRatio||1,2);this.size={w:innerWidth,h:innerHeight};this.active=false;this.cameraMode=false;this.cameraReady=false;this.handReady=false;this.faceReady=false;this.handBusy=false;
+        this.cursor={x:innerWidth/2,y:innerHeight/2,visible:false,drawing:false,source:'pointer'};this.previous=null;this.pointerDown=false;this.handWasDrawing=false;this.particles=[];this.lastHandSeen=0;this.lastFaceSeen=0;this.lastFrame=performance.now();this.startedAt=Date.now();
+        this.probs={neutral:1,happy:0,sad:0,angry:0,fearful:0,surprised:0,disgusted:0};this.targets={...this.probs};this.dominant='neutral';this.confidence=0;this.radiance=0;this.peakRadiance=0;this.unlockLevel=0;this.emotionTime=Object.fromEntries(Object.keys(EMOTIONS).map(k=>[k,0]));
+        this.resize(false);this.bind();requestAnimationFrame(t=>this.frame(t));
       }
-      this.ai.reset();
-    };
-
-    this.artC.addEventListener('mousedown', e => down(toLocal(e)));
-    this.artC.addEventListener('mousemove', e => move(toLocal(e)));
-    window.addEventListener('mouseup', up);
-
-    this.artC.addEventListener('touchstart', e => {
-      e.preventDefault();
-      if (e.touches.length > 0) down(toLocal(e.touches[0]));
-    }, {passive:false});
-    this.artC.addEventListener('touchmove', e => {
-      e.preventDefault();
-      if (e.touches.length > 0) move(toLocal(e.touches[0]));
-    }, {passive:false});
-    window.addEventListener('touchend', up);
-  }
-
-  _setupUI() {
-    // Theme selectors
-    document.querySelectorAll('.theme-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        this.theme = btn.dataset.t;
-      });
-    });
-
-    // Actions
-    document.getElementById('act-clear').addEventListener('click', () => this._fillBlack());
-    document.getElementById('act-save').addEventListener('click', () => this._save());
-
-    // Camera toggle
-    const camBtn = document.getElementById('camera-btn');
-    camBtn.addEventListener('click', async () => {
-      if (this.cameraActive) {
-        this._stopCamera();
-      } else {
-        this._startCamera();
+      bind(){
+        addEventListener('resize',()=>this.resize(true));
+        document.getElementById('camera-start').onclick=()=>this.start(true);document.getElementById('pointer-start').onclick=()=>this.start(false);
+        document.getElementById('finish-button').onclick=()=>this.openFinish();document.getElementById('finish-cancel').onclick=()=>this.modal('finish-modal',false);document.getElementById('save-button').onclick=()=>this.save();
+        document.getElementById('new-button').onclick=()=>this.modal('new-modal',true);document.getElementById('new-cancel').onclick=()=>this.modal('new-modal',false);document.getElementById('new-confirm').onclick=()=>{this.clear();this.modal('new-modal',false)};
+        this.field.onpointerdown=e=>{e.preventDefault();this.field.setPointerCapture?.(e.pointerId);this.pointerDown=true;this.cursor={x:e.clientX,y:e.clientY,visible:true,drawing:true,source:'pointer'};this.previous={x:e.clientX,y:e.clientY}};
+        this.field.onpointermove=e=>{if(this.cameraMode&&performance.now()-this.lastHandSeen<900)return;this.cursor={x:e.clientX,y:e.clientY,visible:true,drawing:this.pointerDown,source:'pointer'}};
+        const up=()=>{this.pointerDown=false;this.cursor.drawing=false;this.previous=null};this.field.onpointerup=up;this.field.onpointercancel=up;this.field.onpointerleave=()=>{if(!this.pointerDown&&!this.cameraMode)this.cursor.visible=false};
+        addEventListener('keydown',e=>{if(e.code==='KeyS'&&!e.ctrlKey&&!e.metaKey)this.openFinish();if(e.code==='Escape'){this.modal('finish-modal',false);this.modal('new-modal',false)}});
       }
-    });
-  }
-
-  async _startCamera() {
-    const camBtn = document.getElementById('camera-btn');
-    camBtn.textContent = 'Starting…';
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-      this.video.srcObject = stream;
-      await this.video.play();
-      
-      this.cameraActive = true;
-      camBtn.textContent = 'Disable Camera';
-      camBtn.classList.add('active');
-      document.getElementById('mon-window').style.display = 'block';
-      document.getElementById('bio-status').textContent = 'ACTIVE';
-      document.getElementById('bio-status').style.color = '#ffb800';
-
-      this._startBiometricDetection();
-    } catch(e) {
-      console.error('Camera sensor failed:', e);
-      camBtn.textContent = 'Enable Camera';
-      alert('Camera access denied or sensor unavailable.');
-    }
-  }
-
-  _stopCamera() {
-    const camBtn = document.getElementById('camera-btn');
-    this.cameraActive = false;
-    camBtn.textContent = 'Enable Camera';
-    camBtn.classList.remove('active');
-    document.getElementById('mon-window').style.display = 'none';
-    document.getElementById('bio-status').textContent = 'OFF';
-    document.getElementById('bio-status').style.color = '';
-    
-    if (this.video.srcObject) {
-      this.video.srcObject.getTracks().forEach(t => t.stop());
-    }
-    this.intensity = 0;
-    this.emotion = 'neutral';
-  }
-
-  async _startBiometricDetection() {
-    // Face API detector loop
-    const detectFace = async () => {
-      if (!this.cameraActive) return;
-      try {
-        if (typeof faceapi !== 'undefined' && faceapi.nets.tinyFaceDetector.params) {
-          const opts = new faceapi.TinyFaceDetectorOptions({ inputSize: 160, scoreThreshold: 0.4 });
-          const dets = await faceapi.detectAllFaces(this.video, opts).withFaceExpressions();
-          if (dets.length > 0) {
-            const ex = dets[0].expressions;
-            const dom = Object.keys(ex).reduce((a,b) => ex[a] > ex[b] ? a : b);
-            if (SCI[dom]) {
-              this.emotion = dom;
-              this.intensity = ex[dom];
-            }
-            this._faceDetected = true;
-          } else {
-            this._faceDetected = false;
-            this.intensity = 0;
-          }
-        }
-      } catch(_) {}
-      setTimeout(detectFace, 250);
-    };
-
-    // Load FaceAPI models on demand
-    const modelUrl = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model';
-    if (typeof faceapi !== 'undefined' && !faceapi.nets.tinyFaceDetector.params) {
-      try {
-        await faceapi.nets.tinyFaceDetector.loadFromUri(modelUrl);
-        await faceapi.nets.faceExpressionNet.loadFromUri(modelUrl);
-      } catch(e) {
-        console.warn('FaceAPI models load failed:', e);
+      async start(camera){
+        this.active=true;this.startedAt=Date.now();this.cameraMode=camera;
+        if(!camera){this.enter();return}
+        this.loading(true,8,'Opening the camera');
+        try{
+          const stream=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:1280},height:{ideal:720},facingMode:'user',frameRate:{ideal:30}},audio:false});
+          this.video.srcObject=stream;await new Promise(r=>this.video.addEventListener('loadedmetadata',r,{once:true}));await this.video.play();this.cameraReady=true;this.loading(true,28,'Learning your hand and expression');
+          const ready=await Promise.all([this.setupHands(),this.setupFace()]);this.handReady=ready[0];this.faceReady=ready[1];this.loading(true,94,this.handReady?'The instrument is listening':'Expression ready — pointer available');setTimeout(()=>this.enter(),450);
+        }catch(error){console.warn('Camera unavailable. Pointer mode enabled.',error);this.cameraMode=false;this.loading(true,82,'Camera unavailable — opening touch canvas');setTimeout(()=>this.enter(),600)}
       }
-    }
-    detectFace();
-  }
-
-  _loop() {
-    this._t = performance.now() / 1000;
-    this.smoothIv += (this.intensity - this.smoothIv) * 0.08;
-    const iv = this.smoothIv;
-
-    // Draw camera preview (if active)
-    if (this.cameraActive && this.video.readyState >= 2) {
-      this.fc.save();
-      this.fc.clearRect(0,0,100,100);
-      this.fc.beginPath(); this.fc.arc(50,50,48,0,Math.PI*2); this.fc.clip();
-      this.fc.scale(-1, 1);
-      this.fc.drawImage(this.video, -100, 0, 100, 100);
-      this.fc.restore();
-
-      const col = SCI[this.emotion].css;
-      this.fc.strokeStyle = col + (this._faceDetected ? '66' : '11');
-      this.fc.lineWidth = 2;
-      this.fc.beginPath(); this.fc.arc(50,50,48,0,Math.PI*2); this.fc.stroke();
-      document.getElementById('mon-lbl').textContent = this._faceDetected ? this.emotion : 'no face';
-      document.getElementById('mon-lbl').style.color = col;
-    }
-
-    // Glow Canvas (temporary display)
-    this.gc.clearRect(0,0,this.W,this.H);
-
-    // Draw active drawing cursor
-    if (this.cursor.x !== null) {
-      const col = SCI[this.emotion].rgb;
-      const r = (12 + iv * 18) * (1 + 0.15 * Math.sin(this._t * 6));
-      this.gc.fillStyle = `rgba(${col[0]},${col[1]},${col[2]}, 0.3)`;
-      this.gc.beginPath(); this.gc.arc(this.cursor.x, this.cursor.y, r, 0, Math.PI*2); this.gc.fill();
-    }
-
-    // Render permanent user strokes
-    if (this.isDrawing && this.cursor.x !== null && this.prevCursor.x !== null) {
-      const dist = Math.hypot(this.cursor.x - this.prevCursor.x, this.cursor.y - this.prevCursor.y);
-      if (dist > 0.4) {
-        this.ai.addPoint(this.cursor.x, this.cursor.y, this._t);
-        
-        // Draw user stroke segment
-        const userPoints = [this.prevCursor, this.cursor];
-        const sys = BRUSHES[this.theme] || BRUSHES.nebula;
-        sys.draw(this.ac, userPoints, this.emotion, iv, false);
-
-        // Generate AI Prediction
-        const steps = iv < 0.30 ? 0 : iv < 0.55 ? 12 : iv < 0.80 ? 25 : 45;
-        if (steps > 0) {
-          this.ai.predict(steps, this.emotion, iv);
-          if (this.ai.predictedPath.length > 1) {
-            sys.draw(this.gc, this.ai.predictedPath, this.emotion, iv, true);
-          }
-        }
+      enter(){
+        this.loading(false);document.getElementById('opening').classList.add('gone');document.getElementById('ui').classList.add('on');document.getElementById('input-mode').textContent=this.cameraMode?'Camera instrument':'Touch instrument · neutral state';document.getElementById('mirror').style.display=this.cameraReady?'':'none';document.getElementById('hint').textContent=this.cameraMode?'Raise one index finger to draw':'Touch and move to draw';
+        if(this.cameraReady&&this.handReady)this.handLoop();if(this.cameraReady&&this.faceReady)this.faceLoop();
       }
+      async setupHands(){
+        if(!window.Hands)return false;
+        try{this.hands=new Hands({locateFile:file=>`https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`});this.hands.setOptions({maxNumHands:1,modelComplexity:1,minDetectionConfidence:.58,minTrackingConfidence:.52});this.hands.onResults(r=>this.onHands(r));if(this.hands.initialize)await this.hands.initialize();return true}catch(e){console.warn('Hand tracking unavailable.',e);return false}
+      }
+      async setupFace(){
+        if(!window.faceapi)return false;
+        for(const root of ['https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model','https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights']){try{await faceapi.nets.tinyFaceDetector.loadFromUri(root);await faceapi.nets.faceExpressionNet.loadFromUri(root);return true}catch(e){console.warn('Face model source unavailable.',root)}}return false;
+      }
+      async handLoop(){
+        if(!this.active||!this.cameraReady||!this.handReady)return;
+        if(!this.handBusy&&this.video.readyState>=2){this.handBusy=true;try{await this.hands.send({image:this.video})}catch(e){}this.handBusy=false}requestAnimationFrame(()=>this.handLoop());
+      }
+      onHands(results){
+        const lm=results.multiHandLandmarks?.[0],state=document.getElementById('hand-state');
+        if(!lm){if(performance.now()-this.lastHandSeen>420){state.textContent='Hand — seeking';state.classList.remove('live');if(this.cursor.source==='hand'){this.cursor.drawing=false;this.cursor.visible=false;this.previous=null}}return}
+        this.lastHandSeen=performance.now();state.textContent='Hand — linked';state.classList.add('live');
+        const indexUp=lm[8].y<lm[6].y-.025;const folded=[lm[12].y>lm[10].y-.005,lm[16].y>lm[14].y-.005,lm[20].y>lm[18].y-.005].filter(Boolean).length>=2;const pinch=Math.hypot(lm[8].x-lm[4].x,lm[8].y-lm[4].y)<.055;const drawing=indexUp&&(folded||pinch);
+        const rawX=(1-lm[8].x)*this.size.w,rawY=lm[8].y*this.size.h,smooth=this.cursor.source==='hand'&&this.cursor.visible?.32:1,x=lerp(this.cursor.x,rawX,smooth),y=lerp(this.cursor.y,rawY,smooth);
+        if(!drawing&&this.handWasDrawing)this.previous=null;this.cursor={x,y,visible:true,drawing,source:'hand'};this.handWasDrawing=drawing;document.getElementById('hint').textContent=drawing?'The canvas is receiving your gesture':'Point with one finger to draw';
+      }
+      async faceLoop(){
+        if(!this.active||!this.faceReady)return;
+        try{const options=new faceapi.TinyFaceDetectorOptions({inputSize:224,scoreThreshold:.42}),result=await faceapi.detectSingleFace(this.video,options).withFaceExpressions(),state=document.getElementById('face-state');
+          if(result?.expressions){const x=result.expressions;this.targets={neutral:x.neutral||0,happy:x.happy||0,sad:x.sad||0,angry:x.angry||0,fearful:x.fearful||0,surprised:x.surprised||0,disgusted:x.disgusted||0};this.lastFaceSeen=performance.now();state.textContent='Face — linked';state.classList.add('live')}
+          else if(performance.now()-this.lastFaceSeen>1000){this.targets={neutral:1,happy:0,sad:0,angry:0,fearful:0,surprised:0,disgusted:0};state.textContent='Face — seeking';state.classList.remove('live')}
+        }catch(e){}setTimeout(()=>this.faceLoop(),270);
+      }
+      frame(now){
+        const dt=Math.min(.033,(now-this.lastFrame)/1000||.016);this.lastFrame=now;this.updateEmotion(dt);this.drawInput(now);this.renderField(now);requestAnimationFrame(t=>this.frame(t));
+      }
+      updateEmotion(dt){
+        for(const key of Object.keys(this.probs))this.probs[key]=lerp(this.probs[key],this.targets[key],clamp(dt*4.2));this.dominant=Object.keys(this.probs).reduce((a,b)=>this.probs[a]>this.probs[b]?a:b);this.confidence=this.probs[this.dominant];if(this.active)this.emotionTime[this.dominant]+=dt;
+        this.radiance=lerp(this.radiance,this.probs.happy*100,clamp(dt*3));this.peakRadiance=Math.max(this.peakRadiance,this.radiance);const level=UNLOCKS.filter(u=>this.peakRadiance>=u.threshold).length;if(level>this.unlockLevel){for(let n=this.unlockLevel+1;n<=level;n++)this.unlock(n);this.unlockLevel=level}
+        const mixed=[0,0,0];let total=0;for(const [key,value] of Object.entries(this.probs)){const w=Math.pow(value,1.4);total+=w;for(let i=0;i<3;i++)mixed[i]+=EMOTIONS[key].color[i]*w}this.color=mixed.map(v=>v/Math.max(.001,total));document.documentElement.style.setProperty('--emotion',this.color.map(v=>v|0).join(','));
+        if(this.lastDominant!==this.dominant){document.getElementById('emotion-name').textContent=EMOTIONS[this.dominant].name;document.getElementById('emotion-action').textContent=EMOTIONS[this.dominant].action;this.lastDominant=this.dominant}document.getElementById('signal-fill').style.width=`${Math.round(this.confidence*100)}%`;document.getElementById('joy-fill').style.width=`${clamp(this.radiance,0,100)}%`;document.getElementById('joy-value').textContent=Math.round(this.radiance);
+      }
+      unlock(level){
+        const item=UNLOCKS[level-1];document.querySelector(`.unlock[data-level="${level}"]`)?.classList.add('open');const toast=document.getElementById('toast');toast.querySelector('strong').textContent=item.name;toast.classList.add('show');clearTimeout(this.toastTimer);this.toastTimer=setTimeout(()=>toast.classList.remove('show'),2200);this.burst(this.cursor.x,this.cursor.y,34+level*12,[255,221,154],2.3);
+      }
+      drawInput(now){
+        if(!this.active||!this.cursor.visible||!this.cursor.drawing){if(!this.cursor.drawing)this.previous=null;return}if(!this.previous){this.previous={x:this.cursor.x,y:this.cursor.y};return}const d=Math.hypot(this.cursor.x-this.previous.x,this.cursor.y-this.previous.y);if(d<.45)return;this.mark(this.previous,this.cursor,clamp(d/28),now);this.previous={x:this.cursor.x,y:this.cursor.y};
+      }
+      mark(a,b,speed,now){
+        const ctx=this.ac,e=EMOTIONS[this.dominant],c=this.color,jitter=e.turbulence*(2+speed*7),ax=a.x+(Math.random()-.5)*jitter,ay=a.y+(Math.random()-.5)*jitter,bx=b.x+(Math.random()-.5)*jitter,by=b.y+(Math.random()-.5)*jitter,mx=(ax+bx)/2+Math.sin(now*.008)*e.turbulence*6,my=(ay+by)/2+e.gravity*12;
+        ctx.save();ctx.globalCompositeOperation='lighter';ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle=rgba(c,.25+this.confidence*.18);ctx.shadowColor=rgba(c,.7);ctx.shadowBlur=5+this.radiance*.08;ctx.lineWidth=.7+speed*2.2+this.probs.angry*2.7;ctx.beginPath();ctx.moveTo(ax,ay);ctx.quadraticCurveTo(mx,my,bx,by);ctx.stroke();
+        if(this.dominant==='sad'&&Math.random()<.28){ctx.strokeStyle=rgba(c,.1);ctx.shadowBlur=0;ctx.lineWidth=.55;ctx.beginPath();ctx.moveTo(bx,by);ctx.quadraticCurveTo(bx+3,by+14,bx-2,by+24+Math.random()*25);ctx.stroke()}
+        if(this.dominant==='angry'&&Math.random()<.42){const angle=Math.atan2(by-ay,bx-ax)+(Math.random()-.5)*2.4,len=9+Math.random()*28;ctx.strokeStyle=rgba(c,.18);ctx.lineWidth=.65+speed;ctx.beginPath();ctx.moveTo(bx,by);ctx.lineTo(bx+Math.cos(angle)*len,by+Math.sin(angle)*len);ctx.stroke()}
+        if(this.dominant==='fearful'){ctx.strokeStyle=rgba(c,.06);ctx.lineWidth=.45;ctx.beginPath();ctx.arc(bx,by,5+Math.random()*12,0,Math.PI*2);ctx.stroke()}
+        if(this.dominant==='surprised'&&Math.random()<.16){ctx.strokeStyle=rgba(c,.15);ctx.lineWidth=.6;for(let i=0;i<7;i++){const angle=i/7*Math.PI*2,r=7+Math.random()*20;ctx.beginPath();ctx.moveTo(bx,by);ctx.lineTo(bx+Math.cos(angle)*r,by+Math.sin(angle)*r);ctx.stroke()}}
+        if(this.unlockLevel>=1)for(let i=1;i<=Math.min(3,this.unlockLevel);i++){ctx.strokeStyle=rgba([255,214,140],.025+this.radiance*.00035);ctx.shadowBlur=0;ctx.lineWidth=.45;const off=i*(5+this.radiance*.035);ctx.beginPath();ctx.moveTo(ax,ay+off);ctx.quadraticCurveTo(mx,my+off,bx,by+off);ctx.stroke()}
+        if(this.unlockLevel>=2&&Math.random()<.08+this.radiance*.0013){const r=8+Math.random()*(10+this.radiance*.25),g=ctx.createRadialGradient(bx,by,0,bx,by,r);g.addColorStop(0,rgba([255,226,168],.14));g.addColorStop(1,'rgba(255,220,150,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(bx,by,r,0,Math.PI*2);ctx.fill()}
+        if(this.unlockLevel>=4&&Math.random()<.08){ctx.strokeStyle=rgba([200+Math.random()*55,165+Math.random()*80,255],.055);ctx.lineWidth=5+Math.random()*9;ctx.shadowBlur=14;ctx.beginPath();ctx.moveTo(ax,ay);ctx.bezierCurveTo(ax-30,ay+30,bx+34,by-30,bx,by);ctx.stroke()}ctx.restore();
+        const count=1+Math.floor(speed*2+this.probs.happy*3+this.probs.angry*2);for(let i=0;i<count;i++)this.particle(bx,by,c,speed,e);if(this.unlockLevel>=3&&Math.random()<.1)this.orbitParticle(bx,by);
+      }
+      particle(x,y,color,speed,e){const angle=Math.random()*Math.PI*2,force=.25+Math.random()*(1.3+speed*2.6);this.particles.push({x,y,px:x,py:y,vx:Math.cos(angle)*force+(Math.random()-.5)*e.turbulence*3,vy:Math.sin(angle)*force+e.gravity*2,life:1,decay:.007+Math.random()*.016,size:.5+Math.random()*(1.2+speed),color:[...color],orbit:false});if(this.particles.length>1100)this.particles.splice(0,this.particles.length-1100)}
+      orbitParticle(x,y){this.particles.push({x,y,px:x,py:y,vx:0,vy:0,life:1,decay:.006,size:.8+Math.random(),color:[255,220,151],orbit:true,angle:Math.random()*Math.PI*2,radius:12+Math.random()*34,speed:.012+Math.random()*.018})}
+      burst(x,y,count,color,force){if(!Number.isFinite(x)||!Number.isFinite(y)){x=this.size.w/2;y=this.size.h/2}for(let i=0;i<count;i++){const a=Math.random()*Math.PI*2,f=Math.random()*force+.4;this.particles.push({x,y,px:x,py:y,vx:Math.cos(a)*f,vy:Math.sin(a)*f,life:1,decay:.008+Math.random()*.012,size:.5+Math.random()*2,color,orbit:false})}}
+      renderField(now){
+        const ctx=this.fc;ctx.clearRect(0,0,this.size.w,this.size.h);ctx.save();ctx.globalCompositeOperation='lighter';ctx.lineCap='round';for(let i=this.particles.length-1;i>=0;i--){const p=this.particles[i];p.px=p.x;p.py=p.y;if(p.orbit&&this.cursor.visible){p.angle+=p.speed;p.radius*=.999;p.x=this.cursor.x+Math.cos(p.angle)*p.radius;p.y=this.cursor.y+Math.sin(p.angle)*p.radius*.65}else{p.vx+=Math.sin((p.y+now*.025)*.018)*EMOTIONS[this.dominant].turbulence*.12;p.vy+=EMOTIONS[this.dominant].gravity*.015;p.vx*=.992;p.vy*=.992;p.x+=p.vx;p.y+=p.vy}p.life-=p.decay;if(p.life<=0){this.particles.splice(i,1);continue}ctx.strokeStyle=rgba(p.color,p.life*.34);ctx.lineWidth=p.size*p.life;ctx.beginPath();ctx.moveTo(p.px,p.py);ctx.lineTo(p.x,p.y);ctx.stroke()}ctx.restore();
+        if(this.cursor.visible&&this.active){const pulse=1+Math.sin(now*.004)*.12,r=(this.cursor.drawing?8:12)*pulse;ctx.save();ctx.strokeStyle=rgba(this.color,this.cursor.drawing?.7:.28);ctx.fillStyle=rgba(this.color,this.cursor.drawing?.7:.35);ctx.shadowColor=rgba(this.color,.8);ctx.shadowBlur=this.cursor.drawing?18:9;ctx.lineWidth=1;ctx.beginPath();ctx.arc(this.cursor.x,this.cursor.y,r,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.arc(this.cursor.x,this.cursor.y,1.4,0,Math.PI*2);ctx.fill();ctx.restore()}
+      }
+      resize(preserve){
+        const old=preserve&&this.art.width?document.createElement('canvas'):null;if(old){old.width=this.art.width;old.height=this.art.height;old.getContext('2d').drawImage(this.art,0,0)}this.size={w:innerWidth,h:innerHeight};for(const canvas of [this.art,this.field]){canvas.width=Math.round(this.size.w*this.dpr);canvas.height=Math.round(this.size.h*this.dpr);canvas.style.width=`${this.size.w}px`;canvas.style.height=`${this.size.h}px`;canvas.getContext('2d').setTransform(this.dpr,0,0,this.dpr,0,0)}this.ac.fillStyle='#050506';this.ac.fillRect(0,0,this.size.w,this.size.h);if(old)this.ac.drawImage(old,0,0,old.width,old.height,0,0,this.size.w,this.size.h);
+      }
+      loading(on,progress=0,message=''){document.getElementById('loading').classList.toggle('on',on);if(message)document.getElementById('load-message').textContent=message;document.getElementById('load-fill').style.width=`${progress}%`}
+      modal(id,open){document.getElementById(id).classList.toggle('open',open)}
+      dominantSession(){return Object.keys(this.emotionTime).reduce((a,b)=>this.emotionTime[a]>this.emotionTime[b]?a:b)}
+      duration(){const s=Math.max(0,Math.floor((Date.now()-this.startedAt)/1000));return`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`}
+      openFinish(){const state=this.dominantSession();document.getElementById('summary-emotion').textContent=EMOTIONS[state].name;document.getElementById('summary-radiance').textContent=Math.round(this.peakRadiance);document.getElementById('summary-time').textContent=this.duration();this.modal('finish-modal',true);setTimeout(()=>document.getElementById('art-title').focus(),300)}
+      save(){
+        const title=document.getElementById('art-title').value.trim()||'Untitled feeling',out=document.createElement('canvas');out.width=this.art.width;out.height=this.art.height;const ctx=out.getContext('2d');ctx.drawImage(this.art,0,0);ctx.drawImage(this.field,0,0);const D=this.dpr,state=this.dominantSession();ctx.fillStyle='rgba(5,5,6,.72)';ctx.fillRect(0,out.height-52*D,out.width,52*D);ctx.fillStyle='rgba(242,239,233,.72)';ctx.font=`${15*D}px Georgia`;ctx.fillText(title,22*D,out.height-23*D);ctx.fillStyle='rgba(242,239,233,.34)';ctx.font=`${8*D}px Arial`;ctx.textAlign='right';ctx.fillText(`VOID.LUMIN  /  ${EMOTIONS[state].name.toUpperCase()}  /  RADIANCE ${Math.round(this.peakRadiance)}  /  ${this.duration()}`,out.width-22*D,out.height-24*D);out.toBlob(blob=>{const a=document.createElement('a'),safe=title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'void-lumin';a.download=`${safe}-${new Date().toISOString().slice(0,10)}.png`;a.href=URL.createObjectURL(blob);a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500)},'image/png');this.modal('finish-modal',false);
+      }
+      clear(){this.ac.save();this.ac.setTransform(1,0,0,1,0,0);this.ac.fillStyle='#050506';this.ac.fillRect(0,0,this.art.width,this.art.height);this.ac.restore();this.particles=[];this.startedAt=Date.now();this.peakRadiance=this.radiance;this.unlockLevel=UNLOCKS.filter(u=>this.peakRadiance>=u.threshold).length;this.emotionTime=Object.fromEntries(Object.keys(EMOTIONS).map(k=>[k,0]));document.querySelectorAll('.unlock').forEach((el,i)=>el.classList.toggle('open',i<this.unlockLevel))}
     }
-
-    this.prevCursor = { ...this.cursor };
-
-    // Update UI elements
-    this._updateUI(iv);
-
-    requestAnimationFrame(() => this._loop());
-  }
-
-  _updateUI(iv) {
-    const s = SCI[this.emotion];
-    
-    // Intensity Bar
-    document.getElementById('bar-fill').style.height = (iv * 100).toFixed(1) + '%';
-    document.getElementById('bar-fill').style.background = s.css;
-    document.getElementById('intensity-pct').textContent = Math.round(iv * 100) + '%';
-    document.getElementById('intensity-pct').style.color = s.css + 'aa';
-
-    // AI Panel
-    document.getElementById('ai-res').textContent = Math.round(this.ai.coupling * 100) + '%';
-    document.getElementById('ai-res').style.color = s.css;
-    document.getElementById('ai-pattern').textContent = this.ai.inferredPattern;
-    const steps = iv < 0.30 ? 0 : iv < 0.55 ? 12 : iv < 0.80 ? 25 : 45;
-    document.getElementById('ai-steps').textContent = `+${steps} steps`;
-  }
-
-  _save() {
-    const flash = document.getElementById('save-flash');
-    flash.classList.add('on');
-    setTimeout(() => flash.classList.remove('on'), 250);
-
-    const link = document.createElement('a');
-    const date = new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);
-    link.download = `masterpiece_${this.theme}_${date}.png`;
-    link.href = this.artC.toDataURL('image/png');
-    link.click();
-  }
-}
-
-// Launch instantly
-window.addEventListener('load', () => {
-  document.getElementById('load').style.display = 'none';
-  new VoidLuminCreator().init();
-});
-</script>
+    addEventListener('DOMContentLoaded',()=>{window.voidLumin=new VoidLumin()});
+  </script>
 </body>
 </html>
