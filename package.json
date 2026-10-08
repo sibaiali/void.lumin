@@ -1,0 +1,23 @@
+{
+  "name": "void-lumin",
+  "version": "3.0.0",
+  "description": "Biometric Neural Render Instrument - Interactive HCI & Real-Time Computer Graphics System",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 3000",
+    "serve": "npx serve ."
+  },
+  "keywords": [
+    "crytek",
+    "cryengine",
+    "real-time-graphics",
+    "hci",
+    "biometrics",
+    "generative-art",
+    "data-oriented-design",
+    "vector-field",
+    "spline-rendering"
+  ],
+  "author": "Ali",
+  "license": "MIT"
+}
