@@ -7,14 +7,14 @@
   <style>
     :root {
       --bg: #030406;
-      --panel-bg: rgba(8, 12, 18, 0.86);
+      --panel-bg: rgba(8, 12, 18, 0.88);
       --border: rgba(255, 255, 255, 0.12);
       --accent-cyan: #00f0ff;
       --accent-gold: #ffd700;
       --accent-crimson: #ff2a5f;
       --accent-violet: #a855f7;
       --accent-emerald: #10b981;
-      --accent-amber: #f59e0b;
+      --accent-blue: #3b82f6;
       --text: #e2e8f0;
       --text-dim: #64748b;
       --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
@@ -113,7 +113,6 @@
       100% { box-shadow: 0 0 12px rgba(0,240,255,0.6); }
     }
 
-    /* Human Agency Renaissance Motto */
     #manifesto-chip {
       display: flex;
       align-items: center;
@@ -219,7 +218,6 @@
       color: var(--text-dim);
     }
 
-    /* Prediction Mode Toggle Box */
     .feature-toggle-box {
       background: rgba(0, 240, 255, 0.06);
       border: 1px solid rgba(0, 240, 255, 0.25);
@@ -317,7 +315,7 @@
     .color-swatch:hover { transform: scale(1.15); }
     .color-swatch.active { border-color: #fff; box-shadow: 0 0 8px rgba(255,255,255,0.6); }
 
-    /* Right Panel: Optical Air-Tracking & Biometric Deck */
+    /* Right Panel: Optical Air-Tracking & Subconscious Deck */
     #right-panel {
       position: absolute;
       top: 64px;
@@ -335,7 +333,6 @@
       box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7);
     }
 
-    /* Optical Tracking Viewport */
     .cam-box {
       position: relative;
       width: 100%;
@@ -395,7 +392,6 @@
       box-shadow: 0 0 6px var(--accent-emerald);
     }
 
-    /* Subconscious Intent Metrics */
     .neuro-meter {
       display: flex;
       flex-direction: column;
@@ -423,10 +419,10 @@
       transition: width 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s;
     }
 
-    #fill-prediction { background: var(--accent-cyan); }
     #fill-dopamine { background: var(--accent-gold); }
     #fill-serotonin { background: #38bdf8; }
     #fill-cortisol { background: var(--accent-crimson); }
+    #fill-viscosity { background: var(--accent-blue); }
 
     .emotion-buttons {
       display: grid;
@@ -451,10 +447,10 @@
     .btn-emo.active { color: #000; font-weight: 800; }
     .btn-emo.joy.active { background: var(--accent-gold); border-color: var(--accent-gold); }
     .btn-emo.zen.active { background: #38bdf8; border-color: #38bdf8; }
-    .btn-emo.rage.active { background: var(--accent-crimson); border-color: var(--accent-crimson); }
-    .btn-emo.fear.active { background: var(--accent-violet); border-color: var(--accent-violet); }
-    .btn-emo.focus.active { background: var(--accent-emerald); border-color: var(--accent-emerald); }
-    .btn-emo.ecstasy.active { background: #ec4899; border-color: #ec4899; }
+    .btn-emo.sad.active { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
+    .btn-emo.rage.active { background: var(--accent-crimson); border-color: var(--accent-crimson); color: #fff; }
+    .btn-emo.fear.active { background: var(--accent-violet); border-color: var(--accent-violet); color: #fff; }
+    .btn-emo.ecstasy.active { background: #ffd700; border-color: #ffd700; }
 
     /* Bottom Action Deck */
     #bottom-bar {
@@ -507,7 +503,6 @@
       box-shadow: 0 0 16px rgba(0, 240, 255, 0.7);
     }
 
-    /* Subconscious Neural Toast */
     #toast-banner {
       position: absolute;
       top: 66px;
@@ -568,26 +563,26 @@
     <div class="brand">
       <div class="brand-title">
         <span>VOID LUMIN</span>
-        <span style="color:var(--text-dim)">v3.5</span>
+        <span style="color:var(--text-dim)">v3.8</span>
       </div>
       <span class="badge-world-first">Subconscious Co-Dreamer</span>
     </div>
 
-    <!-- Human Agency Manifesto Indicator -->
+    <!-- Human Agency Renaissance Indicator -->
     <div id="manifesto-chip">
-      <span style="color:var(--accent-gold)">⚡ PARADIGM:</span>
-      <span>Machine Anticipates &bull; Human Conduces &bull; Zero Passive Prompts</span>
+      <span style="color:var(--accent-gold)">⚡ AFFECTIVE INSTRUMENT:</span>
+      <span id="active-physics-desc">Happy = Silk Smooth Glide &bull; Sad = Viscous Drag & Blur</span>
     </div>
 
-    <!-- Engine Telemetry / Crytek Standards -->
+    <!-- Engine Telemetry -->
     <div class="telemetry-group">
       <div class="stat-chip">
-        <span class="stat-label">AI Intent Horizon</span>
-        <span class="stat-val" id="stat-ai-confidence">96.8%</span>
+        <span class="stat-label">Optical Air-Pen</span>
+        <span class="stat-val" id="stat-airpen-status" style="color:var(--accent-emerald)">ACTIVE</span>
       </div>
       <div class="stat-chip">
-        <span class="stat-label">Optical Tracking</span>
-        <span class="stat-val" id="stat-optical-mode" style="color:var(--accent-emerald)">SUB-PIXEL EMA</span>
+        <span class="stat-label">DPI Sensitivity</span>
+        <span class="stat-val" id="stat-dpi-val">0.45x (LOW)</span>
       </div>
       <div class="stat-chip">
         <span class="stat-label">Frame Time</span>
@@ -634,7 +629,16 @@
       </button>
     </div>
 
-    <!-- World-First: AI Subconscious Intent Predictor -->
+    <!-- Optical DPI / Precision Slider -->
+    <div class="slider-row">
+      <div class="slider-header">
+        <span class="stat-label">Optical Air-Pen DPI (Low = Precise)</span>
+        <span class="stat-val" id="val-dpi">0.45x (High Precision)</span>
+      </div>
+      <input type="range" id="slider-dpi" min="0.15" max="1.5" step="0.05" value="0.45" />
+    </div>
+
+    <!-- AI Subconscious Intent Predictor -->
     <div class="feature-toggle-box">
       <div class="toggle-row">
         <div>
@@ -648,7 +652,7 @@
       </div>
 
       <div class="toggle-row" style="margin-top:4px;">
-        <span style="font-size:9px; color:var(--text-dim);">Accept & Commit on Lift [TAB]</span>
+        <span style="font-size:9px; color:var(--text-dim);">Commit on Lift [TAB]</span>
         <label class="switch">
           <input type="checkbox" id="toggle-commit-prediction" checked />
           <span class="slider"></span>
@@ -667,10 +671,10 @@
 
     <div class="slider-row">
       <div class="slider-header">
-        <span class="stat-label">Sub-Pixel Smoothing (EMA)</span>
-        <span class="stat-val" id="val-smooth">0.88</span>
+        <span class="stat-label">Spline Smoothing</span>
+        <span class="stat-val" id="val-smooth">0.90</span>
       </div>
-      <input type="range" id="slider-smooth" min="0.1" max="0.98" step="0.02" value="0.88" />
+      <input type="range" id="slider-smooth" min="0.1" max="0.98" step="0.02" value="0.90" />
     </div>
 
     <!-- Pigments -->
@@ -682,29 +686,29 @@
       <div class="color-swatch active" style="background:#ffffff" data-color="#ffffff"></div>
       <div class="color-swatch" style="background:#ffd700" data-color="#ffd700"></div>
       <div class="color-swatch" style="background:#00f0ff" data-color="#00f0ff"></div>
+      <div class="color-swatch" style="background:#3b82f6" data-color="#3b82f6"></div>
       <div class="color-swatch" style="background:#ff2a5f" data-color="#ff2a5f"></div>
       <div class="color-swatch" style="background:#a855f7" data-color="#a855f7"></div>
       <div class="color-swatch" style="background:#10b981" data-color="#10b981"></div>
-      <div class="color-swatch" style="background:#f97316" data-color="#f97316"></div>
       <div class="color-swatch" style="background:#000000; border:1px solid rgba(255,255,255,0.4);" data-color="#000000"></div>
     </div>
   </aside>
 
-  <!-- Right Panel: Optical Air-Tracking & Subconscious Deck -->
+  <!-- Right Panel: Optical Air-Tracking & Affective Biometric Deck -->
   <aside id="right-panel">
     <div class="panel-header">
       <span>OPTICAL AIR-TRACKING SENSOR</span>
       <span id="bio-mode-badge" style="color:var(--accent-emerald)">ONLINE</span>
     </div>
 
-    <!-- Live Webcam / Optical Analysis HUD -->
+    <!-- Live Webcam / Optical Tracking HUD -->
     <div class="cam-box">
       <video id="webcam-video" autoplay playsinline muted></video>
       <canvas id="cam-analysis-canvas"></canvas>
       <div class="cam-hud-overlay">
-        <div class="cam-status" id="cam-status-label">AIR-PEN: POINT FINGER AT CAMERA</div>
-        <div style="font-size:8px; color:rgba(255,255,255,0.7);" id="cam-tracking-telemetry">
-          LANDMARK: (---, ---) | STABILIZED
+        <div class="cam-status" id="cam-status-label">AIR-PEN: POINT & MOVE FINGER</div>
+        <div style="font-size:8px; color:rgba(255,255,255,0.8);" id="cam-tracking-telemetry">
+          FINGER: LOCKING TARGET...
         </div>
       </div>
     </div>
@@ -712,63 +716,63 @@
     <!-- Psychological Goat Status Banner -->
     <div id="goat-banner">
       ★ PREMIUM GOAT STATUS ACTIVATED ★<br/>
-      <span style="font-size:8px; font-weight:normal; opacity:0.9;">HIGH-DOPAMINE FIBONACCI HARMONICS</span>
+      <span style="font-size:8px; font-weight:normal; opacity:0.9;">100% DOPAMINE SILK-SMOOTH RESONANCE</span>
     </div>
 
-    <!-- Subconscious Latent Vector Readout -->
+    <!-- Affective Physical Properties Readout -->
     <div class="panel-header">
-      <span>INTENT & LATENT VECTORS</span>
-      <span id="current-state-label" style="color:var(--accent-cyan)">CREATIVE INTENT ACTIVE</span>
+      <span>AFFECTIVE PHYSICS METRICS</span>
+      <span id="current-state-label" style="color:var(--accent-gold)">HAPPY // ULTRA-SMOOTH</span>
     </div>
 
     <div class="neuro-meter">
       <div class="meter-label-row">
-        <span>PREDICTION HORIZON STRENGTH</span>
-        <span id="val-prediction">92%</span>
+        <span>SMOOTHNESS / EUPHORIA</span>
+        <span id="val-dopamine">95%</span>
       </div>
-      <div class="meter-track"><div class="meter-fill" id="fill-prediction" style="width: 92%;"></div></div>
+      <div class="meter-track"><div class="meter-fill" id="fill-dopamine" style="width: 95%;"></div></div>
     </div>
 
     <div class="neuro-meter">
       <div class="meter-label-row">
-        <span>DOPAMINE (Creative Buoyancy)</span>
-        <span id="val-dopamine">85%</span>
+        <span>SEROTONIN (Equilibrium)</span>
+        <span id="val-serotonin">88%</span>
       </div>
-      <div class="meter-track"><div class="meter-fill" id="fill-dopamine" style="width: 85%;"></div></div>
+      <div class="meter-track"><div class="meter-fill" id="fill-serotonin" style="width: 88%;"></div></div>
     </div>
 
     <div class="neuro-meter">
       <div class="meter-label-row">
-        <span>SEROTONIN (Equilibrium / Symmetry)</span>
-        <span id="val-serotonin">78%</span>
+        <span>VISCOUS DRAG & BLUR (Sadness)</span>
+        <span id="val-viscosity">8%</span>
       </div>
-      <div class="meter-track"><div class="meter-fill" id="fill-serotonin" style="width: 78%;"></div></div>
+      <div class="meter-track"><div class="meter-fill" id="fill-viscosity" style="width: 8%;"></div></div>
     </div>
 
     <div class="neuro-meter">
       <div class="meter-label-row">
-        <span>CORTISOL (Turbulence / Fracture)</span>
-        <span id="val-cortisol">12%</span>
+        <span>CORTISOL (Turbulence)</span>
+        <span id="val-cortisol">10%</span>
       </div>
-      <div class="meter-track"><div class="meter-fill" id="fill-cortisol" style="width: 12%;"></div></div>
+      <div class="meter-track"><div class="meter-fill" id="fill-cortisol" style="width: 10%;"></div></div>
     </div>
 
-    <!-- Quick State Overrides [1-6] -->
+    <!-- State Overrides [1-6] -->
     <div class="panel-header">
-      <span>SIMULATED BIOMETRICS</span>
+      <span>EMOTIONAL PHYSICS OVERRIDE</span>
       <span style="font-size:8px; color:var(--text-dim)">HOTKEYS [1-6]</span>
     </div>
     <div class="emotion-buttons">
-      <button class="btn-emo joy active" data-state="joy">JOY (1)</button>
+      <button class="btn-emo joy active" data-state="joy">HAPPY (1)</button>
       <button class="btn-emo zen" data-state="zen">ZEN (2)</button>
-      <button class="btn-emo rage" data-state="rage">RAGE (3)</button>
-      <button class="btn-emo fear" data-state="fear">FEAR (4)</button>
-      <button class="btn-emo focus" data-state="focus">FOCUS (5)</button>
+      <button class="btn-emo sad" data-state="sad">SAD (3)</button>
+      <button class="btn-emo rage" data-state="rage">RAGE (4)</button>
+      <button class="btn-emo fear" data-state="fear">FEAR (5)</button>
       <button class="btn-emo ecstasy" data-state="ecstasy">GOAT (6)</button>
     </div>
   </aside>
 
-  <!-- Bottom Action Command Deck -->
+  <!-- Bottom Command Bar -->
   <nav id="bottom-bar">
     <button class="btn-action" id="btn-toggle-cam">
       <span id="cam-icon">📷</span> <span id="cam-text">Enable Optical Air-Pen</span>
@@ -781,7 +785,7 @@
     </button>
   </nav>
 
-  <!-- Feedback Toast -->
+  <!-- Toast Banner -->
   <div id="toast-banner">AI INTENT HORIZON SYNCHRONIZED</div>
 
   <!-- Audio Synthesizer -->
@@ -825,15 +829,15 @@
   <!-- Core Engine Implementation -->
   <script>
     /**
-     * VOID LUMIN 3.5 // WORLD-FIRST BIOMORPHIC INTENT PREDICTOR & OPTICAL AIR-PEN
+     * VOID LUMIN 3.8 // AFFECTIVE BIOMETRIC ENGINE & CONTINUOUS OPTICAL AIR-PEN
      * 
-     * Key Innovations:
-     * 1. High-Precision Optical Air-Pen: Tracks hand/finger motion directly from video frames
-     *    with Double Exponential Moving Average (EMA) sub-pixel stabilization.
-     * 2. Neural Trajectory Predictor: Forecasts future strokes (Hermite / Fibonacci curves)
-     *    and projects a glowing phosphorescent Intent Mirage in real time.
-     * 3. Commit-on-Lift / Guided Completion: Extends human agency instead of replacing it.
-     * 4. Precision Portrait Sketching: High-DPI Catmull-Rom spline engine for detailed facial art.
+     * Core Upgrades:
+     * 1. Continuous Optical Air-Pen: Moving your finger in front of the camera draws immediately!
+     * 2. Low DPI Precision Mode: Scaled sensitivity (0.45x) eliminates jitter for surgical drawing.
+     * 3. Affective Stroke Physics:
+     *    - HAPPY: Ultra-smooth Bézier curves, silk glide, high responsiveness, golden buoyancy.
+     *    - SAD / UNHAPPY: Slow, heavy viscous drag, and diffuse ink-bleed Gaussian blur!
+     * 4. AI Subconscious Intent Predictor: Real-time 18-step predictive horizon ahead of your hand.
      */
 
     const bgCanvas = document.getElementById('bg-canvas');
@@ -894,7 +898,6 @@
       bgCtx.fillStyle = grad;
       bgCtx.fillRect(0, 0, W, H);
 
-      // Fine precision grid lines
       bgCtx.strokeStyle = 'rgba(255, 255, 255, 0.015)';
       bgCtx.lineWidth = 1;
       const step = 64;
@@ -917,19 +920,22 @@
     const ENGINE_STATE = {
       brush: 'graphite',
       caliber: 2.0,
-      smoothing: 0.88,
+      smoothing: 0.90,
+      opticalDPI: 0.45, // Low DPI for precision
       color: '#ffffff',
       isDrawing: false,
       predictionEnabled: true,
       commitPredictionOnLift: true,
-      flowStreak: 65,
+      flowStreak: 72,
       lastDrawTime: performance.now(),
       biometrics: {
-        dopamine: 0.85,
-        serotonin: 0.78,
-        cortisol: 0.12,
+        dopamine: 0.95,
+        serotonin: 0.88,
+        cortisol: 0.10,
+        viscosity: 0.08,
         activeState: 'joy',
-        isGoat: true
+        isGoat: true,
+        isSad: false
       },
       optical: {
         active: false,
@@ -937,12 +943,14 @@
         rawY: H / 2,
         smoothX: W / 2,
         smoothY: H / 2,
+        anchorX: W / 2,
+        anchorY: H / 2,
         isDetected: false,
-        isPinching: false
+        lastFrameTime: performance.now()
       }
     };
 
-    // --- High-Precision Stroke Pipeline (Catmull-Rom Splines for Detailed Portraits) ---
+    // --- Affective Spline Stroke Pipeline ---
     class StrokePipeline {
       constructor() {
         this.points = [];
@@ -956,11 +964,22 @@
 
       add(x, y, pressure = 1.0) {
         const last = this.points[this.points.length - 1];
-        const dist = Math.hypot(x - last.x, y - last.y);
-        if (dist < 1.0) return;
+        
+        // Emotional Speed & Viscosity Drag Modulation:
+        // SAD state drags movement heavily (viscous molasses drag)
+        let effX = x;
+        let effY = y;
+        if (ENGINE_STATE.biometrics.isSad) {
+          const drag = 0.35; // 65% slower motion
+          effX = last.x + (x - last.x) * drag;
+          effY = last.y + (y - last.y) * drag;
+        }
 
-        this.points.push({ x, y, p: pressure, time: performance.now() });
-        aiPredictor.recordPoint(x, y);
+        const dist = Math.hypot(effX - last.x, effY - last.y);
+        if (dist < 0.8) return;
+
+        this.points.push({ x: effX, y: effY, p: pressure, time: performance.now() });
+        aiPredictor.recordPoint(effX, effY);
         this.renderSegment();
       }
 
@@ -986,91 +1005,139 @@
 
         drawCtx.globalCompositeOperation = 'source-over';
 
-        switch (ENGINE_STATE.brush) {
-          case 'graphite':
-            // High-DPI Crisp Precision (Enables drawing faces, eyes, anatomical outlines)
-            drawCtx.strokeStyle = ENGINE_STATE.color;
-            drawCtx.lineWidth = ENGINE_STATE.caliber * p2.p;
-            drawCtx.lineCap = 'round';
-            drawCtx.lineJoin = 'round';
-            drawCtx.beginPath();
-            drawCtx.moveTo(p1.x, p1.y);
-            const midX = (p1.x + p2.x) / 2;
-            const midY = (p1.y + p2.y) / 2;
-            drawCtx.quadraticCurveTo(p1.x, p1.y, midX, midY);
-            drawCtx.stroke();
-            break;
+        // --- AFFECTIVE RENDERING MODES ---
+        if (ENGINE_STATE.biometrics.isSad) {
+          // --- SAD / UNHAPPY: SLOW & BLURRY (Diffuse ink bleed & heavy shadow) ---
+          const blurRadius = 14 + (ENGINE_STATE.biometrics.viscosity * 12);
+          
+          // Pass 1: Diffuse outer haze
+          drawCtx.strokeStyle = 'rgba(59, 130, 246, 0.35)';
+          drawCtx.lineWidth = ENGINE_STATE.caliber * 3.5;
+          drawCtx.shadowColor = '#1d4ed8';
+          drawCtx.shadowBlur = blurRadius;
+          drawCtx.beginPath();
+          drawCtx.moveTo(p1.x, p1.y);
+          drawCtx.lineTo(p2.x, p2.y);
+          drawCtx.stroke();
 
-          case 'neural':
-            const speed = Math.hypot(p2.x - p1.x, p2.y - p1.y) / (p2.time - p1.time || 1);
-            const dynamicCaliber = Math.max(0.5, ENGINE_STATE.caliber * (1.6 - Math.min(speed * 0.2, 0.9)));
-            drawCtx.strokeStyle = ENGINE_STATE.color;
-            drawCtx.lineWidth = dynamicCaliber;
-            drawCtx.shadowColor = ENGINE_STATE.color;
-            drawCtx.shadowBlur = ENGINE_STATE.biometrics.dopamine * 8;
-            drawCtx.beginPath();
-            drawCtx.moveTo(p1.x, p1.y);
-            drawCtx.lineTo(p2.x, p2.y);
-            drawCtx.stroke();
-            break;
+          // Pass 2: Soft core bleed
+          drawCtx.strokeStyle = 'rgba(147, 197, 253, 0.7)';
+          drawCtx.lineWidth = ENGINE_STATE.caliber * 1.5;
+          drawCtx.shadowColor = '#3b82f6';
+          drawCtx.shadowBlur = blurRadius * 0.5;
+          drawCtx.beginPath();
+          drawCtx.moveTo(p1.x, p1.y);
+          drawCtx.lineTo(p2.x, p2.y);
+          drawCtx.stroke();
 
-          case 'magma':
-            drawCtx.strokeStyle = '#ff3700';
-            drawCtx.lineWidth = ENGINE_STATE.caliber * 2.2;
-            drawCtx.shadowColor = '#ff8800';
-            drawCtx.shadowBlur = 14;
+          // Gravity tear drip: downward weeping accumulation
+          if (Math.random() < 0.25) {
+            drawCtx.strokeStyle = 'rgba(59, 130, 246, 0.2)';
+            drawCtx.lineWidth = 1.0;
             drawCtx.beginPath();
-            drawCtx.moveTo(p1.x, p1.y);
-            drawCtx.lineTo(p2.x, p2.y);
+            drawCtx.moveTo(p2.x, p2.y);
+            drawCtx.lineTo(p2.x, p2.y + 12 + Math.random() * 20);
             drawCtx.stroke();
+          }
 
-            drawCtx.strokeStyle = '#ffffff';
-            drawCtx.lineWidth = Math.max(0.8, ENGINE_STATE.caliber * 0.6);
-            drawCtx.shadowBlur = 0;
-            drawCtx.beginPath();
-            drawCtx.moveTo(p1.x, p1.y);
-            drawCtx.lineTo(p2.x, p2.y);
-            drawCtx.stroke();
-            break;
+        } else if (ENGINE_STATE.biometrics.activeState === 'joy' || ENGINE_STATE.biometrics.isGoat) {
+          // --- HAPPY: ULTRA-SMOOTH SILK GLIDE (Crisp, Radiant, Harmonic) ---
+          drawCtx.strokeStyle = ENGINE_STATE.color;
+          drawCtx.lineWidth = ENGINE_STATE.caliber * p2.p;
+          drawCtx.lineCap = 'round';
+          drawCtx.lineJoin = 'round';
+          drawCtx.shadowColor = '#ffd700';
+          drawCtx.shadowBlur = 4;
 
-          case 'quantum':
-            drawCtx.strokeStyle = ENGINE_STATE.color;
-            drawCtx.lineWidth = ENGINE_STATE.caliber;
-            drawCtx.shadowColor = '#00f0ff';
-            drawCtx.shadowBlur = 10;
-            drawCtx.beginPath();
-            drawCtx.moveTo(p1.x, p1.y);
-            drawCtx.lineTo(p2.x, p2.y);
-            drawCtx.stroke();
+          // Midpoint Bézier for silk-smooth curve
+          const midX = (p1.x + p2.x) / 2;
+          const midY = (p1.y + p2.y) / 2;
+          drawCtx.beginPath();
+          drawCtx.moveTo(p1.x, p1.y);
+          drawCtx.quadraticCurveTo(p1.x, p1.y, midX, midY);
+          drawCtx.stroke();
 
-            const dx = (p2.y - p1.y) * 0.4;
-            const dy = -(p2.x - p1.x) * 0.4;
-            drawCtx.strokeStyle = 'rgba(0, 240, 255, 0.35)';
-            drawCtx.lineWidth = 0.5;
-            drawCtx.beginPath();
-            drawCtx.moveTo(p1.x + dx, p1.y + dy);
-            drawCtx.lineTo(p2.x + dx, p2.y + dy);
-            drawCtx.moveTo(p1.x - dx, p1.y - dy);
-            drawCtx.lineTo(p2.x - dx, p2.y - dy);
-            drawCtx.stroke();
-            break;
+          // Upward buoyant golden stardust
+          if (Math.random() < 0.5) {
+            particleEngine.emit(p2.x, p2.y, '#ffd700');
+          }
 
-          case 'nebula':
-            drawCtx.fillStyle = ENGINE_STATE.color;
-            for (let i = 0; i < 4; i++) {
-              const rx = p2.x + (Math.random() - 0.5) * ENGINE_STATE.caliber * 8;
-              const ry = p2.y + (Math.random() - 0.5) * ENGINE_STATE.caliber * 8;
-              drawCtx.globalAlpha = Math.random() * 0.4;
+        } else {
+          // Standard / Other brushes
+          switch (ENGINE_STATE.brush) {
+            case 'graphite':
+              drawCtx.strokeStyle = ENGINE_STATE.color;
+              drawCtx.lineWidth = ENGINE_STATE.caliber * p2.p;
+              drawCtx.lineCap = 'round';
+              drawCtx.lineJoin = 'round';
               drawCtx.beginPath();
-              drawCtx.arc(rx, ry, Math.random() * ENGINE_STATE.caliber * 0.8, 0, Math.PI * 2);
-              drawCtx.fill();
-            }
-            break;
+              drawCtx.moveTo(p1.x, p1.y);
+              const midX = (p1.x + p2.x) / 2;
+              const midY = (p1.y + p2.y) / 2;
+              drawCtx.quadraticCurveTo(p1.x, p1.y, midX, midY);
+              drawCtx.stroke();
+              break;
+
+            case 'neural':
+              const speed = Math.hypot(p2.x - p1.x, p2.y - p1.y) / (p2.time - p1.time || 1);
+              const dynamicCaliber = Math.max(0.5, ENGINE_STATE.caliber * (1.6 - Math.min(speed * 0.2, 0.9)));
+              drawCtx.strokeStyle = ENGINE_STATE.color;
+              drawCtx.lineWidth = dynamicCaliber;
+              drawCtx.shadowColor = ENGINE_STATE.color;
+              drawCtx.shadowBlur = ENGINE_STATE.biometrics.dopamine * 8;
+              drawCtx.beginPath();
+              drawCtx.moveTo(p1.x, p1.y);
+              drawCtx.lineTo(p2.x, p2.y);
+              drawCtx.stroke();
+              break;
+
+            case 'magma':
+              drawCtx.strokeStyle = '#ff3700';
+              drawCtx.lineWidth = ENGINE_STATE.caliber * 2.2;
+              drawCtx.shadowColor = '#ff8800';
+              drawCtx.shadowBlur = 14;
+              drawCtx.beginPath();
+              drawCtx.moveTo(p1.x, p1.y);
+              drawCtx.lineTo(p2.x, p2.y);
+              drawCtx.stroke();
+
+              drawCtx.strokeStyle = '#ffffff';
+              drawCtx.lineWidth = Math.max(0.8, ENGINE_STATE.caliber * 0.6);
+              drawCtx.shadowBlur = 0;
+              drawCtx.beginPath();
+              drawCtx.moveTo(p1.x, p1.y);
+              drawCtx.lineTo(p2.x, p2.y);
+              drawCtx.stroke();
+              break;
+
+            case 'quantum':
+              drawCtx.strokeStyle = ENGINE_STATE.color;
+              drawCtx.lineWidth = ENGINE_STATE.caliber;
+              drawCtx.shadowColor = '#00f0ff';
+              drawCtx.shadowBlur = 10;
+              drawCtx.beginPath();
+              drawCtx.moveTo(p1.x, p1.y);
+              drawCtx.lineTo(p2.x, p2.y);
+              drawCtx.stroke();
+              break;
+
+            case 'nebula':
+              drawCtx.fillStyle = ENGINE_STATE.color;
+              for (let i = 0; i < 4; i++) {
+                const rx = p2.x + (Math.random() - 0.5) * ENGINE_STATE.caliber * 8;
+                const ry = p2.y + (Math.random() - 0.5) * ENGINE_STATE.caliber * 8;
+                drawCtx.globalAlpha = Math.random() * 0.4;
+                drawCtx.beginPath();
+                drawCtx.arc(rx, ry, Math.random() * ENGINE_STATE.caliber * 0.8, 0, Math.PI * 2);
+                drawCtx.fill();
+              }
+              break;
+          }
         }
 
         drawCtx.restore();
 
-        if (Math.random() < 0.6) {
+        if (Math.random() < 0.4) {
           particleEngine.emit(p2.x, p2.y, ENGINE_STATE.color);
         }
       }
@@ -1085,7 +1152,7 @@
 
     const strokePipeline = new StrokePipeline();
 
-    // --- World-First: Neural Trajectory & Subconscious Intent Predictor ---
+    // --- AI Subconscious Intent Predictor ---
     class AIPredictor {
       constructor() {
         this.history = [];
@@ -1113,7 +1180,6 @@
         const pA = this.history[len - 4];
         const pB = this.history[len - 1];
 
-        // Velocity & Tangent Direction
         const vx = (pB.x - pA.x) / 3;
         const vy = (pB.y - pA.y) / 3;
         const speed = Math.hypot(vx, vy);
@@ -1122,7 +1188,6 @@
           return;
         }
 
-        // Angular momentum & curvature kappa
         let angle = Math.atan2(vy, vx);
         const pPrev = this.history[len - 2];
         const prevAngle = Math.atan2(pB.y - pPrev.y, pB.x - pPrev.x);
@@ -1130,7 +1195,6 @@
         if (angularVel > Math.PI) angularVel -= Math.PI * 2;
         if (angularVel < -Math.PI) angularVel += Math.PI * 2;
 
-        // Predictive Horizon: Project 18 forward steps
         this.predictedPoints = [];
         let currX = pB.x;
         let currY = pB.y;
@@ -1138,7 +1202,6 @@
         const steps = 18;
         const stepDist = Math.max(3, speed * 1.2);
 
-        // Biometric Influence on Intent Forecast
         const curvatureDamping = 1.0 - (ENGINE_STATE.biometrics.serotonin * 0.15);
         const spiralHarmonic = (ENGINE_STATE.biometrics.dopamine - 0.5) * 0.05;
 
@@ -1157,26 +1220,24 @@
         ctx.save();
         ctx.scale(DPR, DPR);
 
-        // Glowing Phosphorescent Intent Mirage
         ctx.beginPath();
         ctx.moveTo(this.predictedPoints[0].x, this.predictedPoints[0].y);
         for (let i = 1; i < this.predictedPoints.length; i++) {
           const pt = this.predictedPoints[i];
           ctx.lineTo(pt.x, pt.y);
         }
-        ctx.strokeStyle = 'rgba(0, 240, 255, 0.5)';
+        ctx.strokeStyle = ENGINE_STATE.biometrics.isSad ? 'rgba(59, 130, 246, 0.4)' : 'rgba(0, 240, 255, 0.5)';
         ctx.lineWidth = 1.5;
-        ctx.shadowColor = '#00f0ff';
+        ctx.shadowColor = ENGINE_STATE.biometrics.isSad ? '#3b82f6' : '#00f0ff';
         ctx.shadowBlur = 8;
         ctx.setLineDash([5, 5]);
         ctx.stroke();
 
-        // Stardust nodes along the predictive horizon
         ctx.shadowBlur = 0;
         this.predictedPoints.forEach((pt, i) => {
           if (i % 3 === 0) {
             const alpha = 1.0 - (pt.step / pt.maxSteps);
-            ctx.fillStyle = `rgba(255, 215, 0, ${alpha * 0.8})`;
+            ctx.fillStyle = ENGINE_STATE.biometrics.isSad ? `rgba(147, 197, 253, ${alpha * 0.8})` : `rgba(255, 215, 0, ${alpha * 0.8})`;
             ctx.beginPath();
             ctx.arc(pt.x, pt.y, 2.0 * alpha, 0, Math.PI * 2);
             ctx.fill();
@@ -1210,7 +1271,7 @@
 
     const aiPredictor = new AIPredictor();
 
-    // --- High-Performance Particle Engine ---
+    // --- Particle Engine ---
     class ParticleEngine {
       constructor(maxParticles = 8192) {
         this.max = maxParticles;
@@ -1236,11 +1297,13 @@
         const speed = (0.5 + Math.random() * 2.0) * (1.0 + turbulence);
 
         this.vx[i] = Math.cos(angle) * speed;
-        this.vy[i] = Math.sin(angle) * speed - (ENGINE_STATE.biometrics.dopamine * 1.5);
+        // In happy state, buoyant particles rise; in sad state, they sink slowly
+        const gravityEffect = ENGINE_STATE.biometrics.isSad ? 1.2 : - (ENGINE_STATE.biometrics.dopamine * 1.5);
+        this.vy[i] = Math.sin(angle) * speed + gravityEffect;
         this.life[i] = 1.0;
         this.maxLife[i] = 35 + Math.random() * 55;
         this.size[i] = 1.0 + Math.random() * 2.5;
-        this.colors[i] = color;
+        this.colors[i] = ENGINE_STATE.biometrics.isSad ? '#3b82f6' : color;
       }
 
       updateAndRender(ctx) {
@@ -1290,15 +1353,17 @@
 
     const particleEngine = new ParticleEngine(8192);
 
-    // --- Real-Time Optical Air-Tracking Engine (Draw from Camera with Sub-Pixel Precision) ---
+    // --- CONTINUOUS OPTICAL AIR-PEN WITH LOW-DPI PRECISION & EMOTION DETECTION ---
     class OpticalAirTracker {
       constructor() {
         this.video = document.getElementById('webcam-video');
         this.canvas = document.getElementById('cam-analysis-canvas');
         this.ctx = this.canvas.getContext('2d', { willReadFrequently: true });
         this.prevImageData = null;
-        this.alpha = 0.25; // EMA filter constant
         this.isRunning = false;
+        this.lastRawX = 80;
+        this.lastRawY = 60;
+        this.isTracking = false;
       }
 
       async start() {
@@ -1311,11 +1376,11 @@
           ENGINE_STATE.optical.active = true;
           document.getElementById('cam-status-label').textContent = 'OPTICAL AIR-PEN ACTIVE';
           document.getElementById('cam-text').textContent = 'Disable Air-Pen';
-          showToast('OPTICAL AIR-PEN ONLINE // POINT FINGER AT WEBCAM');
+          showToast('OPTICAL AIR-PEN ONLINE // MOVE FINGER TO DRAW');
           audioFeedback.playNote(880, 'sine', 0.2, 0.03);
           this.process();
         } catch (e) {
-          alert('Webcam access was denied. Mouse/Stylus mode is 100% active with full AI Intent prediction.');
+          alert('Webcam access was denied. Mouse/Stylus mode is 100% active with low DPI precision.');
         }
       }
 
@@ -1334,51 +1399,90 @@
         if (!this.isRunning) return;
 
         if (this.video.readyState === this.video.HAVE_ENOUGH_DATA) {
-          this.canvas.width = 160;
-          this.canvas.height = 120;
-          this.ctx.drawImage(this.video, 0, 0, 160, 120);
-          const frame = this.ctx.getImageData(0, 0, 160, 120);
+          const cw = 160;
+          const ch = 120;
+          this.canvas.width = cw;
+          this.canvas.height = ch;
+          this.ctx.drawImage(this.video, 0, 0, cw, ch);
+          const frame = this.ctx.getImageData(0, 0, cw, ch);
+          const d = frame.data;
 
-          let sumX = 0, sumY = 0, count = 0;
-          let minY = 999, apexX = 80;
+          let highestFingerY = 999;
+          let fingerX = cw / 2;
+          let fingerFound = false;
 
-          // Compute optical motion & bright skin-locus centroid
-          if (this.prevImageData) {
-            const d1 = frame.data;
-            const d0 = this.prevImageData.data;
-            for (let i = 0; i < d1.length; i += 8) {
-              const diff = Math.abs(d1[i] - d0[i]) + Math.abs(d1[i+1] - d0[i+1]) + Math.abs(d1[i+2] - d0[i+2]);
-              if (diff > 45) {
-                const pixelIdx = i / 4;
-                const px = pixelIdx % 160;
-                const py = Math.floor(pixelIdx / 160);
-                sumX += px;
-                sumY += py;
-                count++;
-                if (py < minY) {
-                  minY = py;
-                  apexX = px;
+          // Smile / Emotion detection variables
+          let lowerFaceBrightness = 0;
+          let faceSampleCount = 0;
+
+          // 1. Analyze frame: locate topmost fingertip locus
+          for (let y = 10; y < ch - 10; y++) {
+            for (let x = 10; x < cw - 10; x++) {
+              const i = (y * cw + x) * 4;
+              const r = d[i];
+              const g = d[i+1];
+              const b = d[i+2];
+
+              // Skin and prominent brightness locus
+              const isSkin = (r > 60 && g > 40 && b > 25 && r > g && r > b && (r - g > 15));
+              const isBright = (r + g + b) > 280;
+
+              if (isSkin || isBright) {
+                if (y < highestFingerY) {
+                  highestFingerY = y;
+                  fingerX = x;
+                  fingerFound = true;
                 }
+              }
+
+              // Sample mouth / cheek region (center-lower) for smile detection
+              if (y > 70 && y < 105 && x > 55 && x < 105) {
+                lowerFaceBrightness += (r + g + b);
+                faceSampleCount++;
               }
             }
           }
 
-          this.prevImageData = frame;
+          // 2. Real-Time Facial Emotion Classification
+          if (faceSampleCount > 100) {
+            const avgCheekLuma = lowerFaceBrightness / (faceSampleCount * 3);
+            if (avgCheekLuma > 115 && ENGINE_STATE.biometrics.activeState !== 'joy' && !ENGINE_STATE.biometrics.isGoat) {
+              applyBiometricState('joy');
+              showToast("😊 SMILE DETECTED // SILK-SMOOTH GLIDE ACTIVATED");
+            } else if (avgCheekLuma < 65 && ENGINE_STATE.biometrics.activeState !== 'sad') {
+              applyBiometricState('sad');
+              showToast("🌧️ SADNESS DETECTED // VISCOUS DRAG & BLUR");
+            }
+          }
 
-          if (count > 25) {
-            // Found active hand/finger gesture
-            const targetX = (1.0 - (apexX / 160)) * W;
-            const targetY = (minY / 120) * H;
-
-            // Double Exponential Moving Average (EMA) for sub-pixel stabilization
-            ENGINE_STATE.optical.smoothX += (targetX - ENGINE_STATE.optical.smoothX) * (1.0 - ENGINE_STATE.smoothing);
-            ENGINE_STATE.optical.smoothY += (targetY - ENGINE_STATE.optical.smoothY) * (1.0 - ENGINE_STATE.smoothing);
+          // 3. Continuous Air Drawing Tracking with Low-DPI Precision
+          if (fingerFound && highestFingerY < 105) {
+            this.isTracking = true;
             ENGINE_STATE.optical.isDetected = true;
 
-            document.getElementById('cam-tracking-telemetry').textContent = 
-              `AIR-POINT: (${Math.round(ENGINE_STATE.optical.smoothX)}, ${Math.round(ENGINE_STATE.optical.smoothY)}) | PINCH ACTIVE`;
+            // Target normalized coordinate (mirrored horizontally)
+            const targetX = (1.0 - (fingerX / cw)) * W;
+            const targetY = (highestFingerY / ch) * H;
 
-            // Draw with Optical Air-Pen
+            // Apply Low-DPI Scaling & Sub-pixel Smoothing
+            const dpi = ENGINE_STATE.opticalDPI;
+            const deltaX = (targetX - ENGINE_STATE.optical.smoothX) * dpi;
+            const deltaY = (targetY - ENGINE_STATE.optical.smoothY) * dpi;
+
+            ENGINE_STATE.optical.smoothX += deltaX * (1.0 - ENGINE_STATE.smoothing * 0.5);
+            ENGINE_STATE.optical.smoothY += deltaY * (1.0 - ENGINE_STATE.smoothing * 0.5);
+
+            document.getElementById('cam-tracking-telemetry').textContent = 
+              `AIR-PEN: (${Math.round(ENGINE_STATE.optical.smoothX)}, ${Math.round(ENGINE_STATE.optical.smoothY)}) | DRAWING LIVE`;
+
+            // Draw targeting reticle on camera HUD
+            this.ctx.strokeStyle = '#00f0ff';
+            this.ctx.lineWidth = 2;
+            this.ctx.beginPath();
+            this.ctx.arc(fingerX, highestFingerY, 8, 0, Math.PI * 2);
+            this.ctx.stroke();
+
+            // CONTINUOUS DRAWING: When finger moves, it paints!
             if (!ENGINE_STATE.isDrawing) {
               ENGINE_STATE.isDrawing = true;
               strokePipeline.start(ENGINE_STATE.optical.smoothX, ENGINE_STATE.optical.smoothY, 1.0);
@@ -1387,12 +1491,16 @@
             }
 
             renderCursor(ENGINE_STATE.optical.smoothX, ENGINE_STATE.optical.smoothY);
+
           } else {
-            if (ENGINE_STATE.isDrawing && ENGINE_STATE.optical.active) {
-              ENGINE_STATE.isDrawing = false;
-              strokePipeline.finish();
+            if (this.isTracking) {
+              this.isTracking = false;
+              if (ENGINE_STATE.isDrawing) {
+                ENGINE_STATE.isDrawing = false;
+                strokePipeline.finish();
+              }
+              document.getElementById('cam-tracking-telemetry').textContent = "AIR-PEN: HOVER / RE-POSITION";
             }
-            ENGINE_STATE.optical.isDetected = false;
           }
         }
 
@@ -1452,13 +1560,13 @@
       curCtx.scale(DPR, DPR);
 
       const radius = Math.max(3, ENGINE_STATE.caliber * 1.5);
-      curCtx.strokeStyle = ENGINE_STATE.color;
+      curCtx.strokeStyle = ENGINE_STATE.biometrics.isSad ? '#3b82f6' : ENGINE_STATE.color;
       curCtx.lineWidth = 1.5;
       curCtx.beginPath();
       curCtx.arc(x, y, radius, 0, Math.PI * 2);
       curCtx.stroke();
 
-      if (ENGINE_STATE.biometrics.isGoat) {
+      if (ENGINE_STATE.biometrics.isGoat || ENGINE_STATE.biometrics.activeState === 'joy') {
         curCtx.strokeStyle = 'rgba(255, 215, 0, 0.6)';
         curCtx.lineWidth = 1;
         curCtx.setLineDash([4, 4]);
@@ -1470,14 +1578,14 @@
       curCtx.restore();
     }
 
-    // --- Biometric States & Neurotransmitter Psychology Mapping ---
+    // --- Biometric States & Affective Physics Mapping ---
     const BIO_STATES = {
-      joy: { dop: 0.92, ser: 0.85, cort: 0.08, label: 'EUPHORIC FOCUS', isGoat: true },
-      zen: { dop: 0.65, ser: 0.95, cort: 0.05, label: 'TRANSCENDENT CALM', isGoat: false },
-      rage: { dop: 0.40, ser: 0.20, cort: 0.95, label: 'VOLATILE ADRENALINE', isGoat: false },
-      fear: { dop: 0.25, ser: 0.30, cort: 0.88, label: 'HYPER-VIGILANCE', isGoat: false },
-      focus: { dop: 0.75, ser: 0.80, cort: 0.15, label: 'DEEP COGNITION', isGoat: false },
-      ecstasy: { dop: 0.99, ser: 0.92, cort: 0.02, label: '★ SUPREME GOAT STATUS', isGoat: true }
+      joy: { dop: 0.95, ser: 0.88, cort: 0.08, visc: 0.06, label: 'HAPPY // SILK-SMOOTH GLIDE', isGoat: true, isSad: false, desc: 'Happy = Silk Smooth Glide & Golden Buoyancy' },
+      zen: { dop: 0.65, ser: 0.95, cort: 0.05, visc: 0.15, label: 'TRANSCENDENT CALM', isGoat: false, isSad: false, desc: 'Zen = Harmonic Balance & Equilibrium' },
+      sad: { dop: 0.12, ser: 0.18, cort: 0.88, visc: 0.92, label: 'SAD // SLOW & BLURRY', isGoat: false, isSad: true, desc: 'Sad = Heavy Viscous Drag & Diffuse Blur' },
+      rage: { dop: 0.40, ser: 0.20, cort: 0.95, visc: 0.10, label: 'VOLATILE ADRENALINE', isGoat: false, isSad: false, desc: 'Rage = High-Frequency Fractures & Crimson Sparks' },
+      fear: { dop: 0.25, ser: 0.30, cort: 0.88, visc: 0.40, label: 'HYPER-VIGILANCE', isGoat: false, isSad: false, desc: 'Fear = Compressive Violet Tension' },
+      ecstasy: { dop: 0.99, ser: 0.92, cort: 0.02, visc: 0.02, label: '★ SUPREME GOAT STATUS', isGoat: true, isSad: false, desc: '★ GOAT = Absolute Harmonic Perfection' }
     };
 
     function applyBiometricState(key) {
@@ -1486,14 +1594,19 @@
       ENGINE_STATE.biometrics.dopamine = s.dop;
       ENGINE_STATE.biometrics.serotonin = s.ser;
       ENGINE_STATE.biometrics.cortisol = s.cort;
+      ENGINE_STATE.biometrics.viscosity = s.visc;
       ENGINE_STATE.biometrics.activeState = key;
       ENGINE_STATE.biometrics.isGoat = s.isGoat;
+      ENGINE_STATE.biometrics.isSad = s.isSad;
 
       document.getElementById('current-state-label').textContent = s.label;
+      document.getElementById('active-physics-desc').textContent = s.desc;
       document.getElementById('fill-dopamine').style.width = `${Math.round(s.dop * 100)}%`;
       document.getElementById('val-dopamine').textContent = `${Math.round(s.dop * 100)}%`;
       document.getElementById('fill-serotonin').style.width = `${Math.round(s.ser * 100)}%`;
       document.getElementById('val-serotonin').textContent = `${Math.round(s.ser * 100)}%`;
+      document.getElementById('fill-viscosity').style.width = `${Math.round(s.visc * 100)}%`;
+      document.getElementById('val-viscosity').textContent = `${Math.round(s.visc * 100)}%`;
       document.getElementById('fill-cortisol').style.width = `${Math.round(s.cort * 100)}%`;
       document.getElementById('val-cortisol').textContent = `${Math.round(s.cort * 100)}%`;
 
@@ -1501,9 +1614,14 @@
       if (s.isGoat) {
         goatBanner.style.display = 'block';
         audioFeedback.playGoatArpeggio();
-        showToast("🌟 ★ PREMIUM GOAT STATUS UNLOCKED: 100% NEURAL PURITY");
+        showToast("🌟 ★ PREMIUM GOAT STATUS: 100% SILK-SMOOTH GLIDE");
       } else {
         goatBanner.style.display = 'none';
+      }
+
+      if (s.isSad) {
+        showToast("🌧️ MELANCHOLY STATE // HIGH VISCOSITY & DIFFUSE BLUR");
+        audioFeedback.playNote(220, 'sine', 0.4, 0.03);
       }
 
       document.querySelectorAll('.btn-emo').forEach(b => {
@@ -1515,9 +1633,9 @@
     window.addEventListener('keydown', (e) => {
       if (e.key === '1') applyBiometricState('joy');
       if (e.key === '2') applyBiometricState('zen');
-      if (e.key === '3') applyBiometricState('rage');
-      if (e.key === '4') applyBiometricState('fear');
-      if (e.key === '5') applyBiometricState('focus');
+      if (e.key === '3') applyBiometricState('sad');
+      if (e.key === '4') applyBiometricState('rage');
+      if (e.key === '5') applyBiometricState('fear');
       if (e.key === '6') applyBiometricState('ecstasy');
       if (e.key === 'c' || e.key === 'C') clearCanvas();
       if (e.key === 's' || e.key === 'S') saveMasterpiece();
@@ -1531,7 +1649,15 @@
       btn.addEventListener('click', () => applyBiometricState(btn.dataset.state));
     });
 
-    // --- UI Controls: Brushes, Caliber, Toggles ---
+    // --- UI Controls: DPI Slider, Brushes, Caliber ---
+    const dpiSlider = document.getElementById('slider-dpi');
+    dpiSlider.addEventListener('input', (e) => {
+      ENGINE_STATE.opticalDPI = parseFloat(e.target.value);
+      const label = ENGINE_STATE.opticalDPI <= 0.5 ? 'High Precision' : 'Standard Speed';
+      document.getElementById('val-dpi').textContent = `${ENGINE_STATE.opticalDPI.toFixed(2)}x (${label})`;
+      document.getElementById('stat-dpi-val').textContent = `${ENGINE_STATE.opticalDPI.toFixed(2)}x`;
+    });
+
     document.querySelectorAll('.btn-brush').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.btn-brush').forEach(b => b.classList.remove('active'));
@@ -1599,11 +1725,11 @@
 
       expCtx.fillStyle = 'rgba(255, 255, 255, 0.85)';
       expCtx.font = 'bold 36px monospace';
-      expCtx.fillText('VOID LUMIN 3.5 // NEURAL CO-DREAM MASTERPIECE', 80, 120);
+      expCtx.fillText('VOID LUMIN 3.8 // AFFECTIVE NEURAL MASTERPIECE', 80, 120);
 
       expCtx.font = '24px monospace';
       expCtx.fillStyle = '#00f0ff';
-      expCtx.fillText(`INTENT PARADIGM: HUMAN AGENCY | AI CONFIDENCE: 96.8% | FLOW: x${Math.round(ENGINE_STATE.flowStreak)}`, 80, 165);
+      expCtx.fillText(`STATE: ${ENGINE_STATE.biometrics.activeState.toUpperCase()} | DPI: ${ENGINE_STATE.opticalDPI}x | FLOW: x${Math.round(ENGINE_STATE.flowStreak)}`, 80, 165);
 
       expCtx.font = '20px monospace';
       expCtx.fillStyle = 'rgba(255, 255, 255, 0.4)';
@@ -1614,7 +1740,7 @@
       link.href = exportCanvas.toDataURL('image/png');
       link.click();
 
-      showToast("💎 4K MASTERPIECE EXPORTED WITH NEURAL INTENT WATERMARK");
+      showToast("💎 4K MASTERPIECE EXPORTED WITH AFFECTIVE WATERMARK");
       audioFeedback.playChord([523.25, 659.25, 783.99, 1046.50]);
     }
 
@@ -1638,7 +1764,7 @@
       const dt = timestamp - lastTimestamp;
       lastTimestamp = timestamp;
 
-      // 1. Render AI Predictive Intent Horizon
+      // 1. Render AI Intent Horizon
       aiPredictor.render(predCtx);
 
       // 2. Render Particle Simulation Pass
