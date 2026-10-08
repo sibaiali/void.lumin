@@ -336,7 +336,7 @@
     .cam-box {
       position: relative;
       width: 100%;
-      height: 150px;
+      height: 160px;
       background: #000;
       border: 1px solid rgba(255,255,255,0.12);
       border-radius: 4px;
@@ -380,6 +380,7 @@
       display: flex;
       align-items: center;
       gap: 5px;
+      font-weight: 700;
     }
 
     .cam-status::before {
@@ -421,8 +422,8 @@
 
     #fill-dopamine { background: var(--accent-gold); }
     #fill-serotonin { background: #38bdf8; }
-    #fill-cortisol { background: var(--accent-crimson); }
     #fill-viscosity { background: var(--accent-blue); }
+    #fill-cortisol { background: var(--accent-crimson); }
 
     .emotion-buttons {
       display: grid;
@@ -563,26 +564,26 @@
     <div class="brand">
       <div class="brand-title">
         <span>VOID LUMIN</span>
-        <span style="color:var(--text-dim)">v3.8</span>
+        <span style="color:var(--text-dim)">v4.0</span>
       </div>
       <span class="badge-world-first">Subconscious Co-Dreamer</span>
     </div>
 
     <!-- Human Agency Renaissance Indicator -->
     <div id="manifesto-chip">
-      <span style="color:var(--accent-gold)">⚡ AFFECTIVE INSTRUMENT:</span>
-      <span id="active-physics-desc">Happy = Silk Smooth Glide &bull; Sad = Viscous Drag & Blur</span>
+      <span style="color:var(--accent-gold)">⚡ AFFECTIVE ENGINE:</span>
+      <span id="active-physics-desc">Happy = Silk Smooth Glide &bull; Sad = Slow Viscous Drag & Blur</span>
     </div>
 
     <!-- Engine Telemetry -->
     <div class="telemetry-group">
       <div class="stat-chip">
-        <span class="stat-label">Optical Air-Pen</span>
-        <span class="stat-val" id="stat-airpen-status" style="color:var(--accent-emerald)">ACTIVE</span>
+        <span class="stat-label">Air-Pen Status</span>
+        <span class="stat-val" id="stat-airpen-status" style="color:var(--accent-emerald)">READY</span>
       </div>
       <div class="stat-chip">
         <span class="stat-label">DPI Sensitivity</span>
-        <span class="stat-val" id="stat-dpi-val">0.45x (LOW)</span>
+        <span class="stat-val" id="stat-dpi-val">0.40x (FINE)</span>
       </div>
       <div class="stat-chip">
         <span class="stat-label">Frame Time</span>
@@ -632,10 +633,10 @@
     <!-- Optical DPI / Precision Slider -->
     <div class="slider-row">
       <div class="slider-header">
-        <span class="stat-label">Optical Air-Pen DPI (Low = Precise)</span>
-        <span class="stat-val" id="val-dpi">0.45x (High Precision)</span>
+        <span class="stat-label">Air-Pen DPI Sensitivity (Low = Precision)</span>
+        <span class="stat-val" id="val-dpi">0.40x</span>
       </div>
-      <input type="range" id="slider-dpi" min="0.15" max="1.5" step="0.05" value="0.45" />
+      <input type="range" id="slider-dpi" min="0.15" max="1.5" step="0.05" value="0.40" />
     </div>
 
     <!-- AI Subconscious Intent Predictor -->
@@ -664,9 +665,9 @@
     <div class="slider-row">
       <div class="slider-header">
         <span class="stat-label">Stroke Caliber</span>
-        <span class="stat-val" id="val-caliber">2.0 px</span>
+        <span class="stat-val" id="val-caliber">2.5 px</span>
       </div>
-      <input type="range" id="slider-caliber" min="0.5" max="32" step="0.5" value="2.0" />
+      <input type="range" id="slider-caliber" min="0.5" max="32" step="0.5" value="2.5" />
     </div>
 
     <div class="slider-row">
@@ -698,7 +699,7 @@
   <aside id="right-panel">
     <div class="panel-header">
       <span>OPTICAL AIR-TRACKING SENSOR</span>
-      <span id="bio-mode-badge" style="color:var(--accent-emerald)">ONLINE</span>
+      <span id="bio-mode-badge" style="color:var(--accent-emerald)">ACTIVE</span>
     </div>
 
     <!-- Live Webcam / Optical Tracking HUD -->
@@ -706,9 +707,9 @@
       <video id="webcam-video" autoplay playsinline muted></video>
       <canvas id="cam-analysis-canvas"></canvas>
       <div class="cam-hud-overlay">
-        <div class="cam-status" id="cam-status-label">AIR-PEN: POINT & MOVE FINGER</div>
-        <div style="font-size:8px; color:rgba(255,255,255,0.8);" id="cam-tracking-telemetry">
-          FINGER: LOCKING TARGET...
+        <div class="cam-status" id="cam-status-label">MOVE FINGER OR MOUSE TO DRAW</div>
+        <div style="font-size:8px; color:rgba(255,255,255,0.9);" id="cam-tracking-telemetry">
+          TRACKER: READY (MOUSE / CAMERA)
         </div>
       </div>
     </div>
@@ -828,18 +829,6 @@
 
   <!-- Core Engine Implementation -->
   <script>
-    /**
-     * VOID LUMIN 3.8 // AFFECTIVE BIOMETRIC ENGINE & CONTINUOUS OPTICAL AIR-PEN
-     * 
-     * Core Upgrades:
-     * 1. Continuous Optical Air-Pen: Moving your finger in front of the camera draws immediately!
-     * 2. Low DPI Precision Mode: Scaled sensitivity (0.45x) eliminates jitter for surgical drawing.
-     * 3. Affective Stroke Physics:
-     *    - HAPPY: Ultra-smooth Bézier curves, silk glide, high responsiveness, golden buoyancy.
-     *    - SAD / UNHAPPY: Slow, heavy viscous drag, and diffuse ink-bleed Gaussian blur!
-     * 4. AI Subconscious Intent Predictor: Real-time 18-step predictive horizon ahead of your hand.
-     */
-
     const bgCanvas = document.getElementById('bg-canvas');
     const predCanvas = document.getElementById('prediction-canvas');
     const particleCanvas = document.getElementById('particle-canvas');
@@ -919,9 +908,9 @@
     // --- State Management ---
     const ENGINE_STATE = {
       brush: 'graphite',
-      caliber: 2.0,
+      caliber: 2.5,
       smoothing: 0.90,
-      opticalDPI: 0.45, // Low DPI for precision
+      opticalDPI: 0.40, // Fine low-DPI precision
       color: '#ffffff',
       isDrawing: false,
       predictionEnabled: true,
@@ -939,14 +928,11 @@
       },
       optical: {
         active: false,
-        rawX: W / 2,
-        rawY: H / 2,
         smoothX: W / 2,
         smoothY: H / 2,
-        anchorX: W / 2,
-        anchorY: H / 2,
         isDetected: false,
-        lastFrameTime: performance.now()
+        isPinching: false,
+        lastDrawTime: performance.now()
       }
     };
 
@@ -963,6 +949,11 @@
       }
 
       add(x, y, pressure = 1.0) {
+        if (this.points.length === 0) {
+          this.start(x, y, pressure);
+          return;
+        }
+
         const last = this.points[this.points.length - 1];
         
         // Emotional Speed & Viscosity Drag Modulation:
@@ -1011,8 +1002,8 @@
           const blurRadius = 14 + (ENGINE_STATE.biometrics.viscosity * 12);
           
           // Pass 1: Diffuse outer haze
-          drawCtx.strokeStyle = 'rgba(59, 130, 246, 0.35)';
-          drawCtx.lineWidth = ENGINE_STATE.caliber * 3.5;
+          drawCtx.strokeStyle = 'rgba(59, 130, 246, 0.4)';
+          drawCtx.lineWidth = ENGINE_STATE.caliber * 4.0;
           drawCtx.shadowColor = '#1d4ed8';
           drawCtx.shadowBlur = blurRadius;
           drawCtx.beginPath();
@@ -1032,7 +1023,7 @@
 
           // Gravity tear drip: downward weeping accumulation
           if (Math.random() < 0.25) {
-            drawCtx.strokeStyle = 'rgba(59, 130, 246, 0.2)';
+            drawCtx.strokeStyle = 'rgba(59, 130, 246, 0.25)';
             drawCtx.lineWidth = 1.0;
             drawCtx.beginPath();
             drawCtx.moveTo(p2.x, p2.y);
@@ -1297,7 +1288,6 @@
         const speed = (0.5 + Math.random() * 2.0) * (1.0 + turbulence);
 
         this.vx[i] = Math.cos(angle) * speed;
-        // In happy state, buoyant particles rise; in sad state, they sink slowly
         const gravityEffect = ENGINE_STATE.biometrics.isSad ? 1.2 : - (ENGINE_STATE.biometrics.dopamine * 1.5);
         this.vy[i] = Math.sin(angle) * speed + gravityEffect;
         this.life[i] = 1.0;
@@ -1353,7 +1343,7 @@
 
     const particleEngine = new ParticleEngine(8192);
 
-    // --- CONTINUOUS OPTICAL AIR-PEN WITH LOW-DPI PRECISION & EMOTION DETECTION ---
+    // --- HYBRID COMPUTER VISION AIR-TRACKER (MediaPipe Hands + Instant Motion Fallback) ---
     class OpticalAirTracker {
       constructor() {
         this.video = document.getElementById('webcam-video');
@@ -1361,27 +1351,225 @@
         this.ctx = this.canvas.getContext('2d', { willReadFrequently: true });
         this.prevImageData = null;
         this.isRunning = false;
-        this.lastRawX = 80;
-        this.lastRawY = 60;
+        this.mediaPipeHands = null;
+        this.hasMediaPipe = false;
+        this.smoothX = W / 2;
+        this.smoothY = H / 2;
         this.isTracking = false;
       }
 
       async start() {
         try {
           const stream = await navigator.mediaDevices.getUserMedia({
-            video: { width: 320, height: 240, facingMode: 'user' }
+            video: { width: 640, height: 480, facingMode: 'user' }
           });
           this.video.srcObject = stream;
           this.isRunning = true;
           ENGINE_STATE.optical.active = true;
-          document.getElementById('cam-status-label').textContent = 'OPTICAL AIR-PEN ACTIVE';
+          document.getElementById('cam-status-label').textContent = 'OPTICAL AIR-PEN ONLINE';
+          document.getElementById('stat-airpen-status').textContent = 'TRACKING';
           document.getElementById('cam-text').textContent = 'Disable Air-Pen';
-          showToast('OPTICAL AIR-PEN ONLINE // MOVE FINGER TO DRAW');
+          showToast('CAMERA ACTIVE // MOVE FINGER IN FRONT OF WEBCAM');
           audioFeedback.playNote(880, 'sine', 0.2, 0.03);
-          this.process();
+
+          // 1. Start instant optical motion loop immediately
+          this.startInstantOpticalLoop();
+
+          // 2. Concurrently load Google MediaPipe Hands in background for 3D landmarks
+          this.initMediaPipe();
         } catch (e) {
-          alert('Webcam access was denied. Mouse/Stylus mode is 100% active with low DPI precision.');
+          alert('Webcam access was denied. Mouse/Stylus mode is 100% active with full affective physics.');
         }
+      }
+
+      async initMediaPipe() {
+        try {
+          // Dynamic script loading (never blocks the page)
+          if (!window.Hands) {
+            await this.loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js');
+            await this.loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js');
+          }
+
+          if (window.Hands) {
+            const hands = new window.Hands({
+              locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+            });
+
+            hands.setOptions({
+              maxNumHands: 1,
+              modelComplexity: 0,
+              minDetectionConfidence: 0.5,
+              minTrackingConfidence: 0.5
+            });
+
+            hands.onResults((results) => this.onHandResults(results));
+
+            const sendLoop = async () => {
+              if (this.isRunning && this.video.readyState === this.video.HAVE_ENOUGH_DATA) {
+                await hands.send({ image: this.video });
+              }
+              if (this.isRunning) requestAnimationFrame(sendLoop);
+            };
+            sendLoop();
+            this.hasMediaPipe = true;
+            document.getElementById('stat-airpen-status').textContent = '3D LANDMARK LOCKED';
+          }
+        } catch(err) {
+          console.warn("MediaPipe load fallback to Optical Motion engine:", err);
+        }
+      }
+
+      loadScript(src) {
+        return new Promise((resolve, reject) => {
+          const s = document.createElement('script');
+          s.src = src;
+          s.crossOrigin = 'anonymous';
+          s.onload = () => resolve();
+          s.onerror = (e) => reject(e);
+          document.head.appendChild(s);
+        });
+      }
+
+      onHandResults(results) {
+        if (!results.multiHandLandmarks || results.multiHandLandmarks.length === 0) {
+          if (this.isTracking) {
+            this.isTracking = false;
+            if (ENGINE_STATE.isDrawing) {
+              ENGINE_STATE.isDrawing = false;
+              strokePipeline.finish();
+            }
+          }
+          return;
+        }
+
+        const landmarks = results.multiHandLandmarks[0];
+        // Landmark 8 = INDEX_FINGER_TIP
+        const indexTip = landmarks[8];
+        // Landmark 4 = THUMB_TIP
+        const thumbTip = landmarks[4];
+
+        // Draw skeleton overlay on cam-analysis-canvas
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.fillStyle = '#00f0ff';
+        landmarks.forEach(pt => {
+          this.ctx.beginPath();
+          this.ctx.arc(pt.x * this.canvas.width, pt.y * this.canvas.height, 3, 0, Math.PI * 2);
+          this.ctx.fill();
+        });
+
+        // Mirror X
+        const rawTargetX = (1.0 - indexTip.x) * W;
+        const rawTargetY = indexTip.y * H;
+
+        // Apply Low-DPI Scaling & Sub-pixel Smoothing
+        const dpi = ENGINE_STATE.opticalDPI;
+        const deltaX = (rawTargetX - this.smoothX) * dpi;
+        const deltaY = (rawTargetY - this.smoothY) * dpi;
+
+        this.smoothX += deltaX * (1.0 - ENGINE_STATE.smoothing * 0.4);
+        this.smoothY += deltaY * (1.0 - ENGINE_STATE.smoothing * 0.4);
+
+        ENGINE_STATE.optical.smoothX = this.smoothX;
+        ENGINE_STATE.optical.smoothY = this.smoothY;
+        ENGINE_STATE.optical.isDetected = true;
+        this.isTracking = true;
+
+        document.getElementById('cam-tracking-telemetry').textContent = 
+          `3D FINGERTIP: (${Math.round(this.smoothX)}, ${Math.round(this.smoothY)}) | DRAWING`;
+
+        // DRAW CONTINUOUSLY AS FINGER MOVES
+        if (!ENGINE_STATE.isDrawing) {
+          ENGINE_STATE.isDrawing = true;
+          strokePipeline.start(this.smoothX, this.smoothY, 1.0);
+        } else {
+          strokePipeline.add(this.smoothX, this.smoothY, 1.0);
+        }
+
+        renderCursor(this.smoothX, this.smoothY);
+      }
+
+      startInstantOpticalLoop() {
+        const loop = () => {
+          if (!this.isRunning) return;
+
+          // If MediaPipe is active, it handles tracking directly
+          if (!this.hasMediaPipe && this.video.readyState === this.video.HAVE_ENOUGH_DATA) {
+            const cw = 160;
+            const ch = 120;
+            this.canvas.width = cw;
+            this.canvas.height = ch;
+            this.ctx.drawImage(this.video, 0, 0, cw, ch);
+            const frame = this.ctx.getImageData(0, 0, cw, ch);
+            const d = frame.data;
+
+            // Frame differencing motion detection (find moving hand, ignore static ceiling/head)
+            let moveX = 0, moveY = 0, moveCount = 0;
+
+            if (this.prevImageData) {
+              const d0 = this.prevImageData.data;
+              for (let i = 0; i < d.length; i += 8) {
+                const diff = Math.abs(d[i] - d0[i]) + Math.abs(d[i+1] - d0[i+1]) + Math.abs(d[i+2] - d0[i+2]);
+                if (diff > 45) {
+                  const pixelIdx = i / 4;
+                  const px = pixelIdx % cw;
+                  const py = Math.floor(pixelIdx / cw);
+                  moveX += px;
+                  moveY += py;
+                  moveCount++;
+                }
+              }
+            }
+            this.prevImageData = frame;
+
+            if (moveCount > 20) {
+              const avgX = moveX / moveCount;
+              const avgY = moveY / moveCount;
+
+              // Mirror X
+              const targetX = (1.0 - (avgX / cw)) * W;
+              const targetY = (avgY / ch) * H;
+
+              const dpi = ENGINE_STATE.opticalDPI;
+              this.smoothX += (targetX - this.smoothX) * dpi * 0.4;
+              this.smoothY += (targetY - this.smoothY) * dpi * 0.4;
+
+              ENGINE_STATE.optical.smoothX = this.smoothX;
+              ENGINE_STATE.optical.smoothY = this.smoothY;
+              this.isTracking = true;
+
+              document.getElementById('cam-tracking-telemetry').textContent = 
+                `MOTION CENTROID: (${Math.round(this.smoothX)}, ${Math.round(this.smoothY)}) | DRAWING`;
+
+              // Reticle on camera view
+              this.ctx.strokeStyle = '#00f0ff';
+              this.ctx.lineWidth = 2;
+              this.ctx.beginPath();
+              this.ctx.arc(avgX, avgY, 8, 0, Math.PI * 2);
+              this.ctx.stroke();
+
+              // Continuous mark-making
+              if (!ENGINE_STATE.isDrawing) {
+                ENGINE_STATE.isDrawing = true;
+                strokePipeline.start(this.smoothX, this.smoothY, 1.0);
+              } else {
+                strokePipeline.add(this.smoothX, this.smoothY, 1.0);
+              }
+
+              renderCursor(this.smoothX, this.smoothY);
+            } else {
+              if (this.isTracking) {
+                this.isTracking = false;
+                if (ENGINE_STATE.isDrawing) {
+                  ENGINE_STATE.isDrawing = false;
+                  strokePipeline.finish();
+                }
+              }
+            }
+          }
+
+          requestAnimationFrame(loop);
+        };
+        requestAnimationFrame(loop);
       }
 
       stop() {
@@ -1392,119 +1580,8 @@
         this.isRunning = false;
         ENGINE_STATE.optical.active = false;
         document.getElementById('cam-status-label').textContent = 'SIMULATOR MODE';
+        document.getElementById('stat-airpen-status').textContent = 'STANDBY';
         document.getElementById('cam-text').textContent = 'Enable Optical Air-Pen';
-      }
-
-      process() {
-        if (!this.isRunning) return;
-
-        if (this.video.readyState === this.video.HAVE_ENOUGH_DATA) {
-          const cw = 160;
-          const ch = 120;
-          this.canvas.width = cw;
-          this.canvas.height = ch;
-          this.ctx.drawImage(this.video, 0, 0, cw, ch);
-          const frame = this.ctx.getImageData(0, 0, cw, ch);
-          const d = frame.data;
-
-          let highestFingerY = 999;
-          let fingerX = cw / 2;
-          let fingerFound = false;
-
-          // Smile / Emotion detection variables
-          let lowerFaceBrightness = 0;
-          let faceSampleCount = 0;
-
-          // 1. Analyze frame: locate topmost fingertip locus
-          for (let y = 10; y < ch - 10; y++) {
-            for (let x = 10; x < cw - 10; x++) {
-              const i = (y * cw + x) * 4;
-              const r = d[i];
-              const g = d[i+1];
-              const b = d[i+2];
-
-              // Skin and prominent brightness locus
-              const isSkin = (r > 60 && g > 40 && b > 25 && r > g && r > b && (r - g > 15));
-              const isBright = (r + g + b) > 280;
-
-              if (isSkin || isBright) {
-                if (y < highestFingerY) {
-                  highestFingerY = y;
-                  fingerX = x;
-                  fingerFound = true;
-                }
-              }
-
-              // Sample mouth / cheek region (center-lower) for smile detection
-              if (y > 70 && y < 105 && x > 55 && x < 105) {
-                lowerFaceBrightness += (r + g + b);
-                faceSampleCount++;
-              }
-            }
-          }
-
-          // 2. Real-Time Facial Emotion Classification
-          if (faceSampleCount > 100) {
-            const avgCheekLuma = lowerFaceBrightness / (faceSampleCount * 3);
-            if (avgCheekLuma > 115 && ENGINE_STATE.biometrics.activeState !== 'joy' && !ENGINE_STATE.biometrics.isGoat) {
-              applyBiometricState('joy');
-              showToast("😊 SMILE DETECTED // SILK-SMOOTH GLIDE ACTIVATED");
-            } else if (avgCheekLuma < 65 && ENGINE_STATE.biometrics.activeState !== 'sad') {
-              applyBiometricState('sad');
-              showToast("🌧️ SADNESS DETECTED // VISCOUS DRAG & BLUR");
-            }
-          }
-
-          // 3. Continuous Air Drawing Tracking with Low-DPI Precision
-          if (fingerFound && highestFingerY < 105) {
-            this.isTracking = true;
-            ENGINE_STATE.optical.isDetected = true;
-
-            // Target normalized coordinate (mirrored horizontally)
-            const targetX = (1.0 - (fingerX / cw)) * W;
-            const targetY = (highestFingerY / ch) * H;
-
-            // Apply Low-DPI Scaling & Sub-pixel Smoothing
-            const dpi = ENGINE_STATE.opticalDPI;
-            const deltaX = (targetX - ENGINE_STATE.optical.smoothX) * dpi;
-            const deltaY = (targetY - ENGINE_STATE.optical.smoothY) * dpi;
-
-            ENGINE_STATE.optical.smoothX += deltaX * (1.0 - ENGINE_STATE.smoothing * 0.5);
-            ENGINE_STATE.optical.smoothY += deltaY * (1.0 - ENGINE_STATE.smoothing * 0.5);
-
-            document.getElementById('cam-tracking-telemetry').textContent = 
-              `AIR-PEN: (${Math.round(ENGINE_STATE.optical.smoothX)}, ${Math.round(ENGINE_STATE.optical.smoothY)}) | DRAWING LIVE`;
-
-            // Draw targeting reticle on camera HUD
-            this.ctx.strokeStyle = '#00f0ff';
-            this.ctx.lineWidth = 2;
-            this.ctx.beginPath();
-            this.ctx.arc(fingerX, highestFingerY, 8, 0, Math.PI * 2);
-            this.ctx.stroke();
-
-            // CONTINUOUS DRAWING: When finger moves, it paints!
-            if (!ENGINE_STATE.isDrawing) {
-              ENGINE_STATE.isDrawing = true;
-              strokePipeline.start(ENGINE_STATE.optical.smoothX, ENGINE_STATE.optical.smoothY, 1.0);
-            } else {
-              strokePipeline.add(ENGINE_STATE.optical.smoothX, ENGINE_STATE.optical.smoothY, 1.0);
-            }
-
-            renderCursor(ENGINE_STATE.optical.smoothX, ENGINE_STATE.optical.smoothY);
-
-          } else {
-            if (this.isTracking) {
-              this.isTracking = false;
-              if (ENGINE_STATE.isDrawing) {
-                ENGINE_STATE.isDrawing = false;
-                strokePipeline.finish();
-              }
-              document.getElementById('cam-tracking-telemetry').textContent = "AIR-PEN: HOVER / RE-POSITION";
-            }
-          }
-        }
-
-        requestAnimationFrame(() => this.process());
       }
     }
 
@@ -1515,11 +1592,10 @@
       else opticalAirTracker.start();
     });
 
-    // --- Mouse & Touch Input (Dual Mode) ---
+    // --- Mouse & Touch Input (Always Available & Concurrent) ---
     let mouseX = W / 2, mouseY = H / 2;
 
     function handlePointerDown(e) {
-      if (ENGINE_STATE.optical.active && ENGINE_STATE.optical.isDetected) return;
       ENGINE_STATE.isDrawing = true;
       ENGINE_STATE.lastDrawTime = performance.now();
       const rect = drawingCanvas.getBoundingClientRect();
@@ -1530,7 +1606,6 @@
     }
 
     function handlePointerMove(e) {
-      if (ENGINE_STATE.optical.active && ENGINE_STATE.optical.isDetected) return;
       const rect = drawingCanvas.getBoundingClientRect();
       mouseX = e.clientX - rect.left;
       mouseY = e.clientY - rect.top;
@@ -1545,9 +1620,10 @@
     }
 
     function handlePointerUp() {
-      if (ENGINE_STATE.optical.active && ENGINE_STATE.optical.isDetected) return;
-      ENGINE_STATE.isDrawing = false;
-      strokePipeline.finish();
+      if (ENGINE_STATE.isDrawing) {
+        ENGINE_STATE.isDrawing = false;
+        strokePipeline.finish();
+      }
     }
 
     drawingCanvas.addEventListener('pointerdown', handlePointerDown);
@@ -1649,13 +1725,13 @@
       btn.addEventListener('click', () => applyBiometricState(btn.dataset.state));
     });
 
-    // --- UI Controls: DPI Slider, Brushes, Caliber ---
+    // --- UI Controls ---
     const dpiSlider = document.getElementById('slider-dpi');
     dpiSlider.addEventListener('input', (e) => {
       ENGINE_STATE.opticalDPI = parseFloat(e.target.value);
-      const label = ENGINE_STATE.opticalDPI <= 0.5 ? 'High Precision' : 'Standard Speed';
-      document.getElementById('val-dpi').textContent = `${ENGINE_STATE.opticalDPI.toFixed(2)}x (${label})`;
-      document.getElementById('stat-dpi-val').textContent = `${ENGINE_STATE.opticalDPI.toFixed(2)}x`;
+      const label = ENGINE_STATE.opticalDPI <= 0.5 ? 'FINE' : 'FAST';
+      document.getElementById('val-dpi').textContent = `${ENGINE_STATE.opticalDPI.toFixed(2)}x`;
+      document.getElementById('stat-dpi-val').textContent = `${ENGINE_STATE.opticalDPI.toFixed(2)}x (${label})`;
     });
 
     document.querySelectorAll('.btn-brush').forEach(btn => {
@@ -1725,7 +1801,7 @@
 
       expCtx.fillStyle = 'rgba(255, 255, 255, 0.85)';
       expCtx.font = 'bold 36px monospace';
-      expCtx.fillText('VOID LUMIN 3.8 // AFFECTIVE NEURAL MASTERPIECE', 80, 120);
+      expCtx.fillText('VOID LUMIN 4.0 // AFFECTIVE NEURAL MASTERPIECE', 80, 120);
 
       expCtx.font = '24px monospace';
       expCtx.fillStyle = '#00f0ff';
