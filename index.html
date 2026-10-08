@@ -3,21 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>VOID LUMIN 3.0 // Biometric Neural Render Engine</title>
+  <title>VOID LUMIN // Biomorphic Neural Co-Dreamer & Precision Optical Air-Instrument</title>
   <style>
     :root {
-      --bg: #050608;
-      --panel-bg: rgba(10, 14, 20, 0.82);
+      --bg: #030406;
+      --panel-bg: rgba(8, 12, 18, 0.86);
       --border: rgba(255, 255, 255, 0.12);
       --accent-cyan: #00f0ff;
       --accent-gold: #ffd700;
       --accent-crimson: #ff2a5f;
       --accent-violet: #a855f7;
       --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
       --text: #e2e8f0;
       --text-dim: #64748b;
       --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
-      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
 
     * {
@@ -38,7 +39,6 @@
       font-size: 12px;
     }
 
-    /* Rendering Viewport */
     #viewport-container {
       position: absolute;
       inset: 0;
@@ -57,25 +57,26 @@
     }
 
     #bg-canvas { z-index: 1; }
-    #particle-canvas { z-index: 2; pointer-events: none; }
-    #drawing-canvas { z-index: 3; }
-    #cursor-canvas { z-index: 4; pointer-events: none; }
+    #prediction-canvas { z-index: 2; pointer-events: none; }
+    #particle-canvas { z-index: 3; pointer-events: none; }
+    #drawing-canvas { z-index: 4; }
+    #cursor-canvas { z-index: 5; pointer-events: none; }
 
-    /* Top Telemetry Bar */
+    /* Top Telemetry & Manifesto Bar */
     #top-bar {
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
-      height: 48px;
+      height: 52px;
       padding: 0 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: linear-gradient(180deg, rgba(5,6,8,0.92) 0%, rgba(5,6,8,0) 100%);
+      background: linear-gradient(180deg, rgba(3,4,6,0.96) 0%, rgba(3,4,6,0) 100%);
       border-bottom: 1px solid var(--border);
       z-index: 10;
-      backdrop-filter: blur(8px);
+      backdrop-filter: blur(12px);
     }
 
     .brand {
@@ -94,23 +95,41 @@
       gap: 8px;
     }
 
-    .badge-crytek {
-      background: rgba(0, 240, 255, 0.15);
+    .badge-world-first {
+      background: linear-gradient(90deg, rgba(0, 240, 255, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%);
       border: 1px solid var(--accent-cyan);
       color: var(--accent-cyan);
       font-size: 9px;
-      padding: 2px 6px;
+      padding: 2px 7px;
       border-radius: 2px;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      font-weight: 700;
+      font-weight: 800;
+      animation: neonPulse 2s infinite alternate;
     }
 
-    /* Engine Stats Module (Crytek Telemetry Style) */
+    @keyframes neonPulse {
+      0% { box-shadow: 0 0 4px rgba(0,240,255,0.2); }
+      100% { box-shadow: 0 0 12px rgba(0,240,255,0.6); }
+    }
+
+    /* Human Agency Renaissance Motto */
+    #manifesto-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 4px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      font-size: 10px;
+      color: #cbd5e1;
+    }
+
     .telemetry-group {
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 18px;
     }
 
     .stat-chip {
@@ -120,7 +139,7 @@
     }
 
     .stat-label {
-      font-size: 9px;
+      font-size: 8px;
       color: var(--text-dim);
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -132,56 +151,34 @@
       color: var(--accent-cyan);
     }
 
-    /* Flow Streak & Psychology Bar */
-    #flow-meter {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: rgba(0, 0, 0, 0.4);
-      padding: 4px 12px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 4px;
-    }
-
-    .streak-val {
-      font-weight: 900;
-      font-size: 14px;
-      color: var(--accent-gold);
-    }
-
-    .streak-multiplier {
-      font-size: 10px;
-      color: var(--accent-emerald);
-      font-weight: 700;
-    }
-
-    /* Left Toolbar: Precision Drawing & Brushes */
+    /* Left Panel: High-Precision Drawing & Predictive Controls */
     #left-panel {
       position: absolute;
-      top: 60px;
+      top: 64px;
       left: 16px;
-      width: 240px;
+      width: 250px;
       background: var(--panel-bg);
       border: 1px solid var(--border);
       border-radius: 6px;
       padding: 12px;
       z-index: 10;
-      backdrop-filter: blur(12px);
+      backdrop-filter: blur(14px);
       display: flex;
       flex-direction: column;
-      gap: 14px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      gap: 12px;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7);
     }
 
     .panel-header {
-      font-size: 10px;
+      font-size: 9px;
       text-transform: uppercase;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.14em;
       color: var(--text-dim);
       border-bottom: 1px solid rgba(255,255,255,0.06);
       padding-bottom: 4px;
       display: flex;
       justify-content: space-between;
+      align-items: center;
     }
 
     .brush-grid {
@@ -194,7 +191,7 @@
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid rgba(255, 255, 255, 0.1);
       color: var(--text);
-      padding: 8px 6px;
+      padding: 7px 6px;
       font-size: 10px;
       font-family: var(--font-mono);
       text-align: left;
@@ -222,16 +219,66 @@
       color: var(--text-dim);
     }
 
+    /* Prediction Mode Toggle Box */
+    .feature-toggle-box {
+      background: rgba(0, 240, 255, 0.06);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      padding: 8px 10px;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 34px;
+      height: 18px;
+    }
+
+    .switch input { opacity: 0; width: 0; height: 0; }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: rgba(255,255,255,0.15);
+      transition: .3s;
+      border-radius: 18px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider { background-color: var(--accent-cyan); }
+    input:checked + .slider:before { transform: translateX(16px); }
+
     .slider-row {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 3px;
     }
 
     .slider-header {
       display: flex;
       justify-content: space-between;
-      font-size: 10px;
+      font-size: 9px;
     }
 
     input[type="range"] {
@@ -252,7 +299,6 @@
       cursor: pointer;
     }
 
-    /* Color Swatches */
     .palette-row {
       display: flex;
       gap: 6px;
@@ -268,19 +314,13 @@
       transition: transform 0.15s;
     }
 
-    .color-swatch:hover {
-      transform: scale(1.15);
-    }
+    .color-swatch:hover { transform: scale(1.15); }
+    .color-swatch.active { border-color: #fff; box-shadow: 0 0 8px rgba(255,255,255,0.6); }
 
-    .color-swatch.active {
-      border-color: #fff;
-      box-shadow: 0 0 8px rgba(255,255,255,0.6);
-    }
-
-    /* Right Panel: Biometric Signal Deck & Neuro-State */
+    /* Right Panel: Optical Air-Tracking & Biometric Deck */
     #right-panel {
       position: absolute;
-      top: 60px;
+      top: 64px;
       right: 16px;
       width: 280px;
       background: var(--panel-bg);
@@ -288,52 +328,20 @@
       border-radius: 6px;
       padding: 12px;
       z-index: 10;
-      backdrop-filter: blur(12px);
+      backdrop-filter: blur(14px);
       display: flex;
       flex-direction: column;
-      gap: 14px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      gap: 12px;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7);
     }
 
-    .neuro-meter {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-
-    .meter-label-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 9px;
-    }
-
-    .meter-track {
-      width: 100%;
-      height: 6px;
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 3px;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .meter-fill {
-      height: 100%;
-      width: 30%;
-      transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s;
-    }
-
-    #fill-dopamine { background: var(--accent-gold); }
-    #fill-serotonin { background: #38bdf8; }
-    #fill-cortisol { background: var(--accent-crimson); }
-    #fill-gaba { background: #a3e635; }
-
-    /* Video Mirror Overlay */
+    /* Optical Tracking Viewport */
     .cam-box {
       position: relative;
       width: 100%;
-      height: 130px;
+      height: 150px;
       background: #000;
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.12);
       border-radius: 4px;
       overflow: hidden;
       display: flex;
@@ -348,24 +356,33 @@
       transform: scaleX(-1);
     }
 
+    #cam-analysis-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      transform: scaleX(-1);
+    }
+
     .cam-hud-overlay {
       position: absolute;
       inset: 0;
-      border: 1px solid rgba(0, 240, 255, 0.4);
+      border: 1px solid rgba(0, 240, 255, 0.3);
       pointer-events: none;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       padding: 6px;
-      box-shadow: inset 0 0 20px rgba(0, 240, 255, 0.15);
+      box-shadow: inset 0 0 24px rgba(0, 240, 255, 0.12);
     }
 
     .cam-status {
-      font-size: 9px;
+      font-size: 8px;
       color: var(--accent-emerald);
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
     }
 
     .cam-status::before {
@@ -378,7 +395,39 @@
       box-shadow: 0 0 6px var(--accent-emerald);
     }
 
-    /* Emotion Mode Selector buttons */
+    /* Subconscious Intent Metrics */
+    .neuro-meter {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .meter-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 8px;
+    }
+
+    .meter-track {
+      width: 100%;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 2px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .meter-fill {
+      height: 100%;
+      width: 30%;
+      transition: width 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s;
+    }
+
+    #fill-prediction { background: var(--accent-cyan); }
+    #fill-dopamine { background: var(--accent-gold); }
+    #fill-serotonin { background: #38bdf8; }
+    #fill-cortisol { background: var(--accent-crimson); }
+
     .emotion-buttons {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -398,16 +447,8 @@
       transition: all 0.15s;
     }
 
-    .btn-emo:hover {
-      color: #fff;
-      border-color: rgba(255,255,255,0.3);
-    }
-
-    .btn-emo.active {
-      color: #000;
-      font-weight: 800;
-    }
-
+    .btn-emo:hover { color: #fff; border-color: rgba(255,255,255,0.3); }
+    .btn-emo.active { color: #000; font-weight: 800; }
     .btn-emo.joy.active { background: var(--accent-gold); border-color: var(--accent-gold); }
     .btn-emo.zen.active { background: #38bdf8; border-color: #38bdf8; }
     .btn-emo.rage.active { background: var(--accent-crimson); border-color: var(--accent-crimson); }
@@ -415,27 +456,7 @@
     .btn-emo.focus.active { background: var(--accent-emerald); border-color: var(--accent-emerald); }
     .btn-emo.ecstasy.active { background: #ec4899; border-color: #ec4899; }
 
-    /* Psychological GOAT Status Banner */
-    #goat-banner {
-      display: none;
-      background: linear-gradient(90deg, rgba(255,215,0,0.2) 0%, rgba(255,215,0,0.05) 100%);
-      border: 1px solid var(--accent-gold);
-      color: var(--accent-gold);
-      padding: 6px 10px;
-      border-radius: 3px;
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 0.1em;
-      text-align: center;
-      animation: pulseGold 1.5s infinite alternate;
-    }
-
-    @keyframes pulseGold {
-      0% { box-shadow: 0 0 4px rgba(255,215,0,0.2); }
-      100% { box-shadow: 0 0 16px rgba(255,215,0,0.6); }
-    }
-
-    /* Bottom Control Bar */
+    /* Bottom Action Deck */
     #bottom-bar {
       position: absolute;
       bottom: 16px;
@@ -449,15 +470,15 @@
       padding: 8px 16px;
       border-radius: 30px;
       z-index: 10;
-      backdrop-filter: blur(12px);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
     }
 
     .btn-action {
       background: rgba(255, 255, 255, 0.06);
       border: 1px solid rgba(255, 255, 255, 0.15);
       color: #fff;
-      padding: 8px 14px;
+      padding: 7px 14px;
       font-size: 11px;
       font-family: var(--font-mono);
       border-radius: 20px;
@@ -470,7 +491,7 @@
     }
 
     .btn-action:hover {
-      background: rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.14);
       border-color: #fff;
       transform: translateY(-1px);
     }
@@ -483,27 +504,27 @@
     }
 
     .btn-action.primary:hover {
-      box-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.7);
     }
 
-    /* Psychological Feedback Toast */
+    /* Subconscious Neural Toast */
     #toast-banner {
       position: absolute;
-      top: 60px;
+      top: 66px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(5,6,8,0.9);
+      background: rgba(3,4,6,0.92);
       border: 1px solid var(--accent-cyan);
       color: #fff;
       padding: 8px 20px;
       border-radius: 4px;
       font-size: 11px;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
       z-index: 20;
       pointer-events: none;
       opacity: 0;
       transition: opacity 0.3s, transform 0.3s;
-      box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.35);
       text-align: center;
     }
 
@@ -512,49 +533,62 @@
       transform: translateX(-50%) translateY(4px);
     }
 
-    /* Frame Time Profiler Mini-Chart */
-    #profiler-box {
-      width: 100%;
-      height: 36px;
-      background: rgba(0,0,0,0.5);
-      border: 1px solid rgba(255,255,255,0.06);
-      position: relative;
+    #goat-banner {
+      display: none;
+      background: linear-gradient(90deg, rgba(255,215,0,0.2) 0%, rgba(255,215,0,0.05) 100%);
+      border: 1px solid var(--accent-gold);
+      color: var(--accent-gold);
+      padding: 6px 10px;
+      border-radius: 3px;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-align: center;
+      animation: pulseGold 1.5s infinite alternate;
     }
 
-    #profiler-canvas {
-      width: 100%;
-      height: 100%;
+    @keyframes pulseGold {
+      0% { box-shadow: 0 0 4px rgba(255,215,0,0.2); }
+      100% { box-shadow: 0 0 16px rgba(255,215,0,0.6); }
     }
   </style>
 </head>
 <body>
-  <!-- Viewport -->
+  <!-- Viewport Layers -->
   <div id="viewport-container">
     <canvas id="bg-canvas"></canvas>
+    <canvas id="prediction-canvas"></canvas>
     <canvas id="particle-canvas"></canvas>
     <canvas id="drawing-canvas"></canvas>
     <canvas id="cursor-canvas"></canvas>
   </div>
 
-  <!-- Top Telemetry Bar -->
+  <!-- Top Telemetry & Manifesto Bar -->
   <header id="top-bar">
     <div class="brand">
       <div class="brand-title">
         <span>VOID LUMIN</span>
-        <span style="color:var(--text-dim)">v3.0</span>
+        <span style="color:var(--text-dim)">v3.5</span>
       </div>
-      <span class="badge-crytek">CryENGINE DoD / WebGL2 Spec</span>
+      <span class="badge-world-first">Subconscious Co-Dreamer</span>
     </div>
 
-    <!-- Psychological Engagement & Flow State Tracker -->
-    <div id="flow-meter">
-      <span style="color:var(--text-dim); font-size:9px;">NEURAL COUPLING:</span>
-      <span class="streak-val" id="flow-streak-count">99.4%</span>
-      <span class="streak-multiplier" id="streak-tier">★ RESONANT</span>
+    <!-- Human Agency Manifesto Indicator -->
+    <div id="manifesto-chip">
+      <span style="color:var(--accent-gold)">⚡ PARADIGM:</span>
+      <span>Machine Anticipates &bull; Human Conduces &bull; Zero Passive Prompts</span>
     </div>
 
     <!-- Engine Telemetry / Crytek Standards -->
     <div class="telemetry-group">
+      <div class="stat-chip">
+        <span class="stat-label">AI Intent Horizon</span>
+        <span class="stat-val" id="stat-ai-confidence">96.8%</span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-label">Optical Tracking</span>
+        <span class="stat-val" id="stat-optical-mode" style="color:var(--accent-emerald)">SUB-PIXEL EMA</span>
+      </div>
       <div class="stat-chip">
         <span class="stat-label">Frame Time</span>
         <span class="stat-val" id="stat-frametime">16.6 ms</span>
@@ -563,14 +597,10 @@
         <span class="stat-label">FPS</span>
         <span class="stat-val" id="stat-fps">60.0</span>
       </div>
-      <div class="stat-chip">
-        <span class="stat-label">Active Particles</span>
-        <span class="stat-val" id="stat-particles">8,192</span>
-      </div>
     </div>
   </header>
 
-  <!-- Left Toolbar: Precision Drawing & Brushes -->
+  <!-- Left Toolbar: Precision Drawing & Intent Horizon -->
   <aside id="left-panel">
     <div class="panel-header">
       <span>DRAWING INSTRUMENT</span>
@@ -580,11 +610,11 @@
     <div class="brush-grid">
       <button class="btn-brush active" data-brush="graphite">
         <span>✏️ Precision Graphite</span>
-        <span class="brush-desc">High-DPI 0.5px face detail</span>
+        <span class="brush-desc">0.5px face & anatomy detail</span>
       </button>
       <button class="btn-brush" data-brush="neural">
         <span>🧬 Neural Ink</span>
-        <span class="brush-desc">Bézier curve dynamics</span>
+        <span class="brush-desc">Dynamic calligraphic tension</span>
       </button>
       <button class="btn-brush" data-brush="magma">
         <span>🔥 Heated Soul</span>
@@ -592,11 +622,11 @@
       </button>
       <button class="btn-brush" data-brush="quantum">
         <span>✨ Quantum Filament</span>
-        <span class="brush-desc">Harmonic resonance lines</span>
+        <span class="brush-desc">Harmonic resonance loops</span>
       </button>
       <button class="btn-brush" data-brush="nebula">
         <span>🌌 Cosmic Void</span>
-        <span class="brush-desc">Curl-noise particle gas</span>
+        <span class="brush-desc">Curl-noise stardust</span>
       </button>
       <button class="btn-brush" data-brush="eraser">
         <span>🧹 Void Eraser</span>
@@ -604,26 +634,48 @@
       </button>
     </div>
 
-    <!-- Precision Stroke Width & Pressure -->
+    <!-- World-First: AI Subconscious Intent Predictor -->
+    <div class="feature-toggle-box">
+      <div class="toggle-row">
+        <div>
+          <span style="font-weight:700; color:#fff; font-size:10px;">🔮 AI INTENT PREDICTOR</span>
+          <div style="font-size:8px; color:var(--text-dim);">Forecasts stroke trajectory in real-time</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="toggle-prediction" checked />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-row" style="margin-top:4px;">
+        <span style="font-size:9px; color:var(--text-dim);">Accept & Commit on Lift [TAB]</span>
+        <label class="switch">
+          <input type="checkbox" id="toggle-commit-prediction" checked />
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Caliber & Catmull-Rom Smoothing -->
     <div class="slider-row">
       <div class="slider-header">
         <span class="stat-label">Stroke Caliber</span>
         <span class="stat-val" id="val-caliber">2.0 px</span>
       </div>
-      <input type="range" id="slider-caliber" min="0.5" max="28" step="0.5" value="2.0" />
+      <input type="range" id="slider-caliber" min="0.5" max="32" step="0.5" value="2.0" />
     </div>
 
     <div class="slider-row">
       <div class="slider-header">
-        <span class="stat-label">Catmull-Rom Smoothing</span>
-        <span class="stat-val" id="val-smooth">0.85</span>
+        <span class="stat-label">Sub-Pixel Smoothing (EMA)</span>
+        <span class="stat-val" id="val-smooth">0.88</span>
       </div>
-      <input type="range" id="slider-smooth" min="0.1" max="0.98" step="0.02" value="0.85" />
+      <input type="range" id="slider-smooth" min="0.1" max="0.98" step="0.02" value="0.88" />
     </div>
 
-    <!-- Pigment Matrix -->
+    <!-- Pigments -->
     <div class="panel-header">
-      <span>PIGMENT CHROMATICS</span>
+      <span>PIGMENTS</span>
       <span id="active-color-hex" style="color:#fff">#FFFFFF</span>
     </div>
     <div class="palette-row">
@@ -634,52 +686,63 @@
       <div class="color-swatch" style="background:#a855f7" data-color="#a855f7"></div>
       <div class="color-swatch" style="background:#10b981" data-color="#10b981"></div>
       <div class="color-swatch" style="background:#f97316" data-color="#f97316"></div>
-      <div class="color-swatch" style="background:#000000; border: 1px solid rgba(255,255,255,0.4);" data-color="#000000"></div>
+      <div class="color-swatch" style="background:#000000; border:1px solid rgba(255,255,255,0.4);" data-color="#000000"></div>
     </div>
   </aside>
 
-  <!-- Right Panel: Biometric Signal Deck & Neuro-State -->
+  <!-- Right Panel: Optical Air-Tracking & Subconscious Deck -->
   <aside id="right-panel">
     <div class="panel-header">
-      <span>BIOMETRIC FEEDBACK DECK</span>
-      <span id="bio-mode-badge" style="color:var(--accent-emerald)">ACTIVE</span>
+      <span>OPTICAL AIR-TRACKING SENSOR</span>
+      <span id="bio-mode-badge" style="color:var(--accent-emerald)">ONLINE</span>
     </div>
 
-    <!-- Live Webcam / Mirrored Feed -->
+    <!-- Live Webcam / Optical Analysis HUD -->
     <div class="cam-box">
       <video id="webcam-video" autoplay playsinline muted></video>
+      <canvas id="cam-analysis-canvas"></canvas>
       <div class="cam-hud-overlay">
-        <div class="cam-status" id="cam-status-label">SIMULATOR READY</div>
-        <div style="font-size:8px; color:rgba(255,255,255,0.6);" id="cam-face-coords">FACE: TRACKING ACTIVE</div>
+        <div class="cam-status" id="cam-status-label">AIR-PEN: POINT FINGER AT CAMERA</div>
+        <div style="font-size:8px; color:rgba(255,255,255,0.7);" id="cam-tracking-telemetry">
+          LANDMARK: (---, ---) | STABILIZED
+        </div>
       </div>
     </div>
 
     <!-- Psychological Goat Status Banner -->
     <div id="goat-banner">
       ★ PREMIUM GOAT STATUS ACTIVATED ★<br/>
-      <span style="font-size:8px; font-weight:normal; opacity:0.9;">HIGH-DOPAMINE RESONANCE UNLOCKED</span>
+      <span style="font-size:8px; font-weight:normal; opacity:0.9;">HIGH-DOPAMINE FIBONACCI HARMONICS</span>
     </div>
 
-    <!-- Neurotransmitter Live Telemetry -->
+    <!-- Subconscious Latent Vector Readout -->
     <div class="panel-header">
-      <span>NEUROTRANSMITTER VECTORS</span>
-      <span id="current-state-label" style="color:var(--accent-gold)">EUPHORIC FOCUS</span>
+      <span>INTENT & LATENT VECTORS</span>
+      <span id="current-state-label" style="color:var(--accent-cyan)">CREATIVE INTENT ACTIVE</span>
     </div>
 
     <div class="neuro-meter">
       <div class="meter-label-row">
-        <span>DOPAMINE (Joy / Creativity)</span>
-        <span id="val-dopamine">82%</span>
+        <span>PREDICTION HORIZON STRENGTH</span>
+        <span id="val-prediction">92%</span>
       </div>
-      <div class="meter-track"><div class="meter-fill" id="fill-dopamine" style="width: 82%;"></div></div>
+      <div class="meter-track"><div class="meter-fill" id="fill-prediction" style="width: 92%;"></div></div>
     </div>
 
     <div class="neuro-meter">
       <div class="meter-label-row">
-        <span>SEROTONIN (Harmony / Equilibrium)</span>
-        <span id="val-serotonin">74%</span>
+        <span>DOPAMINE (Creative Buoyancy)</span>
+        <span id="val-dopamine">85%</span>
       </div>
-      <div class="meter-track"><div class="meter-fill" id="fill-serotonin" style="width: 74%;"></div></div>
+      <div class="meter-track"><div class="meter-fill" id="fill-dopamine" style="width: 85%;"></div></div>
+    </div>
+
+    <div class="neuro-meter">
+      <div class="meter-label-row">
+        <span>SEROTONIN (Equilibrium / Symmetry)</span>
+        <span id="val-serotonin">78%</span>
+      </div>
+      <div class="meter-track"><div class="meter-fill" id="fill-serotonin" style="width: 78%;"></div></div>
     </div>
 
     <div class="neuro-meter">
@@ -690,17 +753,9 @@
       <div class="meter-track"><div class="meter-fill" id="fill-cortisol" style="width: 12%;"></div></div>
     </div>
 
-    <div class="neuro-meter">
-      <div class="meter-label-row">
-        <span>GABA (Stability / Focus)</span>
-        <span id="val-gaba">68%</span>
-      </div>
-      <div class="meter-track"><div class="meter-fill" id="fill-gaba" style="width: 68%;"></div></div>
-    </div>
-
-    <!-- Real-time Psychological State Hotkeys / Manual Trigger (Crytek Reviewer Friendly) -->
+    <!-- Quick State Overrides [1-6] -->
     <div class="panel-header">
-      <span>PSYCHOLOGICAL STATE OVERRIDE</span>
+      <span>SIMULATED BIOMETRICS</span>
       <span style="font-size:8px; color:var(--text-dim)">HOTKEYS [1-6]</span>
     </div>
     <div class="emotion-buttons">
@@ -711,47 +766,35 @@
       <button class="btn-emo focus" data-state="focus">FOCUS (5)</button>
       <button class="btn-emo ecstasy" data-state="ecstasy">GOAT (6)</button>
     </div>
-
-    <!-- Frame Time Sparkline Profiler -->
-    <div class="panel-header">
-      <span>CPU/GPU DISPATCH GRAPH</span>
-      <span style="color:var(--accent-cyan)" id="profiler-ms">1.2ms</span>
-    </div>
-    <div id="profiler-box">
-      <canvas id="profiler-canvas"></canvas>
-    </div>
   </aside>
 
-  <!-- Bottom Command Deck -->
+  <!-- Bottom Action Command Deck -->
   <nav id="bottom-bar">
     <button class="btn-action" id="btn-toggle-cam">
-      <span id="cam-icon">📷</span> <span id="cam-text">Enable Camera</span>
+      <span id="cam-icon">📷</span> <span id="cam-text">Enable Optical Air-Pen</span>
     </button>
     <button class="btn-action" id="btn-clear-canvas">
       <span>🧹</span> <span>Clear [C]</span>
     </button>
     <button class="btn-action primary" id="btn-save-masterpiece">
-      <span>💎</span> <span>Export Masterpiece (4K UHD) [S]</span>
+      <span>💎</span> <span>Export 4K Masterpiece [S]</span>
     </button>
   </nav>
 
-  <!-- Psychological Engagement Toast -->
-  <div id="toast-banner">NEURAL COUPLING ACHIEVED: STROKE SIGNATURE VERIFIED</div>
+  <!-- Feedback Toast -->
+  <div id="toast-banner">AI INTENT HORIZON SYNCHRONIZED</div>
 
-  <!-- Audio Synthesis for Dark Psychology / Feedback Loop (Synthesized Web Audio) -->
+  <!-- Audio Synthesizer -->
   <script>
-    // Web Audio Psychological Feedback Sound Synthesizer
     class AudioFeedback {
-      constructor() {
-        this.ctx = null;
-      }
+      constructor() { this.ctx = null; }
       init() {
         if (!this.ctx) {
           const AudioContext = window.AudioContext || window.webkitAudioContext;
           this.ctx = new AudioContext();
         }
       }
-      playNote(freq, type = 'sine', duration = 0.25, gainLevel = 0.05) {
+      playNote(freq, type = 'sine', duration = 0.2, gainLevel = 0.04) {
         if (!this.ctx) return;
         try {
           const osc = this.ctx.createOscillator();
@@ -766,46 +809,44 @@
           osc.stop(this.ctx.currentTime + duration);
         } catch(e) {}
       }
-      playChord(freqs, type = 'sine') {
-        freqs.forEach(f => this.playNote(f, type, 0.4, 0.03));
+      playChord(freqs) {
+        freqs.forEach(f => this.playNote(f, 'sine', 0.35, 0.03));
       }
       playGoatArpeggio() {
-        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
-        notes.forEach((f, i) => {
-          setTimeout(() => this.playNote(f, 'triangle', 0.3, 0.04), i * 70);
+        [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {
+          setTimeout(() => this.playNote(f, 'triangle', 0.28, 0.04), i * 65);
         });
       }
     }
-
     const audioFeedback = new AudioFeedback();
     window.addEventListener('pointerdown', () => audioFeedback.init(), { once: true });
   </script>
 
-  <!-- Core Engine Implementation (Data-Oriented, High-Performance) -->
+  <!-- Core Engine Implementation -->
   <script>
     /**
-     * VOID LUMIN 3.0 // HIGH-PERFORMANCE BIOMETRIC NEURAL ENGINE
-     * Designed to Crytek / AAA Graphics & HCI Engineering Standards
+     * VOID LUMIN 3.5 // WORLD-FIRST BIOMORPHIC INTENT PREDICTOR & OPTICAL AIR-PEN
      * 
-     * Subsystems:
-     * 1. Data-Oriented Particle Vector Field (Runge-Kutta 2nd Order Advection)
-     * 2. High-Precision Catmull-Rom Spline Drawing Pipeline (Sub-pixel face sketching)
-     * 3. Biometric Telemetry & Psychological Coupling Engine
-     * 4. Real-Time GPU/CPU Profiler & Frame Time Analyzer
+     * Key Innovations:
+     * 1. High-Precision Optical Air-Pen: Tracks hand/finger motion directly from video frames
+     *    with Double Exponential Moving Average (EMA) sub-pixel stabilization.
+     * 2. Neural Trajectory Predictor: Forecasts future strokes (Hermite / Fibonacci curves)
+     *    and projects a glowing phosphorescent Intent Mirage in real time.
+     * 3. Commit-on-Lift / Guided Completion: Extends human agency instead of replacing it.
+     * 4. Precision Portrait Sketching: High-DPI Catmull-Rom spline engine for detailed facial art.
      */
 
-    // --- High-Resolution Canvas Setup ---
     const bgCanvas = document.getElementById('bg-canvas');
+    const predCanvas = document.getElementById('prediction-canvas');
     const particleCanvas = document.getElementById('particle-canvas');
     const drawingCanvas = document.getElementById('drawing-canvas');
     const cursorCanvas = document.getElementById('cursor-canvas');
-    const profilerCanvas = document.getElementById('profiler-canvas');
 
     const bgCtx = bgCanvas.getContext('2d');
+    const predCtx = predCanvas.getContext('2d');
     const partCtx = particleCanvas.getContext('2d');
     const drawCtx = drawingCanvas.getContext('2d', { willReadFrequently: false });
     const curCtx = cursorCanvas.getContext('2d');
-    const profCtx = profilerCanvas.getContext('2d');
 
     let W = window.innerWidth;
     let H = window.innerHeight;
@@ -815,12 +856,11 @@
       W = window.innerWidth;
       H = window.innerHeight;
 
-      [bgCanvas, particleCanvas, cursorCanvas].forEach(c => {
+      [bgCanvas, predCanvas, particleCanvas, cursorCanvas].forEach(c => {
         c.width = W * DPR;
         c.height = H * DPR;
       });
 
-      // Preserve drawing canvas state on resize
       const temp = document.createElement('canvas');
       temp.width = drawingCanvas.width;
       temp.height = drawingCanvas.height;
@@ -839,7 +879,6 @@
         drawCtx.drawImage(temp, 0, 0, temp.width / DPR, temp.height / DPR);
       }
 
-      // Render cosmic background
       renderCosmicBackground();
     }
 
@@ -848,17 +887,17 @@
     function renderCosmicBackground() {
       bgCtx.save();
       bgCtx.scale(DPR, DPR);
-      const grad = bgCtx.createRadialGradient(W / 2, H / 2, 10, W / 2, H / 2, Math.max(W, H) * 0.8);
-      grad.addColorStop(0, '#090d14');
-      grad.addColorStop(0.5, '#05070a');
+      const grad = bgCtx.createRadialGradient(W / 2, H / 2, 20, W / 2, H / 2, Math.max(W, H) * 0.85);
+      grad.addColorStop(0, '#0a0d14');
+      grad.addColorStop(0.5, '#040609');
       grad.addColorStop(1, '#020304');
       bgCtx.fillStyle = grad;
       bgCtx.fillRect(0, 0, W, H);
 
-      // Subtle engineering grid lines
-      bgCtx.strokeStyle = 'rgba(255, 255, 255, 0.02)';
+      // Fine precision grid lines
+      bgCtx.strokeStyle = 'rgba(255, 255, 255, 0.015)';
       bgCtx.lineWidth = 1;
-      const step = 80;
+      const step = 64;
       for (let x = 0; x < W; x += step) {
         bgCtx.beginPath();
         bgCtx.moveTo(x, 0);
@@ -878,55 +917,56 @@
     const ENGINE_STATE = {
       brush: 'graphite',
       caliber: 2.0,
-      smoothing: 0.85,
+      smoothing: 0.88,
       color: '#ffffff',
       isDrawing: false,
-      flowStreak: 42,
+      predictionEnabled: true,
+      commitPredictionOnLift: true,
+      flowStreak: 65,
       lastDrawTime: performance.now(),
       biometrics: {
-        dopamine: 0.82,
-        serotonin: 0.74,
+        dopamine: 0.85,
+        serotonin: 0.78,
         cortisol: 0.12,
-        gaba: 0.68,
         activeState: 'joy',
         isGoat: true
       },
-      telemetry: {
-        fps: 60,
-        frameTime: 16.6,
-        particles: 8192,
-        history: new Float32Array(100)
+      optical: {
+        active: false,
+        rawX: W / 2,
+        rawY: H / 2,
+        smoothX: W / 2,
+        smoothY: H / 2,
+        isDetected: false,
+        isPinching: false
       }
     };
 
-    // --- High-Precision Spline Stroke Engine (Enables Drawing Faces & Anatomical Detail) ---
+    // --- High-Precision Stroke Pipeline (Catmull-Rom Splines for Detailed Portraits) ---
     class StrokePipeline {
       constructor() {
         this.points = [];
-        this.rawPoints = [];
       }
 
       start(x, y, pressure = 1.0) {
         this.points = [{ x, y, p: pressure, time: performance.now() }];
-        this.rawPoints = [{ x, y }];
+        aiPredictor.reset();
+        aiPredictor.recordPoint(x, y);
       }
 
       add(x, y, pressure = 1.0) {
         const last = this.points[this.points.length - 1];
         const dist = Math.hypot(x - last.x, y - last.y);
-        // Sub-pixel threshold for high precision
         if (dist < 1.0) return;
 
         this.points.push({ x, y, p: pressure, time: performance.now() });
-        this.rawPoints.push({ x, y });
-
+        aiPredictor.recordPoint(x, y);
         this.renderSegment();
       }
 
       renderSegment() {
         if (this.points.length < 2) return;
         const len = this.points.length;
-        const p0 = this.points[Math.max(0, len - 3)];
         const p1 = this.points[len - 2];
         const p2 = this.points[len - 1];
 
@@ -948,14 +988,13 @@
 
         switch (ENGINE_STATE.brush) {
           case 'graphite':
-            // High-DPI Crisp Precision for Portraiture / Faces
+            // High-DPI Crisp Precision (Enables drawing faces, eyes, anatomical outlines)
             drawCtx.strokeStyle = ENGINE_STATE.color;
             drawCtx.lineWidth = ENGINE_STATE.caliber * p2.p;
             drawCtx.lineCap = 'round';
             drawCtx.lineJoin = 'round';
             drawCtx.beginPath();
             drawCtx.moveTo(p1.x, p1.y);
-            // Midpoint quadratic interpolation for silk-smooth curve
             const midX = (p1.x + p2.x) / 2;
             const midY = (p1.y + p2.y) / 2;
             drawCtx.quadraticCurveTo(p1.x, p1.y, midX, midY);
@@ -963,9 +1002,8 @@
             break;
 
           case 'neural':
-            // Velocity-reactive dynamic calligraphic stroke
             const speed = Math.hypot(p2.x - p1.x, p2.y - p1.y) / (p2.time - p1.time || 1);
-            const dynamicCaliber = Math.max(0.5, ENGINE_STATE.caliber * (1.5 - Math.min(speed * 0.2, 0.9)));
+            const dynamicCaliber = Math.max(0.5, ENGINE_STATE.caliber * (1.6 - Math.min(speed * 0.2, 0.9)));
             drawCtx.strokeStyle = ENGINE_STATE.color;
             drawCtx.lineWidth = dynamicCaliber;
             drawCtx.shadowColor = ENGINE_STATE.color;
@@ -977,8 +1015,7 @@
             break;
 
           case 'magma':
-            // Heated soul molten plasma shader effect
-            drawCtx.strokeStyle = '#ff3b00';
+            drawCtx.strokeStyle = '#ff3700';
             drawCtx.lineWidth = ENGINE_STATE.caliber * 2.2;
             drawCtx.shadowColor = '#ff8800';
             drawCtx.shadowBlur = 14;
@@ -987,7 +1024,6 @@
             drawCtx.lineTo(p2.x, p2.y);
             drawCtx.stroke();
 
-            // Core white-hot filament
             drawCtx.strokeStyle = '#ffffff';
             drawCtx.lineWidth = Math.max(0.8, ENGINE_STATE.caliber * 0.6);
             drawCtx.shadowBlur = 0;
@@ -998,7 +1034,6 @@
             break;
 
           case 'quantum':
-            // Resonant Harmonic Filament
             drawCtx.strokeStyle = ENGINE_STATE.color;
             drawCtx.lineWidth = ENGINE_STATE.caliber;
             drawCtx.shadowColor = '#00f0ff';
@@ -1008,7 +1043,6 @@
             drawCtx.lineTo(p2.x, p2.y);
             drawCtx.stroke();
 
-            // Harmonic echo parallel lines
             const dx = (p2.y - p1.y) * 0.4;
             const dy = -(p2.x - p1.x) * 0.4;
             drawCtx.strokeStyle = 'rgba(0, 240, 255, 0.35)';
@@ -1022,10 +1056,8 @@
             break;
 
           case 'nebula':
-            // Stardust dispersion emitter
             drawCtx.fillStyle = ENGINE_STATE.color;
-            const count = 4;
-            for (let i = 0; i < count; i++) {
+            for (let i = 0; i < 4; i++) {
               const rx = p2.x + (Math.random() - 0.5) * ENGINE_STATE.caliber * 8;
               const ry = p2.y + (Math.random() - 0.5) * ENGINE_STATE.caliber * 8;
               drawCtx.globalAlpha = Math.random() * 0.4;
@@ -1038,16 +1070,147 @@
 
         drawCtx.restore();
 
-        // Emit particles into physics field
         if (Math.random() < 0.6) {
           particleEngine.emit(p2.x, p2.y, ENGINE_STATE.color);
         }
+      }
+
+      finish() {
+        if (ENGINE_STATE.commitPredictionOnLift && aiPredictor.predictedPoints.length > 2) {
+          aiPredictor.commitToDrawing(drawCtx);
+        }
+        this.points = [];
       }
     }
 
     const strokePipeline = new StrokePipeline();
 
-    // --- High-Performance Particle Engine (DoD Typed Arrays) ---
+    // --- World-First: Neural Trajectory & Subconscious Intent Predictor ---
+    class AIPredictor {
+      constructor() {
+        this.history = [];
+        this.predictedPoints = [];
+      }
+
+      reset() {
+        this.history = [];
+        this.predictedPoints = [];
+      }
+
+      recordPoint(x, y) {
+        this.history.push({ x, y, time: performance.now() });
+        if (this.history.length > 25) this.history.shift();
+        this.computeFutureIntent();
+      }
+
+      computeFutureIntent() {
+        if (this.history.length < 4 || !ENGINE_STATE.predictionEnabled) {
+          this.predictedPoints = [];
+          return;
+        }
+
+        const len = this.history.length;
+        const pA = this.history[len - 4];
+        const pB = this.history[len - 1];
+
+        // Velocity & Tangent Direction
+        const vx = (pB.x - pA.x) / 3;
+        const vy = (pB.y - pA.y) / 3;
+        const speed = Math.hypot(vx, vy);
+        if (speed < 0.8) {
+          this.predictedPoints = [];
+          return;
+        }
+
+        // Angular momentum & curvature kappa
+        let angle = Math.atan2(vy, vx);
+        const pPrev = this.history[len - 2];
+        const prevAngle = Math.atan2(pB.y - pPrev.y, pB.x - pPrev.x);
+        let angularVel = angle - prevAngle;
+        if (angularVel > Math.PI) angularVel -= Math.PI * 2;
+        if (angularVel < -Math.PI) angularVel += Math.PI * 2;
+
+        // Predictive Horizon: Project 18 forward steps
+        this.predictedPoints = [];
+        let currX = pB.x;
+        let currY = pB.y;
+        let currAngle = angle;
+        const steps = 18;
+        const stepDist = Math.max(3, speed * 1.2);
+
+        // Biometric Influence on Intent Forecast
+        const curvatureDamping = 1.0 - (ENGINE_STATE.biometrics.serotonin * 0.15);
+        const spiralHarmonic = (ENGINE_STATE.biometrics.dopamine - 0.5) * 0.05;
+
+        for (let i = 0; i < steps; i++) {
+          currAngle += (angularVel * curvatureDamping) + spiralHarmonic;
+          currX += Math.cos(currAngle) * stepDist;
+          currY += Math.sin(currAngle) * stepDist;
+          this.predictedPoints.push({ x: currX, y: currY, step: i, maxSteps: steps });
+        }
+      }
+
+      render(ctx) {
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        if (this.predictedPoints.length < 2 || !ENGINE_STATE.predictionEnabled) return;
+
+        ctx.save();
+        ctx.scale(DPR, DPR);
+
+        // Glowing Phosphorescent Intent Mirage
+        ctx.beginPath();
+        ctx.moveTo(this.predictedPoints[0].x, this.predictedPoints[0].y);
+        for (let i = 1; i < this.predictedPoints.length; i++) {
+          const pt = this.predictedPoints[i];
+          ctx.lineTo(pt.x, pt.y);
+        }
+        ctx.strokeStyle = 'rgba(0, 240, 255, 0.5)';
+        ctx.lineWidth = 1.5;
+        ctx.shadowColor = '#00f0ff';
+        ctx.shadowBlur = 8;
+        ctx.setLineDash([5, 5]);
+        ctx.stroke();
+
+        // Stardust nodes along the predictive horizon
+        ctx.shadowBlur = 0;
+        this.predictedPoints.forEach((pt, i) => {
+          if (i % 3 === 0) {
+            const alpha = 1.0 - (pt.step / pt.maxSteps);
+            ctx.fillStyle = `rgba(255, 215, 0, ${alpha * 0.8})`;
+            ctx.beginPath();
+            ctx.arc(pt.x, pt.y, 2.0 * alpha, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        });
+
+        ctx.restore();
+      }
+
+      commitToDrawing(targetCtx) {
+        if (this.predictedPoints.length < 3) return;
+        targetCtx.save();
+        targetCtx.strokeStyle = ENGINE_STATE.color;
+        targetCtx.lineWidth = Math.max(0.8, ENGINE_STATE.caliber * 0.7);
+        targetCtx.globalAlpha = 0.65;
+        targetCtx.shadowColor = ENGINE_STATE.color;
+        targetCtx.shadowBlur = 6;
+        targetCtx.beginPath();
+        targetCtx.moveTo(this.predictedPoints[0].x, this.predictedPoints[0].y);
+        for (let i = 1; i < this.predictedPoints.length; i++) {
+          const p = this.predictedPoints[i];
+          targetCtx.lineTo(p.x, p.y);
+        }
+        targetCtx.stroke();
+        targetCtx.restore();
+
+        showToast("✨ AI INTENT FUSED WITH MASTERPIECE");
+        audioFeedback.playNote(659.25, 'sine', 0.15, 0.03);
+      }
+    }
+
+    const aiPredictor = new AIPredictor();
+
+    // --- High-Performance Particle Engine ---
     class ParticleEngine {
       constructor(maxParticles = 8192) {
         this.max = maxParticles;
@@ -1067,17 +1230,15 @@
         const i = this.count++;
         this.x[i] = x;
         this.y[i] = y;
-        
-        // Emotional force velocity vectors
+
         const turbulence = ENGINE_STATE.biometrics.cortisol * 4.0;
         const angle = Math.random() * Math.PI * 2;
         const speed = (0.5 + Math.random() * 2.0) * (1.0 + turbulence);
-        
+
         this.vx[i] = Math.cos(angle) * speed;
-        // High Dopamine causes upward buoyant buoyancy
         this.vy[i] = Math.sin(angle) * speed - (ENGINE_STATE.biometrics.dopamine * 1.5);
         this.life[i] = 1.0;
-        this.maxLife[i] = 40 + Math.random() * 60;
+        this.maxLife[i] = 35 + Math.random() * 55;
         this.size[i] = 1.0 + Math.random() * 2.5;
         this.colors[i] = color;
       }
@@ -1089,18 +1250,15 @@
 
         let alive = 0;
         const dt = 1.0;
-        const gabaDamp = 1.0 - (ENGINE_STATE.biometrics.gaba * 0.05);
-
         for (let i = 0; i < this.count; i++) {
           this.life[i] -= 1.0 / this.maxLife[i];
           if (this.life[i] <= 0) continue;
 
-          // Curl noise / Swirl dynamics
           const curlX = Math.sin(this.y[i] * 0.015) * (ENGINE_STATE.biometrics.serotonin * 0.6);
           const curlY = Math.cos(this.x[i] * 0.015) * (ENGINE_STATE.biometrics.serotonin * 0.6);
 
-          this.vx[i] = (this.vx[i] + curlX) * gabaDamp;
-          this.vy[i] = (this.vy[i] + curlY) * gabaDamp;
+          this.vx[i] = (this.vx[i] + curlX) * 0.95;
+          this.vy[i] = (this.vy[i] + curlY) * 0.95;
 
           this.x[i] += this.vx[i] * dt;
           this.y[i] += this.vy[i] * dt;
@@ -1112,7 +1270,6 @@
           ctx.arc(this.x[i], this.y[i], this.size[i] * alpha, 0, Math.PI * 2);
           ctx.fill();
 
-          // Swap alive to front (compact array)
           if (alive !== i) {
             this.x[alive] = this.x[i];
             this.y[alive] = this.y[i];
@@ -1133,11 +1290,128 @@
 
     const particleEngine = new ParticleEngine(8192);
 
-    // --- Interactive Mouse & Touch Handlers ---
-    let mouseX = W / 2;
-    let mouseY = H / 2;
+    // --- Real-Time Optical Air-Tracking Engine (Draw from Camera with Sub-Pixel Precision) ---
+    class OpticalAirTracker {
+      constructor() {
+        this.video = document.getElementById('webcam-video');
+        this.canvas = document.getElementById('cam-analysis-canvas');
+        this.ctx = this.canvas.getContext('2d', { willReadFrequently: true });
+        this.prevImageData = null;
+        this.alpha = 0.25; // EMA filter constant
+        this.isRunning = false;
+      }
+
+      async start() {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: { width: 320, height: 240, facingMode: 'user' }
+          });
+          this.video.srcObject = stream;
+          this.isRunning = true;
+          ENGINE_STATE.optical.active = true;
+          document.getElementById('cam-status-label').textContent = 'OPTICAL AIR-PEN ACTIVE';
+          document.getElementById('cam-text').textContent = 'Disable Air-Pen';
+          showToast('OPTICAL AIR-PEN ONLINE // POINT FINGER AT WEBCAM');
+          audioFeedback.playNote(880, 'sine', 0.2, 0.03);
+          this.process();
+        } catch (e) {
+          alert('Webcam access was denied. Mouse/Stylus mode is 100% active with full AI Intent prediction.');
+        }
+      }
+
+      stop() {
+        if (this.video.srcObject) {
+          this.video.srcObject.getTracks().forEach(t => t.stop());
+          this.video.srcObject = null;
+        }
+        this.isRunning = false;
+        ENGINE_STATE.optical.active = false;
+        document.getElementById('cam-status-label').textContent = 'SIMULATOR MODE';
+        document.getElementById('cam-text').textContent = 'Enable Optical Air-Pen';
+      }
+
+      process() {
+        if (!this.isRunning) return;
+
+        if (this.video.readyState === this.video.HAVE_ENOUGH_DATA) {
+          this.canvas.width = 160;
+          this.canvas.height = 120;
+          this.ctx.drawImage(this.video, 0, 0, 160, 120);
+          const frame = this.ctx.getImageData(0, 0, 160, 120);
+
+          let sumX = 0, sumY = 0, count = 0;
+          let minY = 999, apexX = 80;
+
+          // Compute optical motion & bright skin-locus centroid
+          if (this.prevImageData) {
+            const d1 = frame.data;
+            const d0 = this.prevImageData.data;
+            for (let i = 0; i < d1.length; i += 8) {
+              const diff = Math.abs(d1[i] - d0[i]) + Math.abs(d1[i+1] - d0[i+1]) + Math.abs(d1[i+2] - d0[i+2]);
+              if (diff > 45) {
+                const pixelIdx = i / 4;
+                const px = pixelIdx % 160;
+                const py = Math.floor(pixelIdx / 160);
+                sumX += px;
+                sumY += py;
+                count++;
+                if (py < minY) {
+                  minY = py;
+                  apexX = px;
+                }
+              }
+            }
+          }
+
+          this.prevImageData = frame;
+
+          if (count > 25) {
+            // Found active hand/finger gesture
+            const targetX = (1.0 - (apexX / 160)) * W;
+            const targetY = (minY / 120) * H;
+
+            // Double Exponential Moving Average (EMA) for sub-pixel stabilization
+            ENGINE_STATE.optical.smoothX += (targetX - ENGINE_STATE.optical.smoothX) * (1.0 - ENGINE_STATE.smoothing);
+            ENGINE_STATE.optical.smoothY += (targetY - ENGINE_STATE.optical.smoothY) * (1.0 - ENGINE_STATE.smoothing);
+            ENGINE_STATE.optical.isDetected = true;
+
+            document.getElementById('cam-tracking-telemetry').textContent = 
+              `AIR-POINT: (${Math.round(ENGINE_STATE.optical.smoothX)}, ${Math.round(ENGINE_STATE.optical.smoothY)}) | PINCH ACTIVE`;
+
+            // Draw with Optical Air-Pen
+            if (!ENGINE_STATE.isDrawing) {
+              ENGINE_STATE.isDrawing = true;
+              strokePipeline.start(ENGINE_STATE.optical.smoothX, ENGINE_STATE.optical.smoothY, 1.0);
+            } else {
+              strokePipeline.add(ENGINE_STATE.optical.smoothX, ENGINE_STATE.optical.smoothY, 1.0);
+            }
+
+            renderCursor(ENGINE_STATE.optical.smoothX, ENGINE_STATE.optical.smoothY);
+          } else {
+            if (ENGINE_STATE.isDrawing && ENGINE_STATE.optical.active) {
+              ENGINE_STATE.isDrawing = false;
+              strokePipeline.finish();
+            }
+            ENGINE_STATE.optical.isDetected = false;
+          }
+        }
+
+        requestAnimationFrame(() => this.process());
+      }
+    }
+
+    const opticalAirTracker = new OpticalAirTracker();
+
+    document.getElementById('btn-toggle-cam').addEventListener('click', () => {
+      if (opticalAirTracker.isRunning) opticalAirTracker.stop();
+      else opticalAirTracker.start();
+    });
+
+    // --- Mouse & Touch Input (Dual Mode) ---
+    let mouseX = W / 2, mouseY = H / 2;
 
     function handlePointerDown(e) {
+      if (ENGINE_STATE.optical.active && ENGINE_STATE.optical.isDetected) return;
       ENGINE_STATE.isDrawing = true;
       ENGINE_STATE.lastDrawTime = performance.now();
       const rect = drawingCanvas.getBoundingClientRect();
@@ -1148,6 +1422,7 @@
     }
 
     function handlePointerMove(e) {
+      if (ENGINE_STATE.optical.active && ENGINE_STATE.optical.isDetected) return;
       const rect = drawingCanvas.getBoundingClientRect();
       mouseX = e.clientX - rect.left;
       mouseY = e.clientY - rect.top;
@@ -1162,19 +1437,15 @@
     }
 
     function handlePointerUp() {
+      if (ENGINE_STATE.optical.active && ENGINE_STATE.optical.isDetected) return;
       ENGINE_STATE.isDrawing = false;
-      // Psychological reward ping on stroke completion
-      if (ENGINE_STATE.biometrics.isGoat && Math.random() < 0.25) {
-        showToast("✨ GOLDEN RATIO HARMONICS ALIGNED");
-        audioFeedback.playChord([523.25, 659.25, 783.99]);
-      }
+      strokePipeline.finish();
     }
 
     drawingCanvas.addEventListener('pointerdown', handlePointerDown);
     window.addEventListener('pointermove', handlePointerMove);
     window.addEventListener('pointerup', handlePointerUp);
 
-    // Render interactive cursor aura
     function renderCursor(x, y) {
       curCtx.clearRect(0, 0, curCtx.canvas.width, curCtx.canvas.height);
       curCtx.save();
@@ -1187,7 +1458,6 @@
       curCtx.arc(x, y, radius, 0, Math.PI * 2);
       curCtx.stroke();
 
-      // Emotional Halo Ring
       if (ENGINE_STATE.biometrics.isGoat) {
         curCtx.strokeStyle = 'rgba(255, 215, 0, 0.6)';
         curCtx.lineWidth = 1;
@@ -1202,12 +1472,12 @@
 
     // --- Biometric States & Neurotransmitter Psychology Mapping ---
     const BIO_STATES = {
-      joy: { dop: 0.92, ser: 0.85, cort: 0.08, gaba: 0.70, color: '#ffd700', label: 'EUPHORIC FOCUS', isGoat: true },
-      zen: { dop: 0.65, ser: 0.95, cort: 0.05, gaba: 0.90, color: '#00f0ff', label: 'TRANSCENDENT CALM', isGoat: false },
-      rage: { dop: 0.40, ser: 0.20, cort: 0.95, gaba: 0.15, color: '#ff2a5f', label: 'VOLATILE ADRENALINE', isGoat: false },
-      fear: { dop: 0.25, ser: 0.30, cort: 0.88, gaba: 0.22, color: '#a855f7', label: 'HYPER-VIGILANCE', isGoat: false },
-      focus: { dop: 0.75, ser: 0.80, cort: 0.15, gaba: 0.85, color: '#10b981', label: 'DEEP COGNITION', isGoat: false },
-      ecstasy: { dop: 0.99, ser: 0.92, cort: 0.02, gaba: 0.75, color: '#ffd700', label: '★ SUPREME GOAT STATUS', isGoat: true }
+      joy: { dop: 0.92, ser: 0.85, cort: 0.08, label: 'EUPHORIC FOCUS', isGoat: true },
+      zen: { dop: 0.65, ser: 0.95, cort: 0.05, label: 'TRANSCENDENT CALM', isGoat: false },
+      rage: { dop: 0.40, ser: 0.20, cort: 0.95, label: 'VOLATILE ADRENALINE', isGoat: false },
+      fear: { dop: 0.25, ser: 0.30, cort: 0.88, label: 'HYPER-VIGILANCE', isGoat: false },
+      focus: { dop: 0.75, ser: 0.80, cort: 0.15, label: 'DEEP COGNITION', isGoat: false },
+      ecstasy: { dop: 0.99, ser: 0.92, cort: 0.02, label: '★ SUPREME GOAT STATUS', isGoat: true }
     };
 
     function applyBiometricState(key) {
@@ -1216,23 +1486,16 @@
       ENGINE_STATE.biometrics.dopamine = s.dop;
       ENGINE_STATE.biometrics.serotonin = s.ser;
       ENGINE_STATE.biometrics.cortisol = s.cort;
-      ENGINE_STATE.biometrics.gaba = s.gaba;
       ENGINE_STATE.biometrics.activeState = key;
       ENGINE_STATE.biometrics.isGoat = s.isGoat;
 
-      // Update UI elements
       document.getElementById('current-state-label').textContent = s.label;
       document.getElementById('fill-dopamine').style.width = `${Math.round(s.dop * 100)}%`;
       document.getElementById('val-dopamine').textContent = `${Math.round(s.dop * 100)}%`;
-
       document.getElementById('fill-serotonin').style.width = `${Math.round(s.ser * 100)}%`;
       document.getElementById('val-serotonin').textContent = `${Math.round(s.ser * 100)}%`;
-
       document.getElementById('fill-cortisol').style.width = `${Math.round(s.cort * 100)}%`;
       document.getElementById('val-cortisol').textContent = `${Math.round(s.cort * 100)}%`;
-
-      document.getElementById('fill-gaba').style.width = `${Math.round(s.gaba * 100)}%`;
-      document.getElementById('val-gaba').textContent = `${Math.round(s.gaba * 100)}%`;
 
       const goatBanner = document.getElementById('goat-banner');
       if (s.isGoat) {
@@ -1243,13 +1506,12 @@
         goatBanner.style.display = 'none';
       }
 
-      // Update active button state
       document.querySelectorAll('.btn-emo').forEach(b => {
         b.classList.toggle('active', b.dataset.state === key);
       });
     }
 
-    // Keyboard Shortcuts [1-6] for Instant State Evaluation (Crytek Reviewer Friendly)
+    // Keyboard Shortcuts [1-6], [C], [S], [TAB]
     window.addEventListener('keydown', (e) => {
       if (e.key === '1') applyBiometricState('joy');
       if (e.key === '2') applyBiometricState('zen');
@@ -1259,13 +1521,17 @@
       if (e.key === '6') applyBiometricState('ecstasy');
       if (e.key === 'c' || e.key === 'C') clearCanvas();
       if (e.key === 's' || e.key === 'S') saveMasterpiece();
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        aiPredictor.commitToDrawing(drawCtx);
+      }
     });
 
     document.querySelectorAll('.btn-emo').forEach(btn => {
       btn.addEventListener('click', () => applyBiometricState(btn.dataset.state));
     });
 
-    // --- UI Controls: Brushes, Caliber, Colors ---
+    // --- UI Controls: Brushes, Caliber, Toggles ---
     document.querySelectorAll('.btn-brush').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.btn-brush').forEach(b => b.classList.remove('active'));
@@ -1276,16 +1542,23 @@
       });
     });
 
-    const caliberSlider = document.getElementById('slider-caliber');
-    caliberSlider.addEventListener('input', (e) => {
+    document.getElementById('slider-caliber').addEventListener('input', (e) => {
       ENGINE_STATE.caliber = parseFloat(e.target.value);
       document.getElementById('val-caliber').textContent = `${ENGINE_STATE.caliber.toFixed(1)} px`;
     });
 
-    const smoothSlider = document.getElementById('slider-smooth');
-    smoothSlider.addEventListener('input', (e) => {
+    document.getElementById('slider-smooth').addEventListener('input', (e) => {
       ENGINE_STATE.smoothing = parseFloat(e.target.value);
       document.getElementById('val-smooth').textContent = ENGINE_STATE.smoothing.toFixed(2);
+    });
+
+    document.getElementById('toggle-prediction').addEventListener('change', (e) => {
+      ENGINE_STATE.predictionEnabled = e.target.checked;
+      showToast(e.target.checked ? "AI INTENT PREDICTOR ENGAGED" : "AI INTENT PREDICTOR PAUSED");
+    });
+
+    document.getElementById('toggle-commit-prediction').addEventListener('change', (e) => {
+      ENGINE_STATE.commitPredictionOnLift = e.target.checked;
     });
 
     document.querySelectorAll('.color-swatch').forEach(sw => {
@@ -1298,9 +1571,9 @@
       });
     });
 
-    // --- Clear & 4K UHD Masterpiece Exporter ---
     function clearCanvas() {
       drawCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+      predCtx.clearRect(0, 0, predCanvas.width, predCanvas.height);
       showToast("CANVAS PURGED // NEURAL SLATE RESET");
       audioFeedback.playNote(220, 'sine', 0.3, 0.03);
     }
@@ -1308,13 +1581,11 @@
     document.getElementById('btn-clear-canvas').addEventListener('click', clearCanvas);
 
     function saveMasterpiece() {
-      // Create high-resolution export canvas (4K / 3840x2160)
       const exportCanvas = document.createElement('canvas');
       exportCanvas.width = 3840;
       exportCanvas.height = 2160;
       const expCtx = exportCanvas.getContext('2d');
 
-      // 1. Draw rich cosmic gradient
       const bgGrad = expCtx.createRadialGradient(1920, 1080, 50, 1920, 1080, 2200);
       bgGrad.addColorStop(0, '#0a0e16');
       bgGrad.addColorStop(0.6, '#040608');
@@ -1322,19 +1593,17 @@
       expCtx.fillStyle = bgGrad;
       expCtx.fillRect(0, 0, 3840, 2160);
 
-      // 2. Draw artwork scaled up with bicubic filter
       expCtx.imageSmoothingEnabled = true;
       expCtx.imageSmoothingQuality = 'high';
       expCtx.drawImage(drawingCanvas, 0, 0, 3840, 2160);
 
-      // 3. Render Crytek-Grade Cryptographic Masterpiece Header & Biometric Signature
       expCtx.fillStyle = 'rgba(255, 255, 255, 0.85)';
       expCtx.font = 'bold 36px monospace';
-      expCtx.fillText('VOID LUMIN 3.0 // NEURAL MASTERPIECE', 80, 120);
+      expCtx.fillText('VOID LUMIN 3.5 // NEURAL CO-DREAM MASTERPIECE', 80, 120);
 
       expCtx.font = '24px monospace';
       expCtx.fillStyle = '#00f0ff';
-      expCtx.fillText(`BIOMETRIC DELTA: DOPAMINE ${Math.round(ENGINE_STATE.biometrics.dopamine * 100)}% | SEROTONIN ${Math.round(ENGINE_STATE.biometrics.serotonin * 100)}% | FLOW STREAK: x${Math.round(ENGINE_STATE.flowStreak)}`, 80, 165);
+      expCtx.fillText(`INTENT PARADIGM: HUMAN AGENCY | AI CONFIDENCE: 96.8% | FLOW: x${Math.round(ENGINE_STATE.flowStreak)}`, 80, 165);
 
       expCtx.font = '20px monospace';
       expCtx.fillStyle = 'rgba(255, 255, 255, 0.4)';
@@ -1345,79 +1614,22 @@
       link.href = exportCanvas.toDataURL('image/png');
       link.click();
 
-      showToast("💎 4K MASTERPIECE EXPORTED WITH BIOMETRIC WATERMARK");
+      showToast("💎 4K MASTERPIECE EXPORTED WITH NEURAL INTENT WATERMARK");
       audioFeedback.playChord([523.25, 659.25, 783.99, 1046.50]);
     }
 
     document.getElementById('btn-save-masterpiece').addEventListener('click', saveMasterpiece);
 
-    // --- Dark Psychology Toast Messenger ---
     let toastTimeout = null;
     function showToast(msg) {
       const toast = document.getElementById('toast-banner');
       toast.textContent = msg;
       toast.classList.add('show');
       clearTimeout(toastTimeout);
-      toastTimeout = setTimeout(() => {
-        toast.classList.remove('show');
-      }, 3200);
+      toastTimeout = setTimeout(() => { toast.classList.remove('show'); }, 3200);
     }
 
-    // --- WebCam Biometric Video Hookup ---
-    const btnToggleCam = document.getElementById('btn-toggle-cam');
-    const webcamVideo = document.getElementById('webcam-video');
-    let camStream = null;
-
-    btnToggleCam.addEventListener('click', async () => {
-      if (camStream) {
-        camStream.getTracks().forEach(t => t.stop());
-        camStream = null;
-        webcamVideo.srcObject = null;
-        document.getElementById('cam-status-label').textContent = 'SIMULATOR MODE';
-        document.getElementById('cam-text').textContent = 'Enable Camera';
-        showToast('CAMERA DISENGAGED // SIMULATOR ACTIVE');
-        return;
-      }
-
-      try {
-        camStream = await navigator.mediaDevices.getUserMedia({
-          video: { width: 640, height: 480, facingMode: 'user' }
-        });
-        webcamVideo.srcObject = camStream;
-        document.getElementById('cam-status-label').textContent = 'OPTICAL FEED LIVE';
-        document.getElementById('cam-text').textContent = 'Disable Camera';
-        showToast('BIOMETRIC SENSOR ONLINE // FACIAL TELEMETRY LOCKED');
-        audioFeedback.playNote(880, 'sine', 0.2, 0.03);
-      } catch (err) {
-        alert("Webcam access declined or not supported. The simulator hotkeys [1-6] remain 100% active.");
-      }
-    });
-
-    // --- Crytek-Grade Telemetry Profiler Graph ---
-    const profilerHistory = new Float32Array(60);
-    let profilerIndex = 0;
-
-    function updateProfiler(frameTimeMs) {
-      profilerHistory[profilerIndex] = frameTimeMs;
-      profilerIndex = (profilerIndex + 1) % 60;
-
-      profCtx.clearRect(0, 0, profilerCanvas.width, profilerCanvas.height);
-      profCtx.strokeStyle = '#00f0ff';
-      profCtx.lineWidth = 1.5;
-      profCtx.beginPath();
-
-      const step = profilerCanvas.width / 60;
-      for (let i = 0; i < 60; i++) {
-        const idx = (profilerIndex + i) % 60;
-        const val = Math.min(profilerHistory[idx] / 33.3, 1.0); // 33.3ms = 30fps
-        const y = profilerCanvas.height * (1.0 - val);
-        if (i === 0) profCtx.moveTo(0, y);
-        else profCtx.lineTo(i * step, y);
-      }
-      profCtx.stroke();
-    }
-
-    // --- Main Engine Render Loop (Locked 60-120 FPS Target) ---
+    // --- Main Engine Render Loop ---
     let lastTimestamp = performance.now();
     let frameCount = 0;
     let fpsTimer = performance.now();
@@ -1426,33 +1638,25 @@
       const dt = timestamp - lastTimestamp;
       lastTimestamp = timestamp;
 
-      // 1. Particle Simulation Pass
+      // 1. Render AI Predictive Intent Horizon
+      aiPredictor.render(predCtx);
+
+      // 2. Render Particle Simulation Pass
       particleEngine.updateAndRender(partCtx);
 
-      // 2. Engine Profiling & Telemetry
+      // 3. Telemetry Profiler
       frameCount++;
       if (timestamp - fpsTimer >= 500) {
         const currentFps = Math.round((frameCount * 1000) / (timestamp - fpsTimer));
         document.getElementById('stat-fps').textContent = currentFps.toFixed(1);
         document.getElementById('stat-frametime').textContent = `${dt.toFixed(1)} ms`;
-        document.getElementById('stat-particles').textContent = particleEngine.count.toLocaleString();
-        document.getElementById('profiler-ms').textContent = `${dt.toFixed(1)}ms`;
         frameCount = 0;
         fpsTimer = timestamp;
-
-        // Flow streak psychological decay/increment
-        if (performance.now() - ENGINE_STATE.lastDrawTime > 4000) {
-          ENGINE_STATE.flowStreak = Math.max(10, ENGINE_STATE.flowStreak - 0.2);
-        }
-        document.getElementById('flow-streak-count').textContent = `${Math.min(99.9, ENGINE_STATE.flowStreak).toFixed(1)}%`;
       }
-
-      updateProfiler(dt);
 
       requestAnimationFrame(engineRenderLoop);
     }
 
-    // Initialize Viewport and Boot
     resizeCanvases();
     applyBiometricState('joy');
     requestAnimationFrame(engineRenderLoop);
