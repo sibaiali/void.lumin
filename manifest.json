@@ -1,0 +1,24 @@
+{
+  "name": "VOID LUMIN // Spatial Biometric Engine",
+  "short_name": "VoidLumin",
+  "description": "Billion-Scale Biomorphic Neural Co-Dreamer & Precision Optical Air-Instrument",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#030406",
+  "theme_color": "#00f0ff",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%23030406'/><circle cx='256' cy='256' r='180' stroke='%2300f0ff' stroke-width='16' fill='none'/><path d='M256 140 C210 70 140 120 140 190 C140 280 256 360 256 360 C256 360 372 280 372 190 C372 120 302 70 256 140 Z' fill='%23ffd700'/></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%23030406'/><circle cx='256' cy='256' r='180' stroke='%2300f0ff' stroke-width='16' fill='none'/><path d='M256 140 C210 70 140 120 140 190 C140 280 256 360 256 360 C256 360 372 280 372 190 C372 120 302 70 256 140 Z' fill='%23ffd700'/></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
