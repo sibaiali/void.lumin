@@ -1,62 +1,68 @@
-# VOID LUMIN 3.0 // Biometric Neural Render Engine
-> An interactive cognitive instrument and real-time graphics pipeline connecting human biometric signals to dynamic physics simulations and high-precision mark-making.
+# VOID LUMIN v6.0 // Cyber-Kinetic Creative Platform & Anti-AI Human Studio
+> An interactive cyber-kinetic creative instrument, 16-fold radial symmetry engine, and zero-surveillance biometric render pipeline engineered to replace AI-generated slop with 100% human authorship.
 
-[![Crytek Engine Architecture](https://img.shields.io/badge/Architecture-Data--Oriented%20(DoD)-00f0ff.svg)](#)
-[![Performance](https://img.shields.io/badge/Target-60%2F120%20FPS%20Locked-10b981.svg)](#)
-[![Resolution](https://img.shields.io/badge/Export-4K%20UHD%20(3840x2160)-ffd700.svg)](#)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](#)
-
----
-
-## 🇩🇪 Zusammenfassung (German Engineering Summary)
-**Void Lumin 3.0** ist eine interaktive Echtzeit-Grafik- und Biometrie-Pipeline, entwickelt nach modernen Grundsätzen des **Data-Oriented Design (DoD)**, wie sie in High-End-Engines (z. B. **CryEngine**, Unreal Engine) eingesetzt werden.
-
-Das System verzichtet vollständig auf träge externe Laufzeit-Abhängigkeiten und realisiert:
-1. **Cache-freundliche Partikelsimulation:** 8.192 simultane Partikel in kontinuierlichen `Float32Array`-Puffern (Structure of Arrays).
-2. **Subpixel-Präzisionszeichnung:** Catmull-Rom- und Bézier-Interpolation für detaillierte anatomische Porträt-Skizzen mit dynamischer Drucksensitivität.
-3. **Biometrisch gesteuerte physikalische Vektorfelder:** Affektive Zustände modulieren Auftrieb, Wirbelstärke (Curl Noise) und viskose Dämpfung in Echtzeit.
-4. **Deterministische Telemetrie-Überwachung:** Crytek-inspirierter Profiler für Frame-Zeiten, Vektordivergenz und Pufferbelegung.
+[![Architecture](https://img.shields.io/badge/Architecture-Data--Oriented%20(DoD)-00f0ff.svg)](#)
+[![Privacy](https://img.shields.io/badge/Privacy-Zero--PII%20Screened%20Backend%20(DSGVO)-10b981.svg)](#)
+[![Resolution](https://img.shields.io/badge/Export-4K%20UHD%20Human%20Proof-ffd700.svg)](#)
+[![Copyright](https://img.shields.io/badge/Copyright-%C2%A9%202026%20Ali%20Sibai%20(UrhG%20%C2%A769a%20Protected)-ff0055.svg)](./LICENSE)
 
 ---
 
-## ⚡ Quick Start
-### Local Execution
+## ⚡ Quick Start (Zero Dependencies Required)
+
+### Option 1: Built-in PowerShell Full-Stack Server (Windows — Serves UI + `/api/telemetry` Backend)
+```powershell
+powershell -ExecutionPolicy Bypass -File .\server.ps1
+```
+Opens **[http://localhost:3000](http://localhost:3000)** automatically with live `/api/telemetry` backend data screening.
+
+### Option 2: Node.js / Vercel / Python
 ```bash
-# Clone the repository
-git clone https://github.com/sibaiali/void.lumin.git
-cd void.lumin
-
-# Run with standard Python local server
+npx serve .
+# or
 python -m http.server 3000
 ```
-Open **[http://localhost:3000](http://localhost:3000)** in any modern browser.
 
 ---
 
-## 🎮 Engine Controls & Hotkeys
+## 🖱️📱 Exact Hardware Requirements & Buying Guide for Max Smoothness
 
-| Input | Action | Subsystem |
-| :--- | :--- | :--- |
-| **Mouse / Touch Drag** | Draw with active brush & pressure | High-DPI Spline Pipeline |
-| **Hotkeys `[1]` – `[6]`** | Instant Biometric State Override (Joy, Zen, Rage, Fear, Focus, GOAT) | Neural Signal Deck |
-| **Key `[C]`** | Clear canvas / Reset neural state | Render Buffer Reset |
-| **Key `[S]`** | Export 4K UHD Masterpiece with Biometric Watermark | 3840x2160 Canvas Pipeline |
-| **Camera Toggle** | Switch between live optical tracking & simulation deck | Computer Vision Hook |
+### 1. Mouse Requirements & What to Buy (Desktop / Laptop)
+- **Optical Sensor Required:** PixArt **PAW3395** or **PAW3950**, Razer **Focus Pro 30K/35K**, or Logitech **HERO 2** (zero angle snapping, zero hardware acceleration, zero pixel skipping).
+- **Polling Rate:** Minimum **1000 Hz (1ms)**; recommended **2000 Hz – 8000 Hz** for sub-pixel Catmull-Rom spline interpolation.
+- **Weight & Glide:** Under **60g** ultralight shell with **100% Virgin PTFE skates** on a low-static-friction hybrid pad so micro-adjustments (eyes, facial anatomy, hatching) never stick.
+- **Settings to Configure:**
+  - Set Mouse DPI to **1600 DPI** (prevents pixel skipping on 1440p/4K displays).
+  - Uncheck Windows *"Enhance Pointer Precision"* (Mouse Settings -> Additional Mouse Options -> Pointer Options).
+  - Set Void Lumin **Kalman Stabilizer** to **80%–90%** for sweeping curves, or **35%–50%** for rapid sketching.
+- **Top Mice to Buy:**
+  - **Pro Flagship:** *Razer Viper V3 Pro* or *Logitech G Pro X Superlight 2*
+  - **Best Value PAW3395:** *VXE R1 Pro Max* (~$45) or *Ninjutso Sora V2* (39g)
+  - **Ergonomic Artist Pick:** *Lamzu Thorn* or *Razer DeathAdder V3 Pro*
+
+### 2. Phone & Tablet Requirements for 120Hz Silk Smoothness
+- **Display & Touch Sampling:** Enable **120Hz ProMotion / Adaptive High Refresh Rate** in your phone's Display settings. Devices with **240Hz–360Hz+ Touch Sampling Rate** respond with near-zero latency.
+- **What to Do Before Drawing on Phone:**
+  1. Turn **OFF** *Low Power Mode / Battery Saver* (battery saver locks mobile browsers to 30/60Hz).
+  2. Turn **OFF** *3-Finger Screenshot* and system edge-swipe gestures, or tap **📱 Install App** in the bottom dock to run Void Lumin in standalone fullscreen mode.
+  3. If drawing with your **bare finger**, set the **Kalman Stabilizer slider to 92%**—the engine mathematically filters out fingertip roll jitter.
+  4. If buying a stylus: **Apple Pencil (iPad)**, **Samsung S-Pen (Galaxy Ultra/Tab)**, or an **Adonit Pro 4 Fine-Point Disc Stylus** (works on any iPhone or Android screen).
 
 ---
 
-## 🔬 Mathematical & Biometric Mapping
-
-```math
-\mathbf{v}_{t+1} = \left(\mathbf{v}_t + \nabla \times \mathbf{\Psi}(\mathbf{x}) \cdot \omega_{\text{Serotonin}}\right) \cdot (1 - \gamma_{\text{GABA}}) - \mathbf{g}_{\text{Dopamine}} + \mathbf{\eta}_{\text{Cortisol}}
-```
-
-- **$\mathbf{g}_{\text{Dopamine}}$ (Buoyancy):** Euphoria and dopamine spikes generate upward particle drift and logarithmic spiral tendencies.
-- **$\mathbf{\eta}_{\text{Cortisol}}$ (Turbulence):** Volatile states introduce high-frequency stochastic noise, fracturing geometric coherence.
-- **$\gamma_{\text{GABA}}$ (Viscous Damping):** Focus and calm stabilize velocity vectors, producing crystal-clear harmonic filaments.
+## 🛡️ Zero-Surveillance Geometry Shield & Backend Data Screening (`/api/telemetry`)
+- **No Unwanted Face Tracking:** Camera access is **OFF by default**. Instead of a surveillance webcam feed, the right deck renders a live **Sacred Merkaba Geometry Shield** so creators never feel watched.
+- **Backend PII Screening (`api/telemetry.js`):** Any telemetry sent to `/api/telemetry` is actively screened. Fields matching `ip`, `camera`, `frame`, `video`, `face`, `location`, or `email` are **purged and blocked**, retaining only anonymized stroke kinematics (velocity, polling Hz, Kalman smoothing, and shape archetypes) to compute your cryptographic **Human Authorship Proof Signature (`VL6-HUMAN-XXXXXXXX`)**.
 
 ---
 
-## 💼 Application Dossier for Crytek & German AAA Studios
-For hiring managers, technical leads, and recruiters at **Crytek (Frankfurt)**:  
-Please review the complete architectural whitepaper in [CRYTEK_PORTFOLIO_CASE_STUDY.md](CRYTEK_PORTFOLIO_CASE_STUDY.md).
+## ⚖️ German & European Copyright Protection (Urheberrecht, UWG & DSGVO)
+**Copyright © 2026 Ali Sibai (`@sibaiali`). All Rights Reserved (Alle Rechte vorbehalten).**
+
+This software, its source code, Data-Oriented Design (DoD) particle architecture, Kalman-stabilized spline pipelines, Sacred Geometry algorithms, and UI/UX design are legally protected under:
+- **German Copyright Act (Urheberrechtsgesetz — §§ 2 Abs. 1 Nr. 1, 69a et seq., 95c UrhG)**
+- **European Union Software Directive (2009/24/EC) & DSM Directive ((EU) 2019/790)**
+- **German Act Against Unfair Competition (Gesetz gegen den unlauteren Wettbewerb — § 4 Nr. 3 UWG)**
+- **Strict AI Training Opt-Out (§ 44b Abs. 3 UrhG):** Automated scraping, cloning, resale, or ingestion into AI/ML training datasets is strictly prohibited and enforced via HTTP headers (`X-Robots-Tag: noai, noimageai`), client-side DRM guards, and bot-blocking middleware.
+
+See [LICENSE](./LICENSE) for full German and European legal terms.

@@ -1,10 +1,11 @@
 {
   "name": "void-lumin",
-  "version": "3.0.0",
-  "description": "Biometric Neural Render Instrument - Interactive HCI & Real-Time Computer Graphics System",
+  "version": "6.0.0",
+  "private": true,
+  "description": "VOID LUMIN v6.0 - Cyber-Kinetic Creative Platform & Biometric Render Engine (Protected under German UrhG & EU Law)",
   "main": "index.html",
   "scripts": {
-    "start": "python -m http.server 3000",
+    "start": "powershell -ExecutionPolicy Bypass -File ./server.ps1",
     "serve": "npx serve ."
   },
   "keywords": [
@@ -13,11 +14,11 @@
     "real-time-graphics",
     "hci",
     "biometrics",
-    "generative-art",
+    "cyber-art",
     "data-oriented-design",
     "vector-field",
     "spline-rendering"
   ],
-  "author": "Ali",
-  "license": "MIT"
+  "author": "Ali Sibai (sibaiali)",
+  "license": "SEE LICENSE IN LICENSE"
 }

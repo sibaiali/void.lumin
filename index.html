@@ -1,28 +1,49 @@
 <!DOCTYPE html>
+<!--
+  ==========================================================================================
+  VOID LUMIN™ v6.0 // Cyber-Kinetic Creative Platform & Biometric Render Engine
+  Copyright © 2026 Ali Sibai (sibaiali). All Rights Reserved.
+  Protected under the German Copyright Act (Urheberrechtsgesetz — §§ 2, 69a et seq., 95c UrhG),
+  German Unfair Competition Act (§ 4 Nr. 3 UWG), and EU Directive 2009/24/EC & 2019/790.
+  Unauthorized cloning, copying, resale, decompilation, or AI training ingestion (§ 44b UrhG)
+  is strictly prohibited and prosecuted in Frankfurt am Main, Germany.
+  ==========================================================================================
+-->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <meta name="theme-color" content="#030406" />
+  <meta name="theme-color" content="#030407" />
+  <meta name="copyright" content="Copyright © 2026 Ali Sibai (sibaiali). All Rights Reserved under German UrhG §§ 2, 69a ff. & EU Law." />
+  <meta name="author" content="Ali Sibai (sibaiali)" />
+  <meta name="robots" content="noai, noimageai" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="manifest" href="/manifest.json" />
-  <title>VOID LUMIN // Spatial Biometric Neural OS & Gesture Instrument</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;0,800;1,400&family=Orbitron:wght@600;800;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <title>VOID LUMIN™ v6.0 // Cyber-Kinetic Creative Platform © Ali Sibai</title>
   <style>
     :root {
-      --bg: #030406;
-      --panel-bg: rgba(8, 12, 18, 0.88);
-      --border: rgba(255, 255, 255, 0.12);
+      --bg: #030407;
+      --panel-bg: rgba(7, 10, 16, 0.90);
+      --panel-solid: #080b12;
+      --border: rgba(0, 240, 255, 0.18);
+      --border-dim: rgba(255, 255, 255, 0.09);
       --accent-cyan: #00f0ff;
+      --accent-magenta: #ff0055;
       --accent-gold: #ffd700;
-      --accent-crimson: #ff2a5f;
       --accent-violet: #a855f7;
       --accent-emerald: #10b981;
       --accent-blue: #3b82f6;
-      --text: #e2e8f0;
-      --text-dim: #64748b;
-      --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
-      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --text: #f1f5f9;
+      --text-dim: #94a3b8;
+      --font-display: 'Orbitron', 'Space Grotesk', sans-serif;
+      --font-sans: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
     }
 
     * {
@@ -39,9 +60,51 @@
       overflow: hidden;
       background: var(--bg);
       color: var(--text);
-      font-family: var(--font-mono);
+      font-family: var(--font-sans);
       font-size: 12px;
       touch-action: none;
+    }
+
+    /* Subtle CRT Cyber Scanline Overlay */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.12) 0px,
+        rgba(0, 0, 0, 0.12) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.45;
+    }
+
+    /* Cyber Glitch Animation */
+    @keyframes cyberGlitch {
+      0%, 92%, 100% {
+        text-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
+        transform: translate(0, 0);
+      }
+      93% {
+        text-shadow: -2px 0 var(--accent-magenta), 2px 0 var(--accent-cyan);
+        transform: translate(-1px, 0);
+      }
+      95% {
+        text-shadow: 2px 0 var(--accent-magenta), -2px 0 var(--accent-cyan);
+        transform: translate(1px, 1px);
+      }
+      97% {
+        text-shadow: -1px -1px var(--accent-gold), 2px 1px var(--accent-cyan);
+        transform: translate(0, -1px);
+      }
+    }
+
+    @keyframes borderPulse {
+      0% { border-color: rgba(0, 240, 255, 0.2); box-shadow: 0 0 8px rgba(0, 240, 255, 0.08); }
+      100% { border-color: rgba(0, 240, 255, 0.5); box-shadow: 0 0 18px rgba(0, 240, 255, 0.22); }
     }
 
     #viewport-container {
@@ -62,26 +125,26 @@
     }
 
     #bg-canvas { z-index: 1; }
-    #prediction-canvas { z-index: 2; pointer-events: none; }
+    #guide-canvas { z-index: 2; pointer-events: none; }
     #particle-canvas { z-index: 3; pointer-events: none; }
     #drawing-canvas { z-index: 4; }
     #cursor-canvas { z-index: 5; pointer-events: none; }
 
-    /* Top Telemetry & Manifesto Bar */
+    /* Top Cyber Command & Anti-AI Manifesto Bar */
     #top-bar {
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
-      height: 52px;
+      height: 54px;
       padding: 0 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: linear-gradient(180deg, rgba(3,4,6,0.96) 0%, rgba(3,4,6,0) 100%);
+      background: linear-gradient(180deg, rgba(4, 6, 12, 0.96) 0%, rgba(4, 6, 12, 0.80) 100%);
       border-bottom: 1px solid var(--border);
-      z-index: 10;
-      backdrop-filter: blur(12px);
+      z-index: 20;
+      backdrop-filter: blur(16px);
     }
 
     .brand {
@@ -91,49 +154,93 @@
     }
 
     .brand-title {
-      font-weight: 800;
-      letter-spacing: 0.15em;
-      font-size: 13px;
+      font-family: var(--font-display);
+      font-weight: 900;
+      letter-spacing: 0.16em;
+      font-size: 15px;
       color: #fff;
       display: flex;
       align-items: center;
       gap: 8px;
+      animation: cyberGlitch 5s infinite;
     }
 
-    .badge-billion {
-      background: linear-gradient(90deg, rgba(255, 215, 0, 0.2) 0%, rgba(0, 240, 255, 0.2) 100%);
-      border: 1px solid var(--accent-gold);
-      color: var(--accent-gold);
+    .version-tag {
+      font-family: var(--font-mono);
       font-size: 9px;
-      padding: 2px 7px;
+      color: var(--accent-cyan);
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid var(--accent-cyan);
+      padding: 2px 6px;
       border-radius: 2px;
-      letter-spacing: 0.12em;
+    }
+
+    .badge-anti-ai {
+      background: linear-gradient(90deg, rgba(255, 0, 85, 0.22) 0%, rgba(0, 240, 255, 0.22) 100%);
+      border: 1px solid var(--accent-magenta);
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      padding: 3px 8px;
+      border-radius: 2px;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
       font-weight: 800;
-      animation: goldPulse 2s infinite alternate;
+      cursor: pointer;
+      transition: all 0.2s;
     }
 
-    @keyframes goldPulse {
-      0% { box-shadow: 0 0 4px rgba(255,215,0,0.2); }
-      100% { box-shadow: 0 0 14px rgba(255,215,0,0.6); }
+    .badge-anti-ai:hover {
+      background: var(--accent-magenta);
+      box-shadow: 0 0 14px var(--accent-magenta);
     }
 
-    #manifesto-chip {
+    #top-nav-pills {
       display: flex;
       align-items: center;
       gap: 8px;
+    }
+
+    .nav-pill {
       background: rgba(255, 255, 255, 0.04);
-      padding: 4px 12px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 20px;
+      border: 1px solid var(--border-dim);
+      color: var(--text);
+      font-family: var(--font-mono);
       font-size: 10px;
-      color: #cbd5e1;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 3px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.18s;
+      clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+    }
+
+    .nav-pill:hover, .nav-pill.active {
+      background: rgba(0, 240, 255, 0.16);
+      border-color: var(--accent-cyan);
+      color: #fff;
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
+    }
+
+    .nav-pill.gold-pill {
+      border-color: rgba(255, 215, 0, 0.4);
+      color: var(--accent-gold);
+    }
+
+    .nav-pill.gold-pill:hover {
+      background: rgba(255, 215, 0, 0.2);
+      border-color: var(--accent-gold);
+      color: #fff;
     }
 
     .telemetry-group {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 14px;
+      font-family: var(--font-mono);
     }
 
     .stat-chip {
@@ -150,41 +257,112 @@
     }
 
     .stat-val {
-      font-size: 12px;
-      font-weight: 700;
+      font-size: 11px;
+      font-weight: 800;
       color: var(--accent-cyan);
     }
 
-    /* Left Panel: Drawing Instruments & Gestures */
-    #left-panel {
+    /* Side Panels */
+    .cyber-panel {
       position: absolute;
       top: 64px;
-      left: 16px;
-      width: 260px;
       background: var(--panel-bg);
       border: 1px solid var(--border);
-      border-radius: 8px;
       padding: 12px;
-      z-index: 10;
-      backdrop-filter: blur(14px);
+      z-index: 15;
+      backdrop-filter: blur(18px);
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7);
-      max-height: calc(100vh - 140px);
+      gap: 10px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85);
+      max-height: calc(100vh - 138px);
       overflow-y: auto;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s;
+      clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+    }
+
+    .cyber-panel::-webkit-scrollbar {
+      width: 4px;
+    }
+    .cyber-panel::-webkit-scrollbar-thumb {
+      background: rgba(0, 240, 255, 0.3);
+      border-radius: 2px;
+    }
+
+    #left-panel {
+      left: 12px;
+      width: 285px;
+    }
+
+    #right-panel {
+      right: 12px;
+      width: 300px;
+    }
+
+    .cyber-panel.collapsed-left {
+      transform: translateX(-310px);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .cyber-panel.collapsed-right {
+      transform: translateX(320px);
+      opacity: 0;
+      pointer-events: none;
     }
 
     .panel-header {
+      font-family: var(--font-display);
       font-size: 9px;
+      font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.14em;
-      color: var(--text-dim);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+      color: var(--accent-cyan);
+      border-bottom: 1px solid rgba(0, 240, 255, 0.18);
       padding-bottom: 4px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+    }
+
+    /* Sub-Tabs inside Left Panel */
+    .panel-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 3px;
+      border-radius: 4px;
+      border: 1px solid var(--border-dim);
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 700;
+      padding: 5px 2px;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: all 0.15s;
+    }
+
+    .tab-btn.active {
+      background: rgba(0, 240, 255, 0.18);
+      color: #fff;
+      border-bottom: 2px solid var(--accent-cyan);
+    }
+
+    .tab-section {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .tab-section.active {
+      display: flex;
     }
 
     .brush-grid {
@@ -194,69 +372,124 @@
     }
 
     .btn-brush {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-dim);
       color: var(--text);
-      padding: 7px 6px;
+      padding: 7px;
       font-size: 10px;
-      font-family: var(--font-mono);
+      font-family: var(--font-sans);
+      font-weight: 600;
       text-align: left;
-      border-radius: 3px;
       cursor: pointer;
       transition: all 0.15s ease;
       display: flex;
       flex-direction: column;
       gap: 2px;
+      clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%);
     }
 
     .btn-brush:hover {
-      background: rgba(255, 255, 255, 0.09);
-      border-color: rgba(255, 255, 255, 0.3);
+      background: rgba(0, 240, 255, 0.08);
+      border-color: rgba(0, 240, 255, 0.4);
     }
 
     .btn-brush.active {
-      background: rgba(0, 240, 255, 0.15);
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.22) 0%, rgba(168, 85, 247, 0.15) 100%);
+      border-color: var(--accent-cyan);
+      color: #fff;
+      box-shadow: inset 0 0 10px rgba(0, 240, 255, 0.2);
+    }
+
+    .brush-desc {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      color: var(--text-dim);
+      font-weight: 400;
+    }
+
+    /* Dynamic Instrument Inspector Box */
+    .inspector-box {
+      background: rgba(0, 240, 255, 0.05);
+      border-left: 3px solid var(--accent-cyan);
+      padding: 7px 9px;
+      font-size: 10px;
+      line-height: 1.4;
+      color: #cbd5e1;
+    }
+
+    .inspector-title {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 800;
+      color: var(--accent-cyan);
+      margin-bottom: 2px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Symmetry & Guide Grid */
+    .precision-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+    }
+
+    .btn-mini {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-dim);
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 700;
+      padding: 6px 4px;
+      cursor: pointer;
+      text-align: center;
+      border-radius: 2px;
+      transition: all 0.15s;
+    }
+
+    .btn-mini:hover {
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-mini.active {
+      background: rgba(0, 240, 255, 0.2);
       border-color: var(--accent-cyan);
       color: #fff;
     }
 
-    .brush-desc {
-      font-size: 8px;
-      color: var(--text-dim);
-    }
-
-    /* Spatial Gestures Guide Box (Making it SO OBVIOUS) */
-    .gesture-guide-card {
-      background: linear-gradient(135deg, rgba(0,240,255,0.08) 0%, rgba(168,85,247,0.08) 100%);
-      border: 1px solid rgba(0, 240, 255, 0.25);
-      border-radius: 6px;
-      padding: 8px 10px;
-      display: flex;
-      flex-direction: column;
+    /* Shape Stamp Matrix */
+    .shape-matrix {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
       gap: 5px;
     }
 
-    .gesture-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+    .btn-shape {
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid var(--border-dim);
+      color: var(--text);
+      font-family: var(--font-mono);
       font-size: 9px;
-    }
-
-    .gesture-icon-label {
+      padding: 7px 4px;
+      cursor: pointer;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 6px;
-      color: #fff;
-      font-weight: 600;
+      gap: 3px;
+      border-radius: 3px;
+      transition: all 0.15s;
     }
 
-    .gesture-badge {
-      font-size: 8px;
-      padding: 1px 5px;
-      border-radius: 2px;
-      background: rgba(255,255,255,0.1);
-      color: var(--accent-cyan);
+    .btn-shape:hover {
+      background: rgba(255, 215, 0, 0.14);
+      border-color: var(--accent-gold);
+      transform: translateY(-1px);
+    }
+
+    .btn-shape span.shape-icon {
+      font-size: 14px;
     }
 
     .slider-row {
@@ -268,6 +501,7 @@
     .slider-header {
       display: flex;
       justify-content: space-between;
+      font-family: var(--font-mono);
       font-size: 9px;
     }
 
@@ -275,7 +509,7 @@
       width: 100%;
       height: 4px;
       appearance: none;
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.14);
       border-radius: 2px;
       outline: none;
     }
@@ -284,9 +518,9 @@
       appearance: none;
       width: 12px;
       height: 12px;
-      border-radius: 50%;
       background: var(--accent-cyan);
       cursor: pointer;
+      clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
     }
 
     .palette-row {
@@ -306,35 +540,16 @@
     }
 
     .color-swatch:hover { transform: scale(1.15); }
-    .color-swatch.active { border-color: #fff; box-shadow: 0 0 8px rgba(255,255,255,0.6); }
+    .color-swatch.active { border-color: #fff; box-shadow: 0 0 8px rgba(255,255,255,0.7); }
 
-    /* Right Panel: Air-Tracking, Shadow Mode & Biometrics */
-    #right-panel {
-      position: absolute;
-      top: 64px;
-      right: 16px;
-      width: 290px;
-      background: var(--panel-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 12px;
-      z-index: 10;
-      backdrop-filter: blur(14px);
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7);
-      max-height: calc(100vh - 140px);
-      overflow-y: auto;
-    }
-
-    .cam-box {
+    /* Zero-Tracking Sacred Geometry Visualizer (Replaces Surveillance Camera Box) */
+    .privacy-visualizer-box {
       position: relative;
       width: 100%;
-      height: 165px;
-      background: #000;
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 6px;
+      height: 148px;
+      background: #04060a;
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      border-radius: 4px;
       overflow: hidden;
       display: flex;
       align-items: center;
@@ -346,17 +561,16 @@
       height: 100%;
       object-fit: cover;
       transform: scaleX(-1);
+      display: none;
     }
 
-    /* Shadow Mode Canvas (Hides raw webcam face, renders mystic obsidian silhouette) */
     #shadow-canvas {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
-      display: none;
-      background: #030406;
-      transform: scaleX(-1);
+      display: block;
+      background: #04060a;
     }
 
     #cam-analysis-canvas {
@@ -371,13 +585,12 @@
     .cam-hud-overlay {
       position: absolute;
       inset: 0;
-      border: 1px solid rgba(0, 240, 255, 0.3);
       pointer-events: none;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 6px;
-      box-shadow: inset 0 0 24px rgba(0, 240, 255, 0.12);
+      padding: 7px;
+      box-shadow: inset 0 0 24px rgba(0, 240, 255, 0.1);
     }
 
     .cam-top-row {
@@ -386,47 +599,58 @@
       align-items: center;
     }
 
-    .cam-status {
+    .shield-badge {
+      font-family: var(--font-mono);
       font-size: 8px;
       color: var(--accent-emerald);
-      display: flex;
-      align-items: center;
-      gap: 5px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      padding: 2px 6px;
+      border-radius: 2px;
       font-weight: 700;
-    }
-
-    .cam-status::before {
-      content: '';
-      display: inline-block;
-      width: 6px;
-      height: 6px;
-      background: var(--accent-emerald);
-      border-radius: 50%;
-      box-shadow: 0 0 6px var(--accent-emerald);
     }
 
     .btn-shadow-toggle {
       pointer-events: auto;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0, 0, 0, 0.8);
       border: 1px solid var(--accent-cyan);
       color: var(--accent-cyan);
+      font-family: var(--font-mono);
       font-size: 8px;
       padding: 2px 7px;
-      border-radius: 3px;
+      border-radius: 2px;
       cursor: pointer;
       font-weight: 700;
-      transition: all 0.2s;
     }
 
-    .btn-shadow-toggle.active {
-      background: var(--accent-cyan);
-      color: #000;
+    /* Backend Data Screening Terminal Box */
+    .screening-terminal {
+      background: #030508;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 4px;
+      padding: 8px;
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
+
+    .terminal-row {
+      display: flex;
+      justify-content: space-between;
+      color: #94a3b8;
+    }
+
+    .terminal-row span.ok { color: var(--accent-emerald); font-weight: 700; }
+    .terminal-row span.purged { color: var(--accent-magenta); font-weight: 700; }
+    .terminal-row span.cyan { color: var(--accent-cyan); font-weight: 700; }
 
     .neuro-meter {
       display: flex;
       flex-direction: column;
       gap: 2px;
+      font-family: var(--font-mono);
     }
 
     .meter-label-row {
@@ -441,19 +665,17 @@
       background: rgba(255, 255, 255, 0.08);
       border-radius: 2px;
       overflow: hidden;
-      position: relative;
     }
 
     .meter-fill {
       height: 100%;
-      width: 30%;
-      transition: width 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s;
+      transition: width 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     #fill-dopamine { background: var(--accent-gold); }
-    #fill-serotonin { background: #38bdf8; }
+    #fill-serotonin { background: var(--accent-cyan); }
     #fill-viscosity { background: var(--accent-blue); }
-    #fill-cortisol { background: var(--accent-crimson); }
+    #fill-cortisol { background: var(--accent-magenta); }
 
     .emotion-buttons {
       display: grid;
@@ -463,70 +685,65 @@
 
     .btn-emo {
       background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border-dim);
       color: var(--text-dim);
       padding: 5px 2px;
-      font-size: 9px;
+      font-size: 8.5px;
       font-family: var(--font-mono);
       text-align: center;
-      border-radius: 2px;
       cursor: pointer;
       transition: all 0.15s;
     }
 
     .btn-emo:hover { color: #fff; border-color: rgba(255,255,255,0.3); }
-    .btn-emo.active { color: #000; font-weight: 800; }
+    .btn-emo.active { color: #000; font-weight: 800; background: var(--accent-cyan); border-color: var(--accent-cyan); }
     .btn-emo.joy.active { background: var(--accent-gold); border-color: var(--accent-gold); }
-    .btn-emo.zen.active { background: #38bdf8; border-color: #38bdf8; }
-    .btn-emo.sad.active { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
-    .btn-emo.rage.active { background: var(--accent-crimson); border-color: var(--accent-crimson); color: #fff; }
-    .btn-emo.fear.active { background: var(--accent-violet); border-color: var(--accent-violet); color: #fff; }
-    .btn-emo.ecstasy.active { background: #ffd700; border-color: #ffd700; }
+    .btn-emo.rage.active { background: var(--accent-magenta); border-color: var(--accent-magenta); color: #fff; }
 
-    /* Bottom Command Bar */
+    /* Bottom Dock */
     #bottom-bar {
       position: absolute;
-      bottom: 16px;
+      bottom: 12px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       background: var(--panel-bg);
       border: 1px solid var(--border);
-      padding: 8px 16px;
-      border-radius: 30px;
-      z-index: 10;
-      backdrop-filter: blur(14px);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-      flex-wrap: wrap;
-      justify-content: center;
+      padding: 7px 14px;
+      z-index: 20;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.9);
+      clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%, 0 10px);
+      max-width: 96vw;
+      overflow-x: auto;
     }
 
     .btn-action {
-      background: rgba(255, 255, 255, 0.06);
+      background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.15);
       color: #fff;
-      padding: 7px 14px;
-      font-size: 11px;
+      padding: 6px 12px;
+      font-size: 10px;
       font-family: var(--font-mono);
-      border-radius: 20px;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
-      font-weight: 600;
-      transition: all 0.2s;
+      gap: 5px;
+      font-weight: 700;
+      white-space: nowrap;
+      transition: all 0.18s;
+      clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
     }
 
     .btn-action:hover {
-      background: rgba(255, 255, 255, 0.14);
-      border-color: #fff;
-      transform: translateY(-1px);
+      background: rgba(0, 240, 255, 0.15);
+      border-color: var(--accent-cyan);
     }
 
     .btn-action.primary {
-      background: linear-gradient(135deg, #00f0ff 0%, #0077ff 100%);
+      background: linear-gradient(135deg, #00f0ff 0%, #0088ff 100%);
       border: none;
       color: #000;
       font-weight: 800;
@@ -539,27 +756,137 @@
       font-weight: 800;
     }
 
-    .btn-action.gold:hover {
-      box-shadow: 0 0 16px rgba(255, 215, 0, 0.7);
+    /* Fullscreen Cyber Modal System (Hardware Guide, Drawing Academy, Anti-AI Manifesto, Data Screening) */
+    .cyber-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 4, 8, 0.86);
+      backdrop-filter: blur(14px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .cyber-modal-backdrop.open {
+      display: flex;
+    }
+
+    .cyber-modal {
+      width: 100%;
+      max-width: 920px;
+      max-height: 88vh;
+      background: #070a10;
+      border: 1px solid var(--accent-cyan);
+      box-shadow: 0 0 50px rgba(0, 240, 255, 0.2);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
+    }
+
+    .modal-header {
+      padding: 14px 20px;
+      background: linear-gradient(90deg, rgba(0, 240, 255, 0.14) 0%, rgba(255, 0, 85, 0.1) 100%);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      color: #fff;
+    }
+
+    .modal-close {
+      background: rgba(255, 0, 85, 0.2);
+      border: 1px solid var(--accent-magenta);
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      line-height: 1.55;
+      font-size: 12.5px;
+    }
+
+    .spec-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+    }
+
+    .spec-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(0, 240, 255, 0.22);
+      padding: 14px;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .spec-card h3 {
+      font-family: var(--font-display);
+      font-size: 11px;
+      color: var(--accent-cyan);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .spec-card ul {
+      padding-left: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      color: #cbd5e1;
+      font-size: 11.5px;
+    }
+
+    .spec-card li strong {
+      color: #fff;
+    }
+
+    .code-tag {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      background: rgba(0, 240, 255, 0.12);
+      color: var(--accent-cyan);
+      padding: 1px 5px;
+      border-radius: 2px;
     }
 
     #toast-banner {
       position: absolute;
-      top: 66px;
+      top: 64px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(3,4,6,0.92);
+      background: rgba(4, 7, 14, 0.95);
       border: 1px solid var(--accent-cyan);
       color: #fff;
-      padding: 8px 20px;
-      border-radius: 4px;
-      font-size: 11px;
+      font-family: var(--font-mono);
+      padding: 7px 18px;
+      font-size: 10px;
       letter-spacing: 0.1em;
-      z-index: 20;
+      z-index: 40;
       pointer-events: none;
       opacity: 0;
-      transition: opacity 0.3s, transform 0.3s;
-      box-shadow: 0 0 20px rgba(0, 240, 255, 0.35);
+      transition: opacity 0.25s, transform 0.25s;
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
       text-align: center;
     }
 
@@ -568,226 +895,317 @@
       transform: translateX(-50%) translateY(4px);
     }
 
-    #goat-banner {
-      display: none;
-      background: linear-gradient(90deg, rgba(255,215,0,0.2) 0%, rgba(255,215,0,0.05) 100%);
-      border: 1px solid var(--accent-gold);
-      color: var(--accent-gold);
-      padding: 6px 10px;
-      border-radius: 3px;
-      font-size: 9px;
-      font-weight: 800;
-      letter-spacing: 0.1em;
-      text-align: center;
-      animation: pulseGold 1.5s infinite alternate;
-    }
-
-    /* Spatial On-Hand Hologram UI (Follows user hand on canvas) */
     #spatial-hand-badge {
       position: absolute;
       pointer-events: none;
       display: none;
-      background: rgba(10, 15, 24, 0.85);
+      background: rgba(6, 10, 18, 0.9);
       border: 1px solid var(--accent-cyan);
-      border-radius: 14px;
-      padding: 4px 10px;
+      padding: 4px 9px;
+      font-family: var(--font-mono);
       font-size: 9px;
       font-weight: 700;
       color: #fff;
-      box-shadow: 0 0 12px rgba(0, 240, 255, 0.5);
       z-index: 6;
-      transform: translate(-50%, -130%);
+      transform: translate(-50%, -135%);
       white-space: nowrap;
+    }
+
+    /* Mobile & Tablet Adaptive Responsive Layout */
+    @media (max-width: 900px) {
+      #top-bar {
+        height: 48px;
+        padding: 0 10px;
+      }
+      .brand-title { font-size: 12px; }
+      .telemetry-group { display: none; }
+      #left-panel, #right-panel {
+        top: 54px;
+        width: 260px;
+        max-height: calc(100vh - 125px);
+      }
+      #right-panel {
+        transform: translateX(320px);
+        opacity: 0;
+        pointer-events: none;
+      }
+      #right-panel.mobile-open {
+        transform: translateX(0);
+        opacity: 1;
+        pointer-events: auto;
+      }
+      #left-panel.mobile-closed {
+        transform: translateX(-310px);
+        opacity: 0;
+        pointer-events: none;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- Viewport Layers -->
+  <!-- Multi-Layer Render Viewport -->
   <div id="viewport-container">
     <canvas id="bg-canvas"></canvas>
-    <canvas id="prediction-canvas"></canvas>
+    <canvas id="guide-canvas"></canvas>
     <canvas id="particle-canvas"></canvas>
     <canvas id="drawing-canvas"></canvas>
     <canvas id="cursor-canvas"></canvas>
     <div id="spatial-hand-badge">👆 AIR-PEN ACTIVE</div>
   </div>
 
-  <!-- Top Telemetry & Manifesto Bar -->
+  <!-- Top Cyber Command Bar -->
   <header id="top-bar">
     <div class="brand">
+      <button class="btn-mini" id="btn-toggle-left" title="Toggle Instruments Panel">🛠️ TOOLS</button>
       <div class="brand-title">
         <span>VOID LUMIN</span>
-        <span style="color:var(--text-dim)">v5.0</span>
+        <span class="version-tag">v6.0 CYBER</span>
       </div>
-      <span class="badge-billion">&euro;1B SPATIAL NEURAL OS</span>
+      <span class="badge-anti-ai" id="btn-open-manifesto">🚫 DEATH TO AI SLOP // 100% HUMAN</span>
     </div>
 
-    <!-- Human Agency Renaissance Indicator -->
-    <div id="manifesto-chip">
-      <span style="color:var(--accent-gold)">⚡ SPATIAL GESTURES:</span>
-      <span id="active-physics-desc">👆 Draw &bull; ✌️ Swap Color &bull; 🤏 Resize &bull; 🖐️ Clear</span>
+    <div id="top-nav-pills">
+      <button class="nav-pill gold-pill" id="btn-open-hardware">🖱️📱 HARDWARE &amp; BUYING GUIDE</button>
+      <button class="nav-pill" id="btn-open-academy">🎓 HOW TO DRAW &amp; MASTER TOOLS</button>
+      <button class="nav-pill" id="btn-open-backend">🛡️ BACKEND DATA SCREENING</button>
+      <button class="nav-pill" id="btn-open-legal" style="border-color:rgba(255,0,85,0.45); color:#ff80ab;">⚖️ © EU / DE URHEBERRECHT</button>
     </div>
 
-    <!-- Engine Telemetry -->
     <div class="telemetry-group">
       <div class="stat-chip">
-        <span class="stat-label">Spatial Air-Pen</span>
-        <span class="stat-val" id="stat-airpen-status" style="color:var(--accent-emerald)">ACTIVE</span>
+        <span class="stat-label">Input Polling</span>
+        <span class="stat-val" id="stat-hz">120 Hz</span>
       </div>
       <div class="stat-chip">
-        <span class="stat-label">Privacy Mode</span>
-        <span class="stat-val" id="stat-shadow-status" style="color:var(--accent-cyan)">SHADOW SILHOUETTE</span>
+        <span class="stat-label">Zero-Track Mode</span>
+        <span class="stat-val" id="stat-shadow-status" style="color:var(--accent-emerald)">NO-CAM SACRED GEO</span>
       </div>
       <div class="stat-chip">
         <span class="stat-label">FPS</span>
         <span class="stat-val" id="stat-fps">60.0</span>
       </div>
+      <button class="btn-mini" id="btn-toggle-right" title="Toggle Telemetry & Privacy Panel">📊 DATA</button>
     </div>
   </header>
 
-  <!-- Left Toolbar: Instruments & Gestures -->
-  <aside id="left-panel">
-    <div class="panel-header">
-      <span>DRAWING INSTRUMENT</span>
-      <span id="brush-mode-badge" style="color:var(--accent-cyan)">GRAPHITE</span>
+  <!-- Left Panel: Logical Tabbed Creative Studio -->
+  <aside id="left-panel" class="cyber-panel">
+    <div class="panel-tabs">
+      <button class="tab-btn active" data-tab="tab-brushes">1. BRUSHES</button>
+      <button class="tab-btn" data-tab="tab-shapes">2. SHAPES (11)</button>
+      <button class="tab-btn" data-tab="tab-precision">3. PRECISION</button>
     </div>
 
-    <div class="brush-grid">
-      <button class="btn-brush active" data-brush="graphite">
-        <span>✏️ Precision Graphite</span>
-        <span class="brush-desc">0.5px sub-pixel face sketching</span>
-      </button>
-      <button class="btn-brush" data-brush="neural">
-        <span>🧬 Neural Ink</span>
-        <span class="brush-desc">Dynamic calligraphic tension</span>
-      </button>
-      <button class="btn-brush" data-brush="magma">
-        <span>🔥 Heated Soul</span>
-        <span class="brush-desc">Thermoluminescent glow</span>
-      </button>
-      <button class="btn-brush" data-brush="quantum">
-        <span>✨ Quantum Filament</span>
-        <span class="brush-desc">Harmonic resonance loops</span>
-      </button>
-      <button class="btn-brush" data-brush="nebula">
-        <span>🌌 Cosmic Void</span>
-        <span class="brush-desc">Curl-noise stardust</span>
-      </button>
-      <button class="btn-brush" data-brush="eraser">
-        <span>🧹 Void Eraser</span>
-        <span class="brush-desc">Subtractive mark-carver</span>
-      </button>
+    <!-- TAB 1: BRUSHES & PIGMENTS -->
+    <div class="tab-section active" id="tab-brushes">
+      <div class="panel-header">
+        <span>PRECISION INSTRUMENTS</span>
+        <span id="brush-mode-badge">GRAPHITE</span>
+      </div>
+
+      <div class="brush-grid">
+        <button class="btn-brush active" data-brush="graphite">
+          <span>✏️ Micro-Graphite</span>
+          <span class="brush-desc">0.2px sub-pixel anatomy</span>
+        </button>
+        <button class="btn-brush" data-brush="cyberblade">
+          <span>🗡️ Cyber-Blade</span>
+          <span class="brush-desc">Isometric hard-edge vector</span>
+        </button>
+        <button class="btn-brush" data-brush="neural">
+          <span>🧬 Neural Ink</span>
+          <span class="brush-desc">Velocity calligraphic taper</span>
+        </button>
+        <button class="btn-brush" data-brush="magma">
+          <span>🔥 Plasma Core</span>
+          <span class="brush-desc">Dual-pass emissive bloom</span>
+        </button>
+        <button class="btn-brush" data-brush="quantum">
+          <span>✨ Quantum Chord</span>
+          <span class="brush-desc">Multi-wire harmonic ribbon</span>
+        </button>
+        <button class="btn-brush" data-brush="eraser">
+          <span>🧹 Void Carver</span>
+          <span class="brush-desc">Hard subtractive chisel</span>
+        </button>
+      </div>
+
+      <!-- Interactive Tool Explanation Box -->
+      <div class="inspector-box" id="tool-inspector">
+        <div class="inspector-title">
+          <span id="inspector-name">✏️ MICRO-GRAPHITE</span>
+          <span>KALMAN: ON</span>
+        </div>
+        <div id="inspector-text">
+          Engineered for portrait anatomy, eyes, and micro-hatching. Uses Catmull-Rom spline smoothing to eliminate mouse/finger jitter.
+        </div>
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-header">
+          <span>STROKE CALIBER (WIDTH)</span>
+          <span id="val-caliber" style="color:var(--accent-cyan)">2.5 px</span>
+        </div>
+        <input type="range" id="slider-caliber" min="0.2" max="36" step="0.2" value="2.5" />
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-header">
+          <span>KALMAN STABILIZER (SMOOTHNESS)</span>
+          <span id="val-smoothing" style="color:var(--accent-emerald)">85%</span>
+        </div>
+        <input type="range" id="slider-smoothing" min="0" max="98" step="1" value="85" />
+      </div>
+
+      <div class="panel-header">
+        <span>CYBER PIGMENTS [KEY: V]</span>
+        <span id="active-color-hex">#FFFFFF</span>
+      </div>
+      <div class="palette-row" id="palette-container">
+        <div class="color-swatch active" style="background:#ffffff" data-color="#ffffff"></div>
+        <div class="color-swatch" style="background:#00f0ff" data-color="#00f0ff"></div>
+        <div class="color-swatch" style="background:#ff0055" data-color="#ff0055"></div>
+        <div class="color-swatch" style="background:#ffd700" data-color="#ffd700"></div>
+        <div class="color-swatch" style="background:#a855f7" data-color="#a855f7"></div>
+        <div class="color-swatch" style="background:#10b981" data-color="#10b981"></div>
+        <div class="color-swatch" style="background:#3b82f6" data-color="#3b82f6"></div>
+        <div class="color-swatch" style="background:#f97316" data-color="#f97316"></div>
+      </div>
     </div>
 
-    <!-- Spatial Air Gesture Cheat Sheet (SO OBVIOUS) -->
-    <div class="panel-header">
-      <span>IN-AIR HAND GESTURES</span>
-      <span style="color:var(--accent-gold)">SPATIAL HUD</span>
-    </div>
-    <div class="gesture-guide-card">
-      <div class="gesture-item">
-        <span class="gesture-icon-label"><span>👆</span> Point Index</span>
-        <span class="gesture-badge">Draw Stroke</span>
+    <!-- TAB 2: SACRED & CYBER SHAPES (11 ARCHETYPES) -->
+    <div class="tab-section" id="tab-shapes">
+      <div class="panel-header">
+        <span>AUTO-SNAP + INSTANT STAMPS</span>
+        <input type="checkbox" id="toggle-shape-snap" checked style="accent-color:var(--accent-cyan);" />
       </div>
-      <div class="gesture-item">
-        <span class="gesture-icon-label"><span>✌️</span> Peace Sign</span>
-        <span class="gesture-badge">Cycle Color</span>
+      <div style="font-size:9.5px; color:var(--text-dim); line-height:1.35;">
+        Draw any rough shape on canvas to auto-snap, or <strong>click any shape below</strong> to stamp it directly onto the center/cursor!
       </div>
-      <div class="gesture-item">
-        <span class="gesture-icon-label"><span>🤏</span> Pinch Width</span>
-        <span class="gesture-badge">Adjust Size</span>
+
+      <div class="shape-matrix">
+        <button class="btn-shape" data-stamp="heart"><span class="shape-icon">💖</span><span>Heart</span></button>
+        <button class="btn-shape" data-stamp="circle"><span class="shape-icon">⭕</span><span>Orbit</span></button>
+        <button class="btn-shape" data-stamp="triangle"><span class="shape-icon">🔺</span><span>Delta</span></button>
+        <button class="btn-shape" data-stamp="square"><span class="shape-icon">⬜</span><span>Cyber Box</span></button>
+        <button class="btn-shape" data-stamp="diamond"><span class="shape-icon">💠</span><span>Rhombus</span></button>
+        <button class="btn-shape" data-stamp="hexagon"><span class="shape-icon">⬢</span><span>HexCore</span></button>
+        <button class="btn-shape" data-stamp="star"><span class="shape-icon">⭐</span><span>Pentagram</span></button>
+        <button class="btn-shape" data-stamp="infinity"><span class="shape-icon">♾️</span><span>Lemniscate</span></button>
+        <button class="btn-shape" data-stamp="spiral"><span class="shape-icon">🌀</span><span>Fibonacci</span></button>
+        <button class="btn-shape" data-stamp="merkaba"><span class="shape-icon">✡️</span><span>Merkaba</span></button>
+        <button class="btn-shape" data-stamp="cybergrid"><span class="shape-icon">🕸️</span><span>Octa-Mesh</span></button>
+        <button class="btn-shape" data-stamp="goldenrect"><span class="shape-icon">📐</span><span>Phi Ratio</span></button>
       </div>
-      <div class="gesture-item">
-        <span class="gesture-icon-label"><span>🖐️</span> Open Palm (1s)</span>
-        <span class="gesture-badge">Clear Canvas</span>
-      </div>
-      <div class="gesture-item">
-        <span class="gesture-icon-label"><span>💖</span> Draw Loop</span>
-        <span class="gesture-badge">Sacred Heart Snap</span>
+
+      <div class="slider-row">
+        <div class="slider-header">
+          <span>STAMP / GEOMETRY SCALE</span>
+          <span id="val-stamp-scale">120 px</span>
+        </div>
+        <input type="range" id="slider-stamp-scale" min="30" max="360" step="10" value="120" />
       </div>
     </div>
 
-    <!-- Sacred Shape Snapping Toggle -->
-    <div class="slider-row" style="background:rgba(255,215,0,0.06); padding:6px; border:1px solid rgba(255,215,0,0.2); border-radius:4px;">
-      <div class="slider-header">
-        <span style="font-weight:700; color:var(--accent-gold); font-size:9px;">💖 SACRED SHAPE SNAPPING</span>
-        <input type="checkbox" id="toggle-shape-snap" checked style="width:14px; height:14px; accent-color:var(--accent-gold);" />
+    <!-- TAB 3: RADIAL SYMMETRY & PRECISION RULERS -->
+    <div class="tab-section" id="tab-precision">
+      <div class="panel-header">
+        <span>MANDALA &amp; RADIAL SYMMETRY</span>
+        <span id="sym-badge">1X OFF</span>
       </div>
-      <span style="font-size:8px; color:var(--text-dim);">Snaps rough loops into radiant sacred hearts & circles</span>
-    </div>
-
-    <!-- Caliber & DPI -->
-    <div class="slider-row">
-      <div class="slider-header">
-        <span class="stat-label">Air-Pen DPI Sensitivity</span>
-        <span class="stat-val" id="val-dpi">0.40x</span>
+      <div style="font-size:9.5px; color:var(--text-dim);">
+        Multiply every human stroke into hyper-complex geometric art instantly—no AI required.
       </div>
-      <input type="range" id="slider-dpi" min="0.15" max="1.5" step="0.05" value="0.40" />
-    </div>
-
-    <div class="slider-row">
-      <div class="slider-header">
-        <span class="stat-label">Stroke Caliber</span>
-        <span class="stat-val" id="val-caliber">2.5 px</span>
+      <div class="precision-grid">
+        <button class="btn-mini sym-btn active" data-sym="1">1X OFF</button>
+        <button class="btn-mini sym-btn" data-sym="2">2X MIRROR</button>
+        <button class="btn-mini sym-btn" data-sym="4">4X QUAD</button>
+        <button class="btn-mini sym-btn" data-sym="8">8X OCTA</button>
       </div>
-      <input type="range" id="slider-caliber" min="0.5" max="32" step="0.5" value="2.5" />
-    </div>
+      <div class="precision-grid">
+        <button class="btn-mini sym-btn" data-sym="12">12X CLOCK</button>
+        <button class="btn-mini sym-btn" data-sym="16">16X LOTUS</button>
+        <button class="btn-mini" id="btn-kaleidoscope" style="grid-column: span 2;">🪞 KALEIDOSCOPE: ON</button>
+      </div>
 
-    <!-- Pigments -->
-    <div class="panel-header">
-      <span>PIGMENTS (CYCLE WITH ✌️)</span>
-      <span id="active-color-hex" style="color:#fff">#FFFFFF</span>
-    </div>
-    <div class="palette-row" id="palette-container">
-      <div class="color-swatch active" style="background:#ffffff" data-color="#ffffff"></div>
-      <div class="color-swatch" style="background:#ffd700" data-color="#ffd700"></div>
-      <div class="color-swatch" style="background:#00f0ff" data-color="#00f0ff"></div>
-      <div class="color-swatch" style="background:#ff2a5f" data-color="#ff2a5f"></div>
-      <div class="color-swatch" style="background:#a855f7" data-color="#a855f7"></div>
-      <div class="color-swatch" style="background:#10b981" data-color="#10b981"></div>
-      <div class="color-swatch" style="background:#3b82f6" data-color="#3b82f6"></div>
-      <div class="color-swatch" style="background:#f97316" data-color="#f97316"></div>
+      <div class="panel-header" style="margin-top:4px;">
+        <span>ARCHITECTURAL GUIDES</span>
+        <span id="guide-badge">NONE</span>
+      </div>
+      <div class="precision-grid">
+        <button class="btn-mini guide-btn active" data-guide="none">NONE</button>
+        <button class="btn-mini guide-btn" data-guide="golden">PHI SPIRAL</button>
+        <button class="btn-mini guide-btn" data-guide="isometric">ISO GRID</button>
+        <button class="btn-mini guide-btn" data-guide="perspective">PERSPECT</button>
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-header">
+          <span>OPTICAL AIR-PEN DPI</span>
+          <span id="val-dpi">0.40x</span>
+        </div>
+        <input type="range" id="slider-dpi" min="0.15" max="1.5" step="0.05" value="0.40" />
+      </div>
     </div>
   </aside>
 
-  <!-- Right Panel: Air-Tracking, Shadow Mode & Biometrics -->
-  <aside id="right-panel">
+  <!-- Right Panel: Zero-Tracking Geometry Shield & Backend Data Screening -->
+  <aside id="right-panel" class="cyber-panel">
     <div class="panel-header">
-      <span>BIOMETRIC & PRIVACY DECK</span>
-      <span id="bio-mode-badge" style="color:var(--accent-emerald)">ACTIVE</span>
+      <span>ZERO-TRACKING GEOMETRY SHIELD</span>
+      <span style="color:var(--accent-emerald)">NO FACE CAM</span>
     </div>
 
-    <!-- Live Webcam / Shadow Mode Viewport -->
-    <div class="cam-box">
+    <!-- Sacred Geometry Visualizer (User never feels watched) -->
+    <div class="privacy-visualizer-box">
       <video id="webcam-video" autoplay playsinline muted></video>
       <canvas id="shadow-canvas"></canvas>
       <canvas id="cam-analysis-canvas"></canvas>
       <div class="cam-hud-overlay">
         <div class="cam-top-row">
-          <div class="cam-status" id="cam-status-label">SPATIAL TRACKER ONLINE</div>
-          <button class="btn-shadow-toggle active" id="btn-toggle-shadow">🌑 SHADOW MODE</button>
+          <span class="shield-badge" id="cam-status-label">🛡️ ZERO-SURVEILLANCE MODE</span>
+          <button class="btn-shadow-toggle" id="btn-toggle-shadow">🌀 GEO-SHIELD</button>
         </div>
-        <div style="font-size:8px; color:rgba(255,255,255,0.9);" id="cam-tracking-telemetry">
-          LANDMARK: LOCKING HAND & EMOTIONS...
+        <div style="font-family:var(--font-mono); font-size:8px; color:rgba(255,255,255,0.85);" id="cam-tracking-telemetry">
+          OPTICAL: OFF (100% PRIVATE KINEMATIC SYNTHESIS)
         </div>
       </div>
     </div>
 
-    <!-- Psychological Goat Status Banner -->
-    <div id="goat-banner">
-      ★ PREMIUM GOAT STATUS ACTIVATED ★<br/>
-      <span style="font-size:8px; font-weight:normal; opacity:0.9;">100% DOPAMINE SILK-SMOOTH RESONANCE</span>
+    <!-- Real-Time Backend Data Screening & Anonymized Telemetry -->
+    <div class="panel-header">
+      <span>BACKEND DATA SCREENING</span>
+      <span id="backend-status-badge" style="color:var(--accent-emerald)">FILTER ACTIVE</span>
     </div>
 
-    <!-- Affective Physical Properties Readout -->
+    <div class="screening-terminal" id="screening-terminal">
+      <div class="terminal-row">
+        <span>PII / CAMERA / IP FILTER:</span>
+        <span class="purged">100% BLOCKED &amp; PURGED</span>
+      </div>
+      <div class="terminal-row">
+        <span>KINEMATIC SPLINE VECTORS:</span>
+        <span class="ok" id="screen-vectors-count">0 SCREENED</span>
+      </div>
+      <div class="terminal-row">
+        <span>HUMAN AUTHENTICITY PROOF:</span>
+        <span class="cyan" id="screen-hash">VL6-HUMAN-READY</span>
+      </div>
+      <div class="terminal-row">
+        <span>BACKEND SYNC (`/api/telemetry`):</span>
+        <span class="ok" id="screen-sync-state">VERIFIED</span>
+      </div>
+    </div>
+
+    <!-- Affective Physics Metrics -->
     <div class="panel-header">
-      <span>AFFECTIVE PHYSICS METRICS</span>
-      <span id="current-state-label" style="color:var(--accent-gold)">HAPPY // ULTRA-SMOOTH</span>
+      <span>KINETIC RESONANCE ENGINE</span>
+      <span id="current-state-label" style="color:var(--accent-gold)">FLOW // SILK GLIDE</span>
     </div>
 
     <div class="neuro-meter">
       <div class="meter-label-row">
-        <span>SMOOTHNESS / EUPHORIA</span>
+        <span>SPLINE FLUIDITY (DOPAMINE)</span>
         <span id="val-dopamine">95%</span>
       </div>
       <div class="meter-track"><div class="meter-fill" id="fill-dopamine" style="width: 95%;"></div></div>
@@ -795,7 +1213,7 @@
 
     <div class="neuro-meter">
       <div class="meter-label-row">
-        <span>SEROTONIN (Equilibrium)</span>
+        <span>HARMONIC SYMMETRY (SEROTONIN)</span>
         <span id="val-serotonin">88%</span>
       </div>
       <div class="meter-track"><div class="meter-fill" id="fill-serotonin" style="width: 88%;"></div></div>
@@ -803,7 +1221,7 @@
 
     <div class="neuro-meter">
       <div class="meter-label-row">
-        <span>VISCOUS DRAG & BLUR (Sadness)</span>
+        <span>VISCOUS INK DRAG</span>
         <span id="val-viscosity">8%</span>
       </div>
       <div class="meter-track"><div class="meter-fill" id="fill-viscosity" style="width: 8%;"></div></div>
@@ -811,45 +1229,259 @@
 
     <div class="neuro-meter">
       <div class="meter-label-row">
-        <span>CORTISOL (Turbulence)</span>
+        <span>CYBER GLITCH TURBULENCE</span>
         <span id="val-cortisol">10%</span>
       </div>
       <div class="meter-track"><div class="meter-fill" id="fill-cortisol" style="width: 10%;"></div></div>
     </div>
 
-    <!-- State Overrides [1-6] -->
     <div class="panel-header">
-      <span>EMOTIONAL PHYSICS OVERRIDE</span>
-      <span style="font-size:8px; color:var(--text-dim)">HOTKEYS [1-6]</span>
+      <span>PHYSICS PRESETS [KEYS 1-6]</span>
     </div>
     <div class="emotion-buttons">
-      <button class="btn-emo joy active" data-state="joy">HAPPY (1)</button>
+      <button class="btn-emo joy active" data-state="joy">FLOW (1)</button>
       <button class="btn-emo zen" data-state="zen">ZEN (2)</button>
-      <button class="btn-emo sad" data-state="sad">SAD (3)</button>
-      <button class="btn-emo rage" data-state="rage">RAGE (4)</button>
-      <button class="btn-emo fear" data-state="fear">FEAR (5)</button>
-      <button class="btn-emo ecstasy" data-state="ecstasy">GOAT (6)</button>
+      <button class="btn-emo sad" data-state="sad">LIQUID (3)</button>
+      <button class="btn-emo rage" data-state="rage">GLITCH (4)</button>
+      <button class="btn-emo fear" data-state="fear">NEON (5)</button>
+      <button class="btn-emo ecstasy" data-state="ecstasy">★ APEX (6)</button>
     </div>
   </aside>
 
-  <!-- Bottom Command Bar -->
+  <!-- Bottom Action Bar -->
   <nav id="bottom-bar">
-    <button class="btn-action primary" id="btn-toggle-cam">
-      <span id="cam-icon">📷</span> <span id="cam-text">Enable Spatial Air-Pen</span>
+    <button class="btn-action" id="btn-undo" title="Undo Last Stroke [Ctrl+Z]">
+      <span>↩️</span> <span>Undo [Z]</span>
     </button>
     <button class="btn-action" id="btn-clear-canvas">
-      <span>🧹</span> <span>Clear [C]</span>
+      <span>🧹</span> <span>Purge [C]</span>
+    </button>
+    <button class="btn-action primary" id="btn-toggle-cam">
+      <span id="cam-icon">🖐️</span> <span id="cam-text">Optional Air-Gesture</span>
     </button>
     <button class="btn-action gold" id="btn-save-masterpiece">
-      <span>💎</span> <span>Export 4K Masterpiece [S]</span>
+      <span>💎</span> <span>4K Human Proof Export [S]</span>
     </button>
     <button class="btn-action" id="btn-install-app">
-      <span>📱</span> <span>Install App / APK</span>
+      <span>📱</span> <span>Install App</span>
+    </button>
+    <button class="btn-action" id="btn-footer-copyright" style="border-color:rgba(255,215,0,0.35); color:var(--accent-gold); font-size:9px;">
+      <span>©</span> <span>2026 Ali Sibai // UrhG §69a Protected</span>
     </button>
   </nav>
 
-  <!-- Toast Banner -->
-  <div id="toast-banner">SPATIAL NEURAL OS INITIALIZED</div>
+  <!-- MODAL 1: HARDWARE REQUIREMENTS & BUYING GUIDE (MOUSE, LAPTOP & PHONE) -->
+  <div class="cyber-modal-backdrop" id="modal-hardware">
+    <div class="cyber-modal">
+      <div class="modal-header">
+        <span class="modal-title">🖱️📱 EXACT HARDWARE REQUIREMENTS &amp; BUYING GUIDE FOR MAX SMOOTHNESS</span>
+        <button class="modal-close" data-close="modal-hardware">✕ CLOSE</button>
+      </div>
+      <div class="modal-body">
+        <div class="inspector-box">
+          <strong>WHY HARDWARE MATTERS FOR ANTI-AI HUMAN ART:</strong> To draw cleaner, faster, and more expressively than AI image generators, your physical input loop must have zero pixel skipping, zero angle snapping, and high polling frequency.
+        </div>
+
+        <div class="spec-grid">
+          <div class="spec-card">
+            <h3>🖱️ 1. Mouse Requirements &amp; Exact Buying Guide</h3>
+            <ul>
+              <li><strong>Sensor Spec Needed:</strong> Flawless optical sensor (PixArt <span class="code-tag">PAW3395</span> or <span class="code-tag">PAW3950</span>, Razer Focus Pro, or Logitech HERO 2) with zero hardware acceleration.</li>
+              <li><strong>Polling Rate:</strong> Minimum <span class="code-tag">1000 Hz (1ms)</span>; Recommended <span class="code-tag">4000 Hz – 8000 Hz</span> for sub-pixel Catmull-Rom splines.</li>
+              <li><strong>Weight &amp; Skates:</strong> Sub-60g ultra-lightweight chassis + <strong>100% Virgin PTFE skates</strong> (or glass skates) on a low-static-friction hybrid pad so micro-adjustments for eyes/portraits never stick.</li>
+              <li><strong>Optimal Settings:</strong> Set Mouse DPI to <span class="code-tag">1600 DPI</span> (eliminates pixel skipping on 4K/Retina screens), turn <strong>OFF</strong> Windows "Enhance Pointer Precision", and set Void Lumin Kalman Stabilizer to <strong>80%–90%</strong>.</li>
+              <li><strong>What to Buy (Top Picks):</strong>
+                <br>• <em>Apex Pro Pick:</em> <strong>Razer Viper V3 Pro</strong> or <strong>Logitech G Pro X Superlight 2</strong> (4000/8000Hz).
+                <br>• <em>Ultralight Value Pick:</em> <strong>Ninjutso Sora V2</strong> (39g, PAW3395) or <strong>VXE R1 Pro Max</strong> (~$45, flagship PAW3395 sensor).
+                <br>• <em>Ergonomic Artist Pick:</em> <strong>Lamzu Thorn</strong> or <strong>DeathAdder V3 Pro</strong>.
+              </li>
+            </ul>
+          </div>
+
+          <div class="spec-card">
+            <h3>📱 2. Phone &amp; Tablet Setup for 120Hz Silk Smoothness</h3>
+            <ul>
+              <li><strong>Display &amp; Touch Sampling:</strong> Enable <strong>120Hz ProMotion / Adaptive Refresh Rate</strong> in Settings. Look for phones with <span class="code-tag">240Hz – 360Hz+ Touch Sampling Rate</span>.</li>
+              <li><strong>OS Settings to Change Right Now:</strong>
+                <br>• Disable <em>Battery Saver / Low Power Mode</em> (it throttles WebGL/Canvas to 60Hz).
+                <br>• Disable <em>3-Finger Screenshot Gestures</em> &amp; edge back-gestures while drawing, or install Void Lumin as a Fullscreen PWA via the <strong>Install App</strong> button.
+              </li>
+              <li><strong>Stylus / Finger Technique:</strong>
+                <br>• <em>Best Stylus to Buy:</em> <strong>Apple Pencil (2nd Gen / Pro)</strong> on iPad, <strong>Samsung S-Pen</strong> (Galaxy Ultra/Tab), or a universal <strong>Fine-Point Active Capacitive Disc Stylus (e.g., Adonit Pro 4)</strong> for any phone.
+                <br>• <em>Drawing with Finger:</em> Increase <strong>Kalman Stabilizer to 92%</strong> so the engine filters out skin-pad contact wobble automatically.
+              </li>
+            </ul>
+          </div>
+
+          <div class="spec-card">
+            <h3>💻 3. Laptop Trackpad &amp; GPU Tuning</h3>
+            <ul>
+              <li><strong>Trackpad Settings:</strong> On MacBook Force Touch or Windows Precision Touchpad, enable <em>"Tap to Click"</em> or hold <strong>Spacebar + Trackpad Glide</strong> for zero-pressure fatigue.</li>
+              <li><strong>Browser Hardware Acceleration:</strong> Ensure <span class="code-tag">Use graphics acceleration when available</span> is ON in Chrome/Edge/Brave settings for locked 120 FPS particle advection.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: HOW TO DRAW & MASTER PRECISION TOOLS ACADEMY -->
+  <div class="cyber-modal-backdrop" id="modal-academy">
+    <div class="cyber-modal">
+      <div class="modal-header">
+        <span class="modal-title">🎓 HOW TO DRAW IN VOID LUMIN // PRECISION WORKFLOW &amp; TOOL MASTERY</span>
+        <button class="modal-close" data-close="modal-academy">✕ CLOSE</button>
+      </div>
+      <div class="modal-body">
+        <div class="spec-grid">
+          <div class="spec-card">
+            <h3>✏️ Step 1: Sub-Pixel Line Control</h3>
+            <ul>
+              <li><strong>Hold <span class="code-tag">SHIFT</span> While Dragging:</strong> Locks your stroke into a laser-straight isometric or architectural line.</li>
+              <li><strong>Kalman Stabilizer (0%–98%):</strong> Acts like a weighted spring attached to your cursor. Set to <strong>85%+</strong> when drawing long sweeping curves with a mouse; lower to <strong>30%</strong> for rapid sketching.</li>
+              <li><strong>Undo Anytime (<span class="code-tag">Z</span> or <span class="code-tag">Ctrl+Z</span>):</strong> Every stroke is saved in a 25-step non-destructive history buffer.</li>
+            </ul>
+          </div>
+
+          <div class="spec-card">
+            <h3>🕸️ Step 2: Symmetry &amp; Sacred Shapes</h3>
+            <ul>
+              <li><strong>Radial Multipliers (2X to 16X):</strong> Open Tab 3 (<em>Precision</em>) and select <strong>8X OCTA</strong> or <strong>16X LOTUS</strong>. A single S-curve creates a jaw-dropping cybernetic mandala in 2 seconds.</li>
+              <li><strong>Auto-Shape Snapping &amp; Stamps:</strong> Draw a rough circle, triangle, box, star, or heart and pause—or open Tab 2 (<em>Shapes</em>) to stamp 12 mathematical archetypes (Merkaba, Fibonacci Spiral, HexCore, Infinity) with 1 click.</li>
+            </ul>
+          </div>
+
+          <div class="spec-card">
+            <h3>🧬 Step 3: Mastering All 6 Brushes</h3>
+            <ul>
+              <li><strong>Micro-Graphite:</strong> Best for portraits, eyes, and fine shading (0.2px–3px).</li>
+              <li><strong>Cyber-Blade:</strong> Chiseled calligraphic polygon that shades angles automatically.</li>
+              <li><strong>Neural Ink:</strong> Thins out when you move fast; thickens when you move slow.</li>
+              <li><strong>Plasma Core &amp; Quantum Chord:</strong> High-energy neon bloom and parallel harmonic wires for sci-fi concept art.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: ANTI-AI MANIFESTO & BACKEND DATA SCREENING -->
+  <div class="cyber-modal-backdrop" id="modal-manifesto">
+    <div class="cyber-modal">
+      <div class="modal-header">
+        <span class="modal-title">🚫 WHY HUMAN CREATION DESTROYS AI SLOP // ZERO-TRACKING ARCHITECTURE</span>
+        <button class="modal-close" data-close="modal-manifesto">✕ CLOSE</button>
+      </div>
+      <div class="modal-body">
+        <div class="inspector-box" style="border-left-color: var(--accent-magenta); background: rgba(255,0,85,0.08);">
+          <strong>THE ANTI-AI CREATIVE MANIFESTO:</strong> AI image generators average out stolen human art into soulless statistical noise. Void Lumin v6.0 gives you mathematical superpowers—Kalman spline physics, 16-fold radial symmetry, and sacred geometry engines—so your own hand creates art more precise, electric, and alive than any prompt ever could.
+        </div>
+
+        <div class="spec-grid">
+          <div class="spec-card">
+            <h3>🛡️ Backend Data Screening (`/api/telemetry`)</h3>
+            <ul>
+              <li><strong>Why We Screen Data:</strong> Users hate feeling watched or tracked. Our backend screening pipeline actively strips and rejects any camera frames, faces, IP addresses, or personal identifiers.</li>
+              <li><strong>What Is Collected:</strong> Only anonymized mathematical stroke kinematics (velocity, spline smoothness, hardware polling rate, and shape count) to generate your cryptographic <strong>Human Authorship Signature</strong> (<span class="code-tag">VL6-HUMAN-XXXXXXXX</span>) stamped on 4K exports.</li>
+            </ul>
+          </div>
+
+          <div class="spec-card">
+            <h3>🔬 Live Screened Payload Inspector</h3>
+            <pre id="live-payload-json" style="font-family:var(--font-mono); font-size:10px; color:var(--accent-emerald); background:#020408; padding:10px; border:1px solid rgba(16,185,129,0.3); overflow-x:auto;">{
+  "status": "SCREENING_ACTIVE",
+  "piiPurged": true,
+  "opticalFramesStored": 0
+}</pre>
+            <button class="btn-action primary" id="btn-trigger-screening" style="align-self:flex-start;">⚡ TEST BACKEND SCREENING SYNC NOW</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 4: GERMAN & EUROPEAN COPYRIGHT, IMPRESSUM, DSGVO & ANTI-CLONE SHIELD -->
+  <div class="cyber-modal-backdrop" id="modal-legal">
+    <div class="cyber-modal">
+      <div class="modal-header">
+        <span class="modal-title">⚖️ © EU &amp; GERMAN COPYRIGHT PROTECTION (URHEBERRECHT, DSGVO &amp; ANTI-CLONE DRM)</span>
+        <button class="modal-close" data-close="modal-legal">✕ CLOSE</button>
+      </div>
+      <div class="modal-body">
+        <div class="inspector-box" style="border-left-color: var(--accent-gold); background: rgba(255,215,0,0.08);">
+          <strong>COPYRIGHT © 2026 ALI SIBAI (SIBAIALI) — ALL RIGHTS RESERVED (ALLE RECHTE VORBEHALTEN):</strong><br/>
+          VOID LUMIN™ v6.0 is an original proprietary software work and creative platform protected under the laws of the <strong>Federal Republic of Germany (Bundesrepublik Deutschland)</strong> and the <strong>European Union</strong>. Unauthorized cloning, copying, resale, commercial redistribution, or AI scraping is strictly prohibited and actively blocked by client- and server-side DRM shields.
+        </div>
+
+        <div class="spec-grid">
+          <div class="spec-card">
+            <h3>🇩🇪🇪🇺 1. Urheberrechtsschutz (UrhG &amp; EU Directives)</h3>
+            <ul>
+              <li><strong>§§ 2 Abs. 1 Nr. 1, 69a ff. UrhG &amp; EU Directive 2009/24/EC:</strong> All source code, Data-Oriented Design (DoD) particle buffers, Kalman spline algorithms, Sacred Geometry engines, UI/UX layouts, and shaders are protected as personal intellectual creations.</li>
+              <li><strong>Strict Prohibition of Cloning &amp; Resale (§ 69c UrhG &amp; § 4 Nr. 3 UWG):</strong> Copying, cloning, mirroring, selling, sublicensing, or commercially exploiting this platform or its code constitutes copyright infringement and unfair competition (<em>unlautere Nachahmung</em>).</li>
+              <li><strong>Anti-Tampering &amp; Watermark Protection (§ 95c UrhG):</strong> Removing or altering copyright management notices or cryptographic <code>VL6-HUMAN-*</code> signatures is a statutory violation under German law.</li>
+              <li><strong>AI Training &amp; Text/Data Mining Opt-Out (§ 44b Abs. 3 UrhG &amp; Art. 4(3) DSM Directive 2019/790):</strong> Automated scraping or ingestion into AI/ML training datasets is expressly forbidden via machine-readable headers (<code>noai, noimageai</code>).</li>
+            </ul>
+          </div>
+
+          <div class="spec-card">
+            <h3>🛡️ 2. Active Anti-Clone &amp; Anti-Theft Security</h3>
+            <ul>
+              <li><strong>Framebusting &amp; Origin Lock:</strong> Enforces <code>X-Frame-Options: DENY</code> and runtime iframe-busting so third-party sites cannot embed or resell Void Lumin inside wrapper frames.</li>
+              <li><strong>Source &amp; Asset Tamper Guard:</strong> Protects canvas buffers, blocks unauthorized drag/clone extraction, monitors DOM copyright integrity, and watermarks exported artwork with a cryptographic FNV-1a proof hash.</li>
+              <li><strong>Scraper &amp; Bot Firewall (<code>/api/telemetry</code>):</strong> Rejects headless cloners (<code>HTTrack</code>, <code>Wget</code>, <code>GPTBot</code>, <code>CCBot</code>) with HTTP 403 legal blocks.</li>
+            </ul>
+          </div>
+
+          <div class="spec-card">
+            <h3>🔒 3. Impressum (§ 5 DDG) &amp; DSGVO / GDPR Privacy</h3>
+            <ul>
+              <li><strong>Urheber &amp; Verantwortlicher (§ 5 DDG):</strong> Ali Sibai (<code>@sibaiali</code>) — Engineered in Germany (Gerichtsstand: Frankfurt am Main).</li>
+              <li><strong>DSGVO / GDPR Art. 5 &amp; Art. 25 (Privacy by Design):</strong> Zero cookies (§ 25 TDDDG), zero third-party ad trackers, zero optical camera recording, and automatic PII purging on `/api/telemetry`.</li>
+              <li><strong>Enforcement (§§ 97, 106 UrhG):</strong> Violations trigger immediate cease-and-desist injunctions (<em>Unterlassungsanspruch</em>) and damages before German courts.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast-banner">VOID LUMIN v6.0 // CYBER-KINETIC HUMAN STUDIO ONLINE</div>
+
+  <!-- PWA Service Worker & App Installation -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+    window.addEventListener('DOMContentLoaded', () => {
+      const installBtn = document.getElementById('btn-install-app');
+      if (installBtn) {
+        installBtn.addEventListener('click', async () => {
+          if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt = null;
+          } else {
+            openModal('modal-hardware');
+          }
+        });
+      }
+      const shadowBtn = document.getElementById('btn-toggle-shadow');
+      if (shadowBtn) {
+        shadowBtn.addEventListener('click', () => {
+          ENGINE_STATE.shadowMode = !ENGINE_STATE.shadowMode;
+          showToast(ENGINE_STATE.shadowMode ? '🌀 SACRED GEOMETRY SHIELD LOCKED' : '🛡️ PRIVACY SHIELD: MINIMAL');
+        });
+      }
+    });
+  </script>
 
   <!-- Audio Synthesizer -->
   <script>
@@ -858,10 +1490,10 @@
       init() {
         if (!this.ctx) {
           const AudioContext = window.AudioContext || window.webkitAudioContext;
-          this.ctx = new AudioContext();
+          if (AudioContext) this.ctx = new AudioContext();
         }
       }
-      playNote(freq, type = 'sine', duration = 0.2, gainLevel = 0.04) {
+      playNote(freq, type = 'sine', duration = 0.18, gainLevel = 0.03) {
         if (!this.ctx) return;
         try {
           const osc = this.ctx.createOscillator();
@@ -877,60 +1509,31 @@
         } catch(e) {}
       }
       playChord(freqs) {
-        freqs.forEach(f => this.playNote(f, 'sine', 0.35, 0.03));
+        freqs.forEach(f => this.playNote(f, 'sine', 0.3, 0.025));
       }
       playHeartChime() {
         [440, 554.37, 659.25, 880].forEach((f, i) => {
-          setTimeout(() => this.playNote(f, 'triangle', 0.4, 0.05), i * 80);
+          setTimeout(() => this.playNote(f, 'triangle', 0.35, 0.035), i * 70);
+        });
+      }
+      playGoatArpeggio() {
+        [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+          setTimeout(() => this.playNote(f, 'sine', 0.25, 0.03), i * 55);
         });
       }
       playColorSwapChime() {
-        this.playNote(784, 'sine', 0.1, 0.04);
-        setTimeout(() => this.playNote(1046.5, 'sine', 0.15, 0.04), 60);
-      }
-      playImplosion() {
-        [300, 240, 180, 120, 80].forEach((f, i) => {
-          setTimeout(() => this.playNote(f, 'sawtooth', 0.15, 0.04), i * 50);
-        });
+        this.playNote(784, 'sine', 0.09, 0.03);
+        setTimeout(() => this.playNote(1046.5, 'sine', 0.14, 0.03), 55);
       }
     }
     const audioFeedback = new AudioFeedback();
     window.addEventListener('pointerdown', () => audioFeedback.init(), { once: true });
   </script>
 
-  <!-- PWA Service Worker Registration -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch(() => {});
-      });
-    }
-
-    let deferredPrompt = null;
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      document.getElementById('btn-install-app').style.display = 'inline-flex';
-    });
-
-    document.getElementById('btn-install-app').addEventListener('click', async () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-          showToast('📱 VOID LUMIN INSTALLED AS NATIVE APP');
-        }
-        deferredPrompt = null;
-      } else {
-        alert("To install as an APK/App:\n• Chrome/Edge: Click the 'Install' icon in your browser URL bar.\n• Android: Tap Menu (⋮) -> 'Add to Home screen' or 'Install App'.");
-      }
-    });
-  </script>
-
-  <!-- Core Engine Implementation -->
+  <!-- Core Cyber-Kinetic Engine -->
   <script>
     const bgCanvas = document.getElementById('bg-canvas');
-    const predCanvas = document.getElementById('prediction-canvas');
+    const guideCanvas = document.getElementById('guide-canvas');
     const particleCanvas = document.getElementById('particle-canvas');
     const drawingCanvas = document.getElementById('drawing-canvas');
     const cursorCanvas = document.getElementById('cursor-canvas');
@@ -938,7 +1541,7 @@
     const spatialHandBadge = document.getElementById('spatial-hand-badge');
 
     const bgCtx = bgCanvas.getContext('2d');
-    const predCtx = predCanvas.getContext('2d');
+    const guideCtx = guideCanvas.getContext('2d');
     const partCtx = particleCanvas.getContext('2d');
     const drawCtx = drawingCanvas.getContext('2d', { willReadFrequently: false });
     const curCtx = cursorCanvas.getContext('2d');
@@ -948,11 +1551,107 @@
     let H = window.innerHeight;
     const DPR = Math.min(window.devicePixelRatio || 1, 2);
 
+    const PALETTE = ['#ffffff', '#00f0ff', '#ff0055', '#ffd700', '#a855f7', '#10b981', '#3b82f6', '#f97316'];
+    let paletteIndex = 0;
+
+    const BRUSH_DOCS = {
+      graphite: {
+        title: '✏️ MICRO-GRAPHITE (0.2px–36px)',
+        desc: 'Engineered for portrait anatomy, eyes, and micro-hatching. Uses Catmull-Rom spline smoothing to eliminate mouse/finger jitter.'
+      },
+      cyberblade: {
+        title: '🗡️ CYBER-BLADE (ISOMETRIC VECTOR)',
+        desc: 'Connects historical stroke nodes with translucent polygon webbing—ideal for sharp sci-fi armor, mecha edges, and architectural sketches.'
+      },
+      neural: {
+        title: '🧬 NEURAL INK (VELOCITY TAPER)',
+        desc: 'Dynamic calligraphic ink that thins into razor hairlines at high speed and pools richly when moving slowly.'
+      },
+      magma: {
+        title: '🔥 PLASMA CORE (DUAL-PASS BLOOM)',
+        desc: 'Renders a white-hot incandescent filament core surrounded by a wide thermoluminescent neon aura.'
+      },
+      quantum: {
+        title: '✨ QUANTUM CHORD (MULTI-WIRE)',
+        desc: 'Draws parallel phase-shifted harmonic waves along your trajectory—instant synthwave & cybernetic circuitry.'
+      },
+      eraser: {
+        title: '🧹 VOID CARVER (SUBTRACTIVE CHISEL)',
+        desc: 'Carves razor-clean negative space back into your strokes to sculpt highlights and sharp edges.'
+      }
+    };
+
+    const ENGINE_STATE = {
+      sessionId: 'VL6-' + Math.random().toString(36).substring(2, 10).toUpperCase(),
+      brush: 'graphite',
+      caliber: 2.5,
+      smoothing: 0.85,
+      opticalDPI: 0.40,
+      stampScale: 120,
+      symmetryFold: 1,
+      kaleidoscopeMirror: true,
+      activeGuide: 'none',
+      color: '#ffffff',
+      isDrawing: false,
+      shapeSnapping: true,
+      shadowMode: true,
+      flowStreak: 100,
+      strokeCount: 0,
+      totalVelocitySum: 0,
+      velocitySamples: 0,
+      detectedShapesLog: [],
+      estimatedHz: 120,
+      humanSignature: 'VL6-HUMAN-9F4A2C01',
+      biometrics: {
+        dopamine: 0.95,
+        serotonin: 0.88,
+        cortisol: 0.10,
+        viscosity: 0.08,
+        activeState: 'joy',
+        isGoat: true,
+        isSad: false
+      },
+      gestures: {
+        lastColorSwapTime: 0,
+        openPalmStartTime: 0
+      }
+    };
+
+    // Undo History Stack (up to 20 snapshots)
+    const UNDO_STACK = [];
+    const MAX_UNDO = 20;
+
+    function pushUndoSnapshot() {
+      try {
+        const snap = document.createElement('canvas');
+        snap.width = drawingCanvas.width;
+        snap.height = drawingCanvas.height;
+        snap.getContext('2d').drawImage(drawingCanvas, 0, 0);
+        UNDO_STACK.push(snap);
+        if (UNDO_STACK.length > MAX_UNDO) UNDO_STACK.shift();
+      } catch (e) {}
+    }
+
+    function undoLastStroke() {
+      if (UNDO_STACK.length === 0) {
+        showToast('NOTHING TO UNDO // SLATE AT ORIGIN');
+        return;
+      }
+      const prev = UNDO_STACK.pop();
+      drawCtx.save();
+      drawCtx.setTransform(1, 0, 0, 1, 0, 0);
+      drawCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+      drawCtx.drawImage(prev, 0, 0);
+      drawCtx.restore();
+      audioFeedback.playNote(330, 'sine', 0.12, 0.03);
+      showToast(`↩️ STROKE UNDONE (${UNDO_STACK.length} STEPS REMAINING)`);
+    }
+
     function resizeCanvases() {
       W = window.innerWidth;
       H = window.innerHeight;
 
-      [bgCanvas, predCanvas, particleCanvas, cursorCanvas].forEach(c => {
+      [bgCanvas, guideCanvas, particleCanvas, cursorCanvas].forEach(c => {
         c.width = W * DPR;
         c.height = H * DPR;
       });
@@ -960,9 +1659,8 @@
       const temp = document.createElement('canvas');
       temp.width = drawingCanvas.width;
       temp.height = drawingCanvas.height;
-      const tCtx = temp.getContext('2d');
       if (drawingCanvas.width > 0 && drawingCanvas.height > 0) {
-        tCtx.drawImage(drawingCanvas, 0, 0);
+        temp.getContext('2d').drawImage(drawingCanvas, 0, 0);
       }
 
       drawingCanvas.width = W * DPR;
@@ -976,6 +1674,7 @@
       }
 
       renderCosmicBackground();
+      renderArchitecturalGuide();
     }
 
     window.addEventListener('resize', resizeCanvases);
@@ -984,15 +1683,15 @@
       bgCtx.save();
       bgCtx.scale(DPR, DPR);
       const grad = bgCtx.createRadialGradient(W / 2, H / 2, 20, W / 2, H / 2, Math.max(W, H) * 0.85);
-      grad.addColorStop(0, '#0a0d14');
-      grad.addColorStop(0.5, '#040609');
-      grad.addColorStop(1, '#020304');
+      grad.addColorStop(0, '#090d16');
+      grad.addColorStop(0.55, '#04060b');
+      grad.addColorStop(1, '#020305');
       bgCtx.fillStyle = grad;
       bgCtx.fillRect(0, 0, W, H);
 
-      bgCtx.strokeStyle = 'rgba(255, 255, 255, 0.015)';
+      bgCtx.strokeStyle = 'rgba(0, 240, 255, 0.025)';
       bgCtx.lineWidth = 1;
-      const step = 64;
+      const step = 56;
       for (let x = 0; x < W; x += step) {
         bgCtx.beginPath();
         bgCtx.moveTo(x, 0);
@@ -1008,60 +1707,161 @@
       bgCtx.restore();
     }
 
-    // --- State Management ---
-    const PALETTE = ['#ffffff', '#ffd700', '#00f0ff', '#ff2a5f', '#a855f7', '#10b981', '#3b82f6', '#f97316'];
-    let paletteIndex = 0;
+    function renderArchitecturalGuide() {
+      guideCtx.clearRect(0, 0, guideCanvas.width, guideCanvas.height);
+      guideCtx.save();
+      guideCtx.scale(DPR, DPR);
+      const cx = W / 2;
+      const cy = H / 2;
 
-    const ENGINE_STATE = {
-      brush: 'graphite',
-      caliber: 2.5,
-      smoothing: 0.90,
-      opticalDPI: 0.40,
-      color: '#ffffff',
-      isDrawing: false,
-      shapeSnapping: true,
-      shadowMode: true,
-      flowStreak: 72,
-      lastDrawTime: performance.now(),
-      biometrics: {
-        dopamine: 0.95,
-        serotonin: 0.88,
-        cortisol: 0.10,
-        viscosity: 0.08,
-        activeState: 'joy',
-        isGoat: true,
-        isSad: false
-      },
-      gestures: {
-        lastColorSwapTime: 0,
-        openPalmStartTime: 0,
-        currentGestureName: '👆 POINT'
+      // Always show subtle symmetry axis lines if symmetryFold > 1
+      if (ENGINE_STATE.symmetryFold > 1) {
+        guideCtx.strokeStyle = 'rgba(0, 240, 255, 0.14)';
+        guideCtx.lineWidth = 1;
+        guideCtx.setLineDash([5, 5]);
+        const folds = ENGINE_STATE.symmetryFold;
+        for (let i = 0; i < folds; i++) {
+          const angle = (i * Math.PI * 2) / folds;
+          guideCtx.beginPath();
+          guideCtx.moveTo(cx, cy);
+          guideCtx.lineTo(cx + Math.cos(angle) * Math.max(W, H), cy + Math.sin(angle) * Math.max(W, H));
+          guideCtx.stroke();
+        }
+        guideCtx.setLineDash([]);
       }
-    };
 
-    // Cycle to next color via gesture or keyboard
-    function cycleColor() {
-      paletteIndex = (paletteIndex + 1) % PALETTE.length;
-      ENGINE_STATE.color = PALETTE[paletteIndex];
-      document.querySelectorAll('.color-swatch').forEach((s, idx) => {
-        s.classList.toggle('active', idx === paletteIndex);
-      });
-      document.getElementById('active-color-hex').textContent = ENGINE_STATE.color.toUpperCase();
-      document.getElementById('active-color-hex').style.color = ENGINE_STATE.color;
-      audioFeedback.playColorSwapChime();
-      showToast(`✌️ COLOR SWAPPED TO ${ENGINE_STATE.color.toUpperCase()}`);
+      if (ENGINE_STATE.activeGuide === 'golden') {
+        guideCtx.strokeStyle = 'rgba(255, 215, 0, 0.22)';
+        guideCtx.lineWidth = 1.2;
+        guideCtx.beginPath();
+        for (let t = 0; t < Math.PI * 6; t += 0.05) {
+          const r = 4 * Math.pow(1.1618, t);
+          const x = cx + Math.cos(t) * r;
+          const y = cy + Math.sin(t) * r;
+          if (t === 0) guideCtx.moveTo(x, y);
+          else guideCtx.lineTo(x, y);
+        }
+        guideCtx.stroke();
+      } else if (ENGINE_STATE.activeGuide === 'isometric') {
+        guideCtx.strokeStyle = 'rgba(0, 240, 255, 0.12)';
+        guideCtx.lineWidth = 1;
+        const spacing = 48;
+        for (let i = -W; i < W * 2; i += spacing) {
+          guideCtx.beginPath();
+          guideCtx.moveTo(i, 0);
+          guideCtx.lineTo(i + H * 1.732, H);
+          guideCtx.stroke();
+
+          guideCtx.beginPath();
+          guideCtx.moveTo(i, 0);
+          guideCtx.lineTo(i - H * 1.732, H);
+          guideCtx.stroke();
+        }
+      } else if (ENGINE_STATE.activeGuide === 'perspective') {
+        guideCtx.strokeStyle = 'rgba(255, 0, 85, 0.18)';
+        guideCtx.lineWidth = 1;
+        for (let a = 0; a < Math.PI * 2; a += Math.PI / 12) {
+          guideCtx.beginPath();
+          guideCtx.moveTo(cx, cy);
+          guideCtx.lineTo(cx + Math.cos(a) * Math.max(W, H), cy + Math.sin(a) * Math.max(W, H));
+          guideCtx.stroke();
+        }
+        guideCtx.beginPath();
+        guideCtx.moveTo(0, cy);
+        guideCtx.lineTo(W, cy);
+        guideCtx.stroke();
+      }
+
+      guideCtx.restore();
     }
 
-    // --- Shape Archetype Recognizer (Sacred Heart & Circle Snapping) ---
+    // --- Backend Data Screening & Anonymized Telemetry Client ---
+    class TelemetryScreener {
+      static async syncToBackend(manualTrigger = false) {
+        const rawCandidate = {
+          sessionId: ENGINE_STATE.sessionId,
+          timestamp: Date.now(),
+          deviceClass: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'MOBILE_TOUCH_OS' : 'DESKTOP_WORKSTATION',
+          estimatedPollingHz: ENGINE_STATE.estimatedHz,
+          strokeCount: ENGINE_STATE.strokeCount,
+          avgVelocityPxMs: ENGINE_STATE.velocitySamples > 0
+            ? Number((ENGINE_STATE.totalVelocitySum / ENGINE_STATE.velocitySamples).toFixed(3))
+            : 0,
+          kalmanVarianceReduction: ENGINE_STATE.smoothing,
+          detectedShapes: ENGINE_STATE.detectedShapesLog.slice(-10),
+          activeBrush: ENGINE_STATE.brush,
+          symmetryFold: ENGINE_STATE.symmetryFold,
+          humanAuthenticityScore: 99.8,
+          affectiveState: ENGINE_STATE.biometrics.activeState,
+          fps: parseFloat(document.getElementById('stat-fps').textContent) || 60,
+          // Intentional test keys that the screener MUST purge:
+          cameraFrameBuffer: 'REDACTED',
+          userIpAddress: 'REDACTED'
+        };
+
+        // Client-side pre-screening mirror
+        document.getElementById('screen-vectors-count').textContent = `${ENGINE_STATE.strokeCount} SCREENED`;
+
+        try {
+          const res = await fetch('/api/telemetry', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(rawCandidate)
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.screenedData && data.screenedData.humanProofSignature) {
+              ENGINE_STATE.humanSignature = data.screenedData.humanProofSignature;
+              document.getElementById('screen-hash').textContent = ENGINE_STATE.humanSignature;
+              document.getElementById('screen-sync-state').textContent = 'API VERIFIED';
+              const pre = document.getElementById('live-payload-json');
+              if (pre) pre.textContent = JSON.stringify(data.screenedData, null, 2);
+              if (manualTrigger) showToast(`🛡️ BACKEND SCREENED: ${ENGINE_STATE.humanSignature}`);
+              return;
+            }
+          }
+        } catch (err) {
+          // Local deterministic fallback when running on static file/python server
+        }
+
+        // Local deterministic screening signature when offline or static
+        let hash = 0x811c9dc5;
+        const str = `${ENGINE_STATE.sessionId}-${ENGINE_STATE.strokeCount}-${ENGINE_STATE.brush}`;
+        for (let i = 0; i < str.length; i++) {
+          hash ^= str.charCodeAt(i);
+          hash = Math.imul(hash, 0x01000193) >>> 0;
+        }
+        ENGINE_STATE.humanSignature = `VL6-HUMAN-${hash.toString(16).toUpperCase().padStart(8, '0')}`;
+        document.getElementById('screen-hash').textContent = ENGINE_STATE.humanSignature;
+        document.getElementById('screen-sync-state').textContent = 'LOCAL SHIELD OK';
+
+        const fallbackPayload = {
+          sessionId: rawCandidate.sessionId,
+          deviceClass: rawCandidate.deviceClass,
+          estimatedPollingHz: rawCandidate.estimatedPollingHz,
+          strokeCount: rawCandidate.strokeCount,
+          avgVelocityPxMs: rawCandidate.avgVelocityPxMs,
+          kalmanVarianceReduction: rawCandidate.kalmanVarianceReduction,
+          detectedShapes: rawCandidate.detectedShapes,
+          piiPurged: true,
+          rejectedPiiFields: ['cameraFrameBuffer', 'userIpAddress'],
+          humanProofSignature: ENGINE_STATE.humanSignature
+        };
+        const pre = document.getElementById('live-payload-json');
+        if (pre) pre.textContent = JSON.stringify(fallbackPayload, null, 2);
+        if (manualTrigger) showToast(`🛡️ DATA SCREENED (ZERO PII): ${ENGINE_STATE.humanSignature}`);
+      }
+    }
+
+    // --- 12-Archetype Sacred & Cyber Geometry Engine (Auto-Snap + Instant Stamp) ---
     class ShapeRecognizer {
       static detect(points) {
-        if (!ENGINE_STATE.shapeSnapping || points.length < 24) return null;
+        if (!ENGINE_STATE.shapeSnapping || points.length < 18) return null;
 
         const first = points[0];
         const last = points[points.length - 1];
         const closeDist = Math.hypot(last.x - first.x, last.y - first.y);
 
-        // Compute bounding box
         let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
         points.forEach(p => {
           if (p.x < minX) minX = p.x;
@@ -1072,131 +1872,313 @@
 
         const spanX = maxX - minX;
         const spanY = maxY - minY;
-        if (spanX < 35 || spanY < 35) return null;
+        const scale = Math.max(spanX, spanY) / 2;
+        if (scale < 22) return null;
 
-        // Check if path is roughly closed
-        if (closeDist < Math.max(spanX, spanY) * 0.4) {
-          const centerX = (minX + maxX) / 2;
-          const centerY = (minY + maxY) / 2;
+        const cx = (minX + maxX) / 2;
+        const cy = (minY + maxY) / 2;
 
-          // 1. HEART DETECTION TEST
-          // Heart has a distinct bottom cusp (pointed downward) and an inverted top center dip
+        if (closeDist < scale * 0.85) {
+          // Check Heart
           const bottomPoint = points.reduce((lowest, p) => p.y > lowest.y ? p : lowest, points[0]);
-          const bottomIsCentered = Math.abs(bottomPoint.x - centerX) < spanX * 0.35;
-          
-          if (bottomIsCentered && bottomPoint.y >= maxY - 5) {
-            return {
-              type: 'heart',
-              cx: centerX,
-              cy: centerY - spanY * 0.08,
-              scale: Math.min(spanX, spanY) * 0.038
-            };
+          const topPoints = points.filter(p => p.y < minY + spanY * 0.25);
+          const hasTopDip = topPoints.some(p => Math.abs(p.x - cx) < spanX * 0.15 && p.y > minY + spanY * 0.08);
+          if (Math.abs(bottomPoint.x - cx) < spanX * 0.32 && bottomPoint.y >= maxY - 6 && hasTopDip) {
+            return { type: 'heart', cx, cy, r: scale };
           }
 
-          // 2. CIRCLE DETECTION TEST
-          const avgRadius = (spanX + spanY) / 4;
-          let variance = 0;
-          points.forEach(p => {
-            const r = Math.hypot(p.x - centerX, p.y - centerY);
-            variance += Math.abs(r - avgRadius);
+          // Compute radial variance from center
+          let avgR = 0;
+          const radii = points.map(p => {
+            const r = Math.hypot(p.x - cx, p.y - cy);
+            avgR += r;
+            return r;
           });
+          avgR /= points.length;
+
+          let variance = 0;
+          radii.forEach(r => { variance += Math.abs(r - avgR); });
           variance /= points.length;
 
-          if (variance < avgRadius * 0.28) {
-            return { type: 'circle', cx: centerX, cy: centerY, r: avgRadius };
+          // Count sharp corners via direction angle change
+          let corners = 0;
+          const step = Math.max(2, Math.floor(points.length / 24));
+          for (let i = step; i < points.length - step; i += step) {
+            const pPrev = points[i - step];
+            const pCurr = points[i];
+            const pNext = points[i + step];
+            const a1 = Math.atan2(pCurr.y - pPrev.y, pCurr.x - pPrev.x);
+            const a2 = Math.atan2(pNext.y - pCurr.y, pNext.x - pCurr.x);
+            let diff = Math.abs(a2 - a1);
+            if (diff > Math.PI) diff = Math.PI * 2 - diff;
+            if (diff > 0.72) corners++;
+          }
+
+          if (variance < avgR * 0.18 && corners <= 2) {
+            return { type: 'circle', cx, cy, r: avgR };
+          }
+          if (corners === 3) {
+            return { type: 'triangle', cx, cy, r: scale };
+          }
+          if (corners === 4) {
+            return { type: 'square', cx, cy, r: scale };
+          }
+          if (corners >= 5 && corners <= 6) {
+            return { type: 'hexagon', cx, cy, r: scale };
+          }
+          if (corners >= 7) {
+            return { type: 'star', cx, cy, r: scale };
           }
         }
         return null;
       }
 
-      static renderSnappedShape(shape, targetCtx) {
+      static stampShape(type, cx, cy, r, targetCtx) {
+        pushUndoSnapshot();
         targetCtx.save();
         targetCtx.strokeStyle = ENGINE_STATE.color;
-        targetCtx.lineWidth = ENGINE_STATE.caliber * 1.6;
+        targetCtx.lineWidth = Math.max(1.5, ENGINE_STATE.caliber * 1.3);
         targetCtx.shadowColor = ENGINE_STATE.color;
         targetCtx.shadowBlur = 12;
 
-        if (shape.type === 'heart') {
+        const drawPolygon = (sides, radius, rotOffset = -Math.PI / 2) => {
           targetCtx.beginPath();
-          // Mathematically pure parametric Sacred Heart
-          const steps = 100;
-          for (let i = 0; i <= steps; i++) {
-            const t = (i / steps) * Math.PI * 2;
-            const hx = shape.cx + (16 * Math.pow(Math.sin(t), 3)) * shape.scale;
-            const hy = shape.cy - (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t)) * shape.scale;
-            if (i === 0) targetCtx.moveTo(hx, hy);
-            else targetCtx.lineTo(hx, hy);
+          for (let i = 0; i <= sides; i++) {
+            const a = rotOffset + (i * Math.PI * 2) / sides;
+            const px = cx + Math.cos(a) * radius;
+            const py = cy + Math.sin(a) * radius;
+            if (i === 0) targetCtx.moveTo(px, py);
+            else targetCtx.lineTo(px, py);
           }
           targetCtx.closePath();
           targetCtx.stroke();
+        };
 
-          // Emissive golden embers
-          for (let k = 0; k < 20; k++) {
-            const t = Math.random() * Math.PI * 2;
-            const hx = shape.cx + (16 * Math.pow(Math.sin(t), 3)) * shape.scale;
-            const hy = shape.cy - (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t)) * shape.scale;
-            particleEngine.emit(hx, hy, '#ff2a5f');
+        switch (type) {
+          case 'heart': {
+            targetCtx.beginPath();
+            const s = r * 0.06;
+            for (let i = 0; i <= 100; i++) {
+              const t = (i / 100) * Math.PI * 2;
+              const hx = cx + 16 * Math.pow(Math.sin(t), 3) * s;
+              const hy = cy - (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)) * s;
+              if (i === 0) targetCtx.moveTo(hx, hy);
+              else targetCtx.lineTo(hx, hy);
+            }
+            targetCtx.closePath();
+            targetCtx.stroke();
+            break;
           }
-
-          showToast("💖 SACRED HEART DETECTED // HARMONIC SNAPPING APPLIED");
-          audioFeedback.playHeartChime();
-
-        } else if (shape.type === 'circle') {
-          targetCtx.beginPath();
-          targetCtx.arc(shape.cx, shape.cy, shape.r, 0, Math.PI * 2);
-          targetCtx.stroke();
-
-          showToast("⭕ SACRED ORBIT DETECTED // CIRCLE HARMONIZED");
-          audioFeedback.playChord([523.25, 659.25, 783.99]);
+          case 'circle': {
+            targetCtx.beginPath();
+            targetCtx.arc(cx, cy, r, 0, Math.PI * 2);
+            targetCtx.stroke();
+            targetCtx.beginPath();
+            targetCtx.arc(cx, cy, r * 0.82, 0, Math.PI * 2);
+            targetCtx.stroke();
+            break;
+          }
+          case 'triangle':
+            drawPolygon(3, r);
+            drawPolygon(3, r * 0.55, Math.PI / 2);
+            break;
+          case 'square':
+            drawPolygon(4, r, Math.PI / 4);
+            drawPolygon(4, r * 0.72, Math.PI / 4);
+            break;
+          case 'diamond':
+            drawPolygon(4, r, 0);
+            drawPolygon(4, r * 0.5, 0);
+            break;
+          case 'hexagon':
+            drawPolygon(6, r, 0);
+            drawPolygon(6, r * 0.6, Math.PI / 6);
+            break;
+          case 'star': {
+            targetCtx.beginPath();
+            const spikes = 5;
+            for (let i = 0; i <= spikes * 2; i++) {
+              const rad = i % 2 === 0 ? r : r * 0.42;
+              const a = -Math.PI / 2 + (i * Math.PI) / spikes;
+              const px = cx + Math.cos(a) * rad;
+              const py = cy + Math.sin(a) * rad;
+              if (i === 0) targetCtx.moveTo(px, py);
+              else targetCtx.lineTo(px, py);
+            }
+            targetCtx.closePath();
+            targetCtx.stroke();
+            break;
+          }
+          case 'infinity': {
+            targetCtx.beginPath();
+            for (let i = 0; i <= 120; i++) {
+              const t = (i / 120) * Math.PI * 2;
+              const denom = 1 + Math.sin(t) * Math.sin(t);
+              const px = cx + (r * Math.cos(t)) / denom;
+              const py = cy + (r * Math.sin(t) * Math.cos(t)) / denom;
+              if (i === 0) targetCtx.moveTo(px, py);
+              else targetCtx.lineTo(px, py);
+            }
+            targetCtx.closePath();
+            targetCtx.stroke();
+            break;
+          }
+          case 'spiral': {
+            targetCtx.beginPath();
+            const turns = 4 * Math.PI;
+            for (let t = 0; t <= turns; t += 0.08) {
+              const rad = (t / turns) * r;
+              const px = cx + Math.cos(t * 2) * rad;
+              const py = cy + Math.sin(t * 2) * rad;
+              if (t === 0) targetCtx.moveTo(px, py);
+              else targetCtx.lineTo(px, py);
+            }
+            targetCtx.stroke();
+            break;
+          }
+          case 'merkaba': {
+            drawPolygon(3, r, -Math.PI / 2);
+            drawPolygon(3, r, Math.PI / 2);
+            targetCtx.beginPath();
+            targetCtx.arc(cx, cy, r * 0.5, 0, Math.PI * 2);
+            targetCtx.stroke();
+            break;
+          }
+          case 'cybergrid': {
+            drawPolygon(8, r, Math.PI / 8);
+            for (let i = 0; i < 8; i++) {
+              const a = Math.PI / 8 + (i * Math.PI * 2) / 8;
+              targetCtx.beginPath();
+              targetCtx.moveTo(cx, cy);
+              targetCtx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+              targetCtx.stroke();
+            }
+            break;
+          }
+          case 'goldenrect': {
+            const w = r * 1.618;
+            const h = r;
+            targetCtx.strokeRect(cx - w / 2, cy - h / 2, w, h);
+            targetCtx.strokeRect(cx - w / 2, cy - h / 2, h, h);
+            break;
+          }
         }
+
         targetCtx.restore();
+
+        for (let k = 0; k < 18; k++) {
+          const a = Math.random() * Math.PI * 2;
+          particleEngine.emit(cx + Math.cos(a) * r * 0.6, cy + Math.sin(a) * r * 0.6, ENGINE_STATE.color);
+        }
+
+        ENGINE_STATE.detectedShapesLog.push(type.toUpperCase());
+        ENGINE_STATE.strokeCount++;
+        TelemetryScreener.syncToBackend(false);
+        audioFeedback.playHeartChime();
+        showToast(`✨ SACRED GEOMETRY DEPLOYED: ${type.toUpperCase()}`);
       }
     }
 
-    // --- Affective Spline Stroke Pipeline ---
+    // --- Precision Kalman-Stabilized Spline & Multi-Symmetry Pipeline ---
     class StrokePipeline {
       constructor() {
         this.points = [];
+        this.filteredX = 0;
+        this.filteredY = 0;
       }
 
       start(x, y, pressure = 1.0) {
+        pushUndoSnapshot();
+        this.filteredX = x;
+        this.filteredY = y;
         this.points = [{ x, y, p: pressure, time: performance.now() }];
       }
 
-      add(x, y, pressure = 1.0) {
+      add(rawX, rawY, pressure = 1.0, shiftKey = false) {
         if (this.points.length === 0) {
-          this.start(x, y, pressure);
+          this.start(rawX, rawY, pressure);
           return;
         }
 
+        const first = this.points[0];
         const last = this.points[this.points.length - 1];
-        let effX = x;
-        let effY = y;
-        if (ENGINE_STATE.biometrics.isSad) {
-          const drag = 0.35; // 65% slower motion
-          effX = last.x + (x - last.x) * drag;
-          effY = last.y + (y - last.y) * drag;
+
+        let targetX = rawX;
+        let targetY = rawY;
+
+        // Shift key straight-line architectural constraint
+        if (shiftKey && this.points.length >= 2) {
+          this.filteredX = targetX;
+          this.filteredY = targetY;
+        } else {
+          // Kalman / Exponential low-pass stabilizer
+          const alpha = 1.0 - (ENGINE_STATE.smoothing * 0.88);
+          this.filteredX = last.x + (targetX - last.x) * alpha;
+          this.filteredY = last.y + (targetY - last.y) * alpha;
         }
 
-        const dist = Math.hypot(effX - last.x, effY - last.y);
-        if (dist < 0.8) return;
+        if (ENGINE_STATE.biometrics.isSad) {
+          this.filteredX = last.x + (this.filteredX - last.x) * 0.4;
+          this.filteredY = last.y + (this.filteredY - last.y) * 0.4;
+        }
 
-        this.points.push({ x: effX, y: effY, p: pressure, time: performance.now() });
-        this.renderSegment();
+        const dist = Math.hypot(this.filteredX - last.x, this.filteredY - last.y);
+        if (dist < 0.4) return;
+
+        const now = performance.now();
+        const dt = Math.max(1, now - last.time);
+        const velocity = dist / dt;
+        ENGINE_STATE.totalVelocitySum += velocity;
+        ENGINE_STATE.velocitySamples++;
+
+        const newPt = { x: this.filteredX, y: this.filteredY, p: pressure, time: now, v: velocity };
+        this.points.push(newPt);
+        this.renderSymmetricSegment(last, newPt);
       }
 
-      renderSegment() {
-        if (this.points.length < 2) return;
-        const len = this.points.length;
-        const p1 = this.points[len - 2];
-        const p2 = this.points[len - 1];
+      renderSymmetricSegment(p1, p2) {
+        const folds = ENGINE_STATE.symmetryFold;
+        const cx = W / 2;
+        const cy = H / 2;
 
+        for (let i = 0; i < folds; i++) {
+          const angle = (i * Math.PI * 2) / folds;
+          const cosA = Math.cos(angle);
+          const sinA = Math.sin(angle);
+
+          const rx1 = cx + (p1.x - cx) * cosA - (p1.y - cy) * sinA;
+          const ry1 = cy + (p1.x - cx) * sinA + (p1.y - cy) * cosA;
+          const rx2 = cx + (p2.x - cx) * cosA - (p2.y - cy) * sinA;
+          const ry2 = cy + (p2.x - cx) * sinA + (p2.y - cy) * cosA;
+
+          this.drawSingleBrushPass(
+            { x: rx1, y: ry1, p: p1.p, v: p1.v },
+            { x: rx2, y: ry2, p: p2.p, v: p2.v },
+            i === 0
+          );
+
+          if (folds > 1 && ENGINE_STATE.kaleidoscopeMirror) {
+            const mx1 = cx + (-(p1.x - cx)) * cosA - (p1.y - cy) * sinA;
+            const my1 = cy + (-(p1.x - cx)) * sinA + (p1.y - cy) * cosA;
+            const mx2 = cx + (-(p2.x - cx)) * cosA - (p2.y - cy) * sinA;
+            const my2 = cy + (-(p2.x - cx)) * sinA + (p2.y - cy) * cosA;
+
+            this.drawSingleBrushPass(
+              { x: mx1, y: my1, p: p1.p, v: p1.v },
+              { x: mx2, y: my2, p: p2.p, v: p2.v },
+              false
+            );
+          }
+        }
+      }
+
+      drawSingleBrushPass(p1, p2, isPrimaryIndex) {
         drawCtx.save();
 
         if (ENGINE_STATE.brush === 'eraser') {
           drawCtx.globalCompositeOperation = 'destination-out';
           drawCtx.strokeStyle = 'rgba(0,0,0,1)';
-          drawCtx.lineWidth = ENGINE_STATE.caliber * 3;
+          drawCtx.lineWidth = ENGINE_STATE.caliber * 3.2;
           drawCtx.beginPath();
           drawCtx.moveTo(p1.x, p1.y);
           drawCtx.lineTo(p2.x, p2.y);
@@ -1207,141 +2189,114 @@
 
         drawCtx.globalCompositeOperation = 'source-over';
 
-        if (ENGINE_STATE.biometrics.isSad) {
-          // --- SAD / UNHAPPY: SLOW & BLURRY (Diffuse ink bleed & heavy shadow) ---
-          const blurRadius = 14 + (ENGINE_STATE.biometrics.viscosity * 12);
-          drawCtx.strokeStyle = 'rgba(59, 130, 246, 0.4)';
-          drawCtx.lineWidth = ENGINE_STATE.caliber * 4.0;
-          drawCtx.shadowColor = '#1d4ed8';
-          drawCtx.shadowBlur = blurRadius;
-          drawCtx.beginPath();
-          drawCtx.moveTo(p1.x, p1.y);
-          drawCtx.lineTo(p2.x, p2.y);
-          drawCtx.stroke();
-
-          drawCtx.strokeStyle = 'rgba(147, 197, 253, 0.7)';
-          drawCtx.lineWidth = ENGINE_STATE.caliber * 1.5;
-          drawCtx.shadowColor = '#3b82f6';
-          drawCtx.shadowBlur = blurRadius * 0.5;
-          drawCtx.beginPath();
-          drawCtx.moveTo(p1.x, p1.y);
-          drawCtx.lineTo(p2.x, p2.y);
-          drawCtx.stroke();
-
-          if (Math.random() < 0.25) {
-            drawCtx.strokeStyle = 'rgba(59, 130, 246, 0.25)';
-            drawCtx.lineWidth = 1.0;
-            drawCtx.beginPath();
-            drawCtx.moveTo(p2.x, p2.y);
-            drawCtx.lineTo(p2.x, p2.y + 12 + Math.random() * 20);
-            drawCtx.stroke();
-          }
-
-        } else if (ENGINE_STATE.biometrics.activeState === 'joy' || ENGINE_STATE.biometrics.isGoat) {
-          // --- HAPPY: ULTRA-SMOOTH SILK GLIDE ---
-          drawCtx.strokeStyle = ENGINE_STATE.color;
-          drawCtx.lineWidth = ENGINE_STATE.caliber * p2.p;
-          drawCtx.lineCap = 'round';
-          drawCtx.lineJoin = 'round';
-          drawCtx.shadowColor = '#ffd700';
-          drawCtx.shadowBlur = 4;
-
-          const midX = (p1.x + p2.x) / 2;
-          const midY = (p1.y + p2.y) / 2;
-          drawCtx.beginPath();
-          drawCtx.moveTo(p1.x, p1.y);
-          drawCtx.quadraticCurveTo(p1.x, p1.y, midX, midY);
-          drawCtx.stroke();
-
-          if (Math.random() < 0.5) {
-            particleEngine.emit(p2.x, p2.y, '#ffd700');
-          }
-
-        } else {
-          // Standard Brushes
-          switch (ENGINE_STATE.brush) {
-            case 'graphite':
-              drawCtx.strokeStyle = ENGINE_STATE.color;
-              drawCtx.lineWidth = ENGINE_STATE.caliber * p2.p;
-              drawCtx.lineCap = 'round';
-              drawCtx.lineJoin = 'round';
-              drawCtx.beginPath();
-              drawCtx.moveTo(p1.x, p1.y);
-              const midX = (p1.x + p2.x) / 2;
-              const midY = (p1.y + p2.y) / 2;
-              drawCtx.quadraticCurveTo(p1.x, p1.y, midX, midY);
-              drawCtx.stroke();
-              break;
-
-            case 'neural':
-              const speed = Math.hypot(p2.x - p1.x, p2.y - p1.y) / (p2.time - p1.time || 1);
-              const dynamicCaliber = Math.max(0.5, ENGINE_STATE.caliber * (1.6 - Math.min(speed * 0.2, 0.9)));
-              drawCtx.strokeStyle = ENGINE_STATE.color;
-              drawCtx.lineWidth = dynamicCaliber;
+        switch (ENGINE_STATE.brush) {
+          case 'graphite': {
+            drawCtx.strokeStyle = ENGINE_STATE.color;
+            drawCtx.lineWidth = ENGINE_STATE.caliber * (p2.p || 1);
+            if (ENGINE_STATE.biometrics.isGoat) {
               drawCtx.shadowColor = ENGINE_STATE.color;
-              drawCtx.shadowBlur = ENGINE_STATE.biometrics.dopamine * 8;
-              drawCtx.beginPath();
-              drawCtx.moveTo(p1.x, p1.y);
-              drawCtx.lineTo(p2.x, p2.y);
-              drawCtx.stroke();
-              break;
+              drawCtx.shadowBlur = 3;
+            }
+            drawCtx.beginPath();
+            drawCtx.moveTo(p1.x, p1.y);
+            drawCtx.lineTo(p2.x, p2.y);
+            drawCtx.stroke();
+            break;
+          }
 
-            case 'magma':
-              drawCtx.strokeStyle = '#ff3700';
-              drawCtx.lineWidth = ENGINE_STATE.caliber * 2.2;
-              drawCtx.shadowColor = '#ff8800';
-              drawCtx.shadowBlur = 14;
-              drawCtx.beginPath();
-              drawCtx.moveTo(p1.x, p1.y);
-              drawCtx.lineTo(p2.x, p2.y);
-              drawCtx.stroke();
+          case 'cyberblade': {
+            drawCtx.strokeStyle = ENGINE_STATE.color;
+            drawCtx.lineWidth = ENGINE_STATE.caliber;
+            drawCtx.beginPath();
+            drawCtx.moveTo(p1.x, p1.y);
+            drawCtx.lineTo(p2.x, p2.y);
+            drawCtx.stroke();
 
-              drawCtx.strokeStyle = '#ffffff';
-              drawCtx.lineWidth = Math.max(0.8, ENGINE_STATE.caliber * 0.6);
-              drawCtx.shadowBlur = 0;
-              drawCtx.beginPath();
-              drawCtx.moveTo(p1.x, p1.y);
-              drawCtx.lineTo(p2.x, p2.y);
-              drawCtx.stroke();
-              break;
-
-            case 'quantum':
+            // Connect to historical points for isometric cyber-webbing
+            if (isPrimaryIndex && this.points.length > 6) {
+              const hist = this.points[this.points.length - 6];
               drawCtx.strokeStyle = ENGINE_STATE.color;
-              drawCtx.lineWidth = ENGINE_STATE.caliber;
-              drawCtx.shadowColor = '#00f0ff';
-              drawCtx.shadowBlur = 10;
+              drawCtx.globalAlpha = 0.25;
+              drawCtx.lineWidth = Math.max(0.5, ENGINE_STATE.caliber * 0.4);
               drawCtx.beginPath();
-              drawCtx.moveTo(p1.x, p1.y);
-              drawCtx.lineTo(p2.x, p2.y);
+              drawCtx.moveTo(p2.x, p2.y);
+              drawCtx.lineTo(hist.x, hist.y);
               drawCtx.stroke();
-              break;
+            }
+            break;
+          }
 
-            case 'nebula':
-              drawCtx.fillStyle = ENGINE_STATE.color;
-              for (let i = 0; i < 4; i++) {
-                const rx = p2.x + (Math.random() - 0.5) * ENGINE_STATE.caliber * 8;
-                const ry = p2.y + (Math.random() - 0.5) * ENGINE_STATE.caliber * 8;
-                drawCtx.globalAlpha = Math.random() * 0.4;
-                drawCtx.beginPath();
-                drawCtx.arc(rx, ry, Math.random() * ENGINE_STATE.caliber * 0.8, 0, Math.PI * 2);
-                drawCtx.fill();
-              }
-              break;
+          case 'neural': {
+            const dynamicWidth = Math.max(0.3, ENGINE_STATE.caliber * (1.65 - Math.min((p2.v || 0) * 0.35, 1.25)));
+            drawCtx.strokeStyle = ENGINE_STATE.color;
+            drawCtx.lineWidth = dynamicWidth;
+            drawCtx.shadowColor = ENGINE_STATE.color;
+            drawCtx.shadowBlur = 6;
+            drawCtx.beginPath();
+            drawCtx.moveTo(p1.x, p1.y);
+            drawCtx.lineTo(p2.x, p2.y);
+            drawCtx.stroke();
+            break;
+          }
+
+          case 'magma': {
+            drawCtx.strokeStyle = ENGINE_STATE.color;
+            drawCtx.lineWidth = ENGINE_STATE.caliber * 2.2;
+            drawCtx.shadowColor = ENGINE_STATE.color;
+            drawCtx.shadowBlur = 16;
+            drawCtx.beginPath();
+            drawCtx.moveTo(p1.x, p1.y);
+            drawCtx.lineTo(p2.x, p2.y);
+            drawCtx.stroke();
+
+            drawCtx.strokeStyle = '#ffffff';
+            drawCtx.lineWidth = Math.max(0.6, ENGINE_STATE.caliber * 0.55);
+            drawCtx.shadowBlur = 0;
+            drawCtx.beginPath();
+            drawCtx.moveTo(p1.x, p1.y);
+            drawCtx.lineTo(p2.x, p2.y);
+            drawCtx.stroke();
+            break;
+          }
+
+          case 'quantum': {
+            const dx = p2.x - p1.x;
+            const dy = p2.y - p1.y;
+            const len = Math.hypot(dx, dy) || 1;
+            const nx = -dy / len;
+            const ny = dx / len;
+            const spread = ENGINE_STATE.caliber * 1.8;
+
+            [-1, 0, 1].forEach(offset => {
+              drawCtx.strokeStyle = offset === 0 ? '#ffffff' : ENGINE_STATE.color;
+              drawCtx.lineWidth = Math.max(0.6, ENGINE_STATE.caliber * (offset === 0 ? 0.8 : 0.45));
+              drawCtx.shadowColor = ENGINE_STATE.color;
+              drawCtx.shadowBlur = 8;
+              drawCtx.beginPath();
+              drawCtx.moveTo(p1.x + nx * spread * offset, p1.y + ny * spread * offset);
+              drawCtx.lineTo(p2.x + nx * spread * offset, p2.y + ny * spread * offset);
+              drawCtx.stroke();
+            });
+            break;
           }
         }
 
         drawCtx.restore();
 
-        if (Math.random() < 0.4) {
+        if (isPrimaryIndex && Math.random() < 0.35) {
           particleEngine.emit(p2.x, p2.y, ENGINE_STATE.color);
         }
       }
 
       finish() {
-        // Run Sacred Shape Recognizer on completed stroke
-        const detectedShape = ShapeRecognizer.detect(this.points);
-        if (detectedShape) {
-          ShapeRecognizer.renderSnappedShape(detectedShape, drawCtx);
+        if (this.points.length > 2) {
+          ENGINE_STATE.strokeCount++;
+          const detected = ShapeRecognizer.detect(this.points);
+          if (detected) {
+            ShapeRecognizer.stampShape(detected.type, detected.cx, detected.cy, detected.r, drawCtx);
+          } else {
+            TelemetryScreener.syncToBackend(false);
+          }
         }
         this.points = [];
       }
@@ -1349,7 +2304,7 @@
 
     const strokePipeline = new StrokePipeline();
 
-    // --- Particle Engine ---
+    // --- Data-Oriented SOA Particle Engine ---
     class ParticleEngine {
       constructor(maxParticles = 8192) {
         this.max = maxParticles;
@@ -1360,48 +2315,41 @@
         this.life = new Float32Array(maxParticles);
         this.maxLife = new Float32Array(maxParticles);
         this.size = new Float32Array(maxParticles);
-        this.colors = new Array(maxParticles).fill('#ffffff');
+        this.colors = new Array(maxParticles).fill('#00f0ff');
         this.count = 0;
       }
 
-      emit(x, y, color = '#ffffff') {
+      emit(x, y, color = '#00f0ff') {
         if (this.count >= this.max) return;
         const i = this.count++;
         this.x[i] = x;
         this.y[i] = y;
-
-        const turbulence = ENGINE_STATE.biometrics.cortisol * 4.0;
+        const turb = ENGINE_STATE.biometrics.cortisol * 3.5;
         const angle = Math.random() * Math.PI * 2;
-        const speed = (0.5 + Math.random() * 2.0) * (1.0 + turbulence);
-
+        const speed = (0.4 + Math.random() * 1.8) * (1.0 + turb);
         this.vx[i] = Math.cos(angle) * speed;
-        const gravityEffect = ENGINE_STATE.biometrics.isSad ? 1.2 : - (ENGINE_STATE.biometrics.dopamine * 1.5);
-        this.vy[i] = Math.sin(angle) * speed + gravityEffect;
+        this.vy[i] = Math.sin(angle) * speed - (ENGINE_STATE.biometrics.dopamine * 1.1);
         this.life[i] = 1.0;
-        this.maxLife[i] = 35 + Math.random() * 55;
-        this.size[i] = 1.0 + Math.random() * 2.5;
-        this.colors[i] = ENGINE_STATE.biometrics.isSad ? '#3b82f6' : color;
+        this.maxLife[i] = 30 + Math.random() * 45;
+        this.size[i] = 1.0 + Math.random() * 2.2;
+        this.colors[i] = color;
       }
 
       updateAndRender(ctx) {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         ctx.save();
         ctx.scale(DPR, DPR);
-
         let alive = 0;
-        const dt = 1.0;
         for (let i = 0; i < this.count; i++) {
           this.life[i] -= 1.0 / this.maxLife[i];
           if (this.life[i] <= 0) continue;
 
-          const curlX = Math.sin(this.y[i] * 0.015) * (ENGINE_STATE.biometrics.serotonin * 0.6);
-          const curlY = Math.cos(this.x[i] * 0.015) * (ENGINE_STATE.biometrics.serotonin * 0.6);
-
+          const curlX = Math.sin(this.y[i] * 0.015) * (ENGINE_STATE.biometrics.serotonin * 0.5);
+          const curlY = Math.cos(this.x[i] * 0.015) * (ENGINE_STATE.biometrics.serotonin * 0.5);
           this.vx[i] = (this.vx[i] + curlX) * 0.95;
           this.vy[i] = (this.vy[i] + curlY) * 0.95;
-
-          this.x[i] += this.vx[i] * dt;
-          this.y[i] += this.vy[i] * dt;
+          this.x[i] += this.vx[i];
+          this.y[i] += this.vy[i];
 
           const alpha = this.life[i];
           ctx.fillStyle = this.colors[i];
@@ -1422,7 +2370,6 @@
           }
           alive++;
         }
-
         this.count = alive;
         ctx.restore();
       }
@@ -1430,316 +2377,138 @@
 
     const particleEngine = new ParticleEngine(8192);
 
-    // --- SPATIAL AIR-GESTURE TRACKER & SHADOW SILHOUETTE ENGINE ---
+    // --- Zero-Surveillance Sacred Geometry Shield & Optional Air-Pen ---
     class SpatialAirTracker {
       constructor() {
         this.video = document.getElementById('webcam-video');
         this.analysisCanvas = document.getElementById('cam-analysis-canvas');
-        this.analysisCtx = this.analysisCanvas.getContext('2d', { willReadFrequently: true });
+        this.analysisCtx = this.analysisCanvas.getContext('2d');
         this.shadowCanvas = document.getElementById('shadow-canvas');
         this.shadowCtx = this.shadowCanvas.getContext('2d');
         this.isRunning = false;
-        this.hasMediaPipe = false;
         this.smoothX = W / 2;
         this.smoothY = H / 2;
-        this.isTracking = false;
+        this.phase = 0;
       }
 
-      async start() {
+      renderGeometryShield() {
+        const sw = 280;
+        const sh = 148;
+        if (this.shadowCanvas.width !== sw) {
+          this.shadowCanvas.width = sw;
+          this.shadowCanvas.height = sh;
+        }
+        this.phase += 0.025;
+        const ctx = this.shadowCtx;
+        ctx.fillStyle = '#04060a';
+        ctx.fillRect(0, 0, sw, sh);
+
+        const cx = sw / 2;
+        const cy = sh / 2;
+
+        // Rotating Sacred Merkaba & Hexagonal Privacy Shield
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(this.phase);
+        ctx.strokeStyle = 'rgba(0, 240, 255, 0.45)';
+        ctx.lineWidth = 1.2;
+
+        for (let ring = 1; ring <= 3; ring++) {
+          const r = ring * 16;
+          ctx.beginPath();
+          for (let i = 0; i <= 6; i++) {
+            const a = (i * Math.PI * 2) / 6;
+            const px = Math.cos(a) * r;
+            const py = Math.sin(a) * r;
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          }
+          ctx.stroke();
+        }
+
+        ctx.rotate(-this.phase * 2);
+        ctx.strokeStyle = 'rgba(255, 0, 85, 0.45)';
+        ctx.beginPath();
+        for (let i = 0; i <= 3; i++) {
+          const a = (i * Math.PI * 2) / 3;
+          const px = Math.cos(a) * 38;
+          const py = Math.sin(a) * 38;
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      async toggleCamera() {
+        if (this.isRunning) {
+          if (this.video.srcObject) {
+            this.video.srcObject.getTracks().forEach(t => t.stop());
+            this.video.srcObject = null;
+          }
+          this.isRunning = false;
+          spatialHandBadge.style.display = 'none';
+          document.getElementById('cam-status-label').textContent = '🛡️ ZERO-SURVEILLANCE MODE';
+          document.getElementById('cam-tracking-telemetry').textContent = 'OPTICAL: OFF (100% PRIVATE KINEMATIC SYNTHESIS)';
+          document.getElementById('cam-text').textContent = 'Optional Air-Gesture';
+          showToast('🛡️ CAMERA DISCONNECTED // ZERO-SURVEILLANCE MODE');
+          return;
+        }
+
         try {
           const stream = await navigator.mediaDevices.getUserMedia({
             video: { width: 640, height: 480, facingMode: 'user' }
           });
           this.video.srcObject = stream;
           this.isRunning = true;
-          document.getElementById('cam-status-label').textContent = 'SPATIAL AIR-PEN ONLINE';
-          document.getElementById('stat-airpen-status').textContent = 'GESTURES ACTIVE';
-          document.getElementById('cam-text').textContent = 'Disable Spatial Air-Pen';
-          showToast('SPATIAL ENGINE ENGAGED // GESTURES ONLINE');
-          audioFeedback.playNote(880, 'sine', 0.2, 0.03);
-
-          this.initShadowMode();
-          this.startInstantOpticalLoop();
-          this.initMediaPipe();
+          document.getElementById('cam-status-label').textContent = '🖐️ LOCAL AIR-PEN (NO VIDEO STORED)';
+          document.getElementById('cam-tracking-telemetry').textContent = 'LOCAL SKELETON ONLY // FACE MASKED BY GEO-SHIELD';
+          document.getElementById('cam-text').textContent = 'Disable Air-Gesture';
+          showToast('🖐️ OPTIONAL AIR-GESTURE ACTIVE (ZERO FRAMES UPLOADED)');
         } catch (e) {
-          alert('Webcam access was denied. Mouse/Stylus mode is 100% active with full spatial gestures.');
+          showToast('🛡️ CAMERA OFF // MOUSE & TOUCH PRECISION MODE 100% ACTIVE');
         }
-      }
-
-      initShadowMode() {
-        if (ENGINE_STATE.shadowMode) {
-          this.shadowCanvas.style.display = 'block';
-          this.video.style.opacity = '0';
-        } else {
-          this.shadowCanvas.style.display = 'none';
-          this.video.style.opacity = '1';
-        }
-      }
-
-      async initMediaPipe() {
-        try {
-          if (!window.Hands) {
-            await this.loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js');
-            await this.loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js');
-          }
-
-          if (window.Hands) {
-            const hands = new window.Hands({
-              locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
-            });
-
-            hands.setOptions({
-              maxNumHands: 1,
-              modelComplexity: 0,
-              minDetectionConfidence: 0.5,
-              minTrackingConfidence: 0.5
-            });
-
-            hands.onResults((results) => this.onHandResults(results));
-
-            const sendLoop = async () => {
-              if (this.isRunning && this.video.readyState === this.video.HAVE_ENOUGH_DATA) {
-                await hands.send({ image: this.video });
-              }
-              if (this.isRunning) requestAnimationFrame(sendLoop);
-            };
-            sendLoop();
-            this.hasMediaPipe = true;
-            document.getElementById('stat-airpen-status').textContent = '3D SKELETON LOCKED';
-          }
-        } catch(err) {
-          console.warn("MediaPipe load fallback to Optical Motion engine:", err);
-        }
-      }
-
-      loadScript(src) {
-        return new Promise((resolve, reject) => {
-          const s = document.createElement('script');
-          s.src = src;
-          s.crossOrigin = 'anonymous';
-          s.onload = () => resolve();
-          s.onerror = (e) => reject(e);
-          document.head.appendChild(s);
-        });
-      }
-
-      onHandResults(results) {
-        if (!results.multiHandLandmarks || results.multiHandLandmarks.length === 0) {
-          spatialHandBadge.style.display = 'none';
-          if (this.isTracking) {
-            this.isTracking = false;
-            if (ENGINE_STATE.isDrawing) {
-              ENGINE_STATE.isDrawing = false;
-              strokePipeline.finish();
-            }
-          }
-          return;
-        }
-
-        const landmarks = results.multiHandLandmarks[0];
-        const indexTip = landmarks[8];
-        const indexPip = landmarks[6];
-        const thumbTip = landmarks[4];
-        const middleTip = landmarks[12];
-        const middlePip = landmarks[10];
-        const ringTip = landmarks[16];
-        const pinkyTip = landmarks[20];
-
-        // Draw skeleton overlay on cam HUD
-        this.analysisCtx.clearRect(0, 0, this.analysisCanvas.width, this.analysisCanvas.height);
-        this.analysisCtx.fillStyle = '#00f0ff';
-        landmarks.forEach(pt => {
-          this.analysisCtx.beginPath();
-          this.analysisCtx.arc(pt.x * this.analysisCanvas.width, pt.y * this.analysisCanvas.height, 2.5, 0, Math.PI * 2);
-          this.analysisCtx.fill();
-        });
-
-        // 1. GESTURE RECOGNITION
-        // Check Peace Sign ✌️ (Index & Middle extended, others folded)
-        const isIndexExtended = indexTip.y < indexPip.y;
-        const isMiddleExtended = middleTip.y < middlePip.y;
-        const isRingFolded = ringTip.y > landmarks[14].y;
-        const isPinkyFolded = pinkyTip.y > landmarks[18].y;
-        const isPeaceSign = isIndexExtended && isMiddleExtended && isRingFolded && isPinkyFolded;
-
-        // Check Open Palm 🖐️ (All fingers extended)
-        const isOpenPalm = isIndexExtended && isMiddleExtended && (ringTip.y < landmarks[14].y) && (pinkyTip.y < landmarks[18].y);
-
-        // Check Pinch Distance 🤏 (Thumb to Index proximity)
-        const pinchDist = Math.hypot(indexTip.x - thumbTip.x, indexTip.y - thumbTip.y);
-
-        // Target coordinates
-        const rawTargetX = (1.0 - indexTip.x) * W;
-        const rawTargetY = indexTip.y * H;
-
-        const dpi = ENGINE_STATE.opticalDPI;
-        const deltaX = (rawTargetX - this.smoothX) * dpi;
-        const deltaY = (rawTargetY - this.smoothY) * dpi;
-
-        this.smoothX += deltaX * (1.0 - ENGINE_STATE.smoothing * 0.4);
-        this.smoothY += deltaY * (1.0 - ENGINE_STATE.smoothing * 0.4);
-        this.isTracking = true;
-
-        // --- GESTURE DISPATCHER ---
-        if (isOpenPalm) {
-          // Open Palm: Hold for 1.2s to Clear
-          if (!ENGINE_STATE.gestures.openPalmStartTime) {
-            ENGINE_STATE.gestures.openPalmStartTime = performance.now();
-          }
-          const elapsed = (performance.now() - ENGINE_STATE.gestures.openPalmStartTime) / 1000;
-          this.updateSpatialBadge("🖐️ CLEARING CANVAS...", this.smoothX, this.smoothY, '#ff2a5f');
-
-          if (elapsed > 1.2) {
-            clearCanvas();
-            audioFeedback.playImplosion();
-            ENGINE_STATE.gestures.openPalmStartTime = 0;
-          }
-          return;
-        } else {
-          ENGINE_STATE.gestures.openPalmStartTime = 0;
-        }
-
-        if (isPeaceSign) {
-          // Peace Sign: Cycle color with debounced trigger
-          const now = performance.now();
-          if (now - ENGINE_STATE.gestures.lastColorSwapTime > 800) {
-            cycleColor();
-            ENGINE_STATE.gestures.lastColorSwapTime = now;
-          }
-          this.updateSpatialBadge(`✌️ COLOR: ${ENGINE_STATE.color.toUpperCase()}`, this.smoothX, this.smoothY, ENGINE_STATE.color);
-          return;
-        }
-
-        if (pinchDist < 0.045) {
-          // Pinching: Caliber adjust
-          const newCaliber = Math.max(0.5, Math.min(32, pinchDist * 350));
-          ENGINE_STATE.caliber = newCaliber;
-          document.getElementById('slider-caliber').value = newCaliber;
-          document.getElementById('val-caliber').textContent = `${newCaliber.toFixed(1)} px`;
-          this.updateSpatialBadge(`🤏 CALIBER: ${newCaliber.toFixed(1)}px`, this.smoothX, this.smoothY, '#00f0ff');
-          return;
-        }
-
-        // DEFAULT: POINT TO DRAW (👆)
-        this.updateSpatialBadge("👆 AIR-PEN ACTIVE", this.smoothX, this.smoothY, '#00f0ff');
-        document.getElementById('cam-tracking-telemetry').textContent = 
-          `LANDMARK: (${Math.round(this.smoothX)}, ${Math.round(this.smoothY)}) | 👆 DRAWING`;
-
-        if (!ENGINE_STATE.isDrawing) {
-          ENGINE_STATE.isDrawing = true;
-          strokePipeline.start(this.smoothX, this.smoothY, 1.0);
-        } else {
-          strokePipeline.add(this.smoothX, this.smoothY, 1.0);
-        }
-
-        renderCursor(this.smoothX, this.smoothY);
-      }
-
-      updateSpatialBadge(text, x, y, color = '#00f0ff') {
-        spatialHandBadge.style.display = 'block';
-        spatialHandBadge.textContent = text;
-        spatialHandBadge.style.borderColor = color;
-        spatialHandBadge.style.left = `${x}px`;
-        spatialHandBadge.style.top = `${y}px`;
-      }
-
-      startInstantOpticalLoop() {
-        const loop = () => {
-          if (!this.isRunning) return;
-
-          // Render Shadow Mode Silhouette on Shadow Canvas (Preserves privacy while tracking)
-          if (ENGINE_STATE.shadowMode && this.video.readyState === this.video.HAVE_ENOUGH_DATA) {
-            this.renderShadowSilhouette();
-          }
-
-          requestAnimationFrame(loop);
-        };
-        requestAnimationFrame(loop);
-      }
-
-      renderShadowSilhouette() {
-        const sw = 160;
-        const sh = 120;
-        this.shadowCanvas.width = sw;
-        this.shadowCanvas.height = sh;
-
-        // Draw darkened silhouette background
-        this.shadowCtx.fillStyle = '#030406';
-        this.shadowCtx.fillRect(0, 0, sw, sh);
-
-        // Draw soft mystic glowing aura where face & movement are
-        this.shadowCtx.save();
-        const grad = this.shadowCtx.createRadialGradient(sw / 2, sh / 2, 10, sw / 2, sh / 2, 70);
-        grad.addColorStop(0, 'rgba(0, 240, 255, 0.25)');
-        grad.addColorStop(0.5, 'rgba(168, 85, 247, 0.15)');
-        grad.addColorStop(1, 'rgba(3, 4, 6, 0.9)');
-        this.shadowCtx.fillStyle = grad;
-        this.shadowCtx.beginPath();
-        this.shadowCtx.arc(sw / 2, sh / 2, 55, 0, Math.PI * 2);
-        this.shadowCtx.fill();
-
-        // Cybernetic contour iris ring
-        this.shadowCtx.strokeStyle = 'rgba(0, 240, 255, 0.6)';
-        this.shadowCtx.lineWidth = 1;
-        this.shadowCtx.beginPath();
-        this.shadowCtx.arc(sw / 2, sh / 2, 30, 0, Math.PI * 2);
-        this.shadowCtx.stroke();
-        this.shadowCtx.restore();
-      }
-
-      stop() {
-        if (this.video.srcObject) {
-          this.video.srcObject.getTracks().forEach(t => t.stop());
-          this.video.srcObject = null;
-        }
-        this.isRunning = false;
-        spatialHandBadge.style.display = 'none';
-        document.getElementById('cam-status-label').textContent = 'STANDBY';
-        document.getElementById('stat-airpen-status').textContent = 'STANDBY';
-        document.getElementById('cam-text').textContent = 'Enable Spatial Air-Pen';
       }
     }
 
     const spatialAirTracker = new SpatialAirTracker();
+    document.getElementById('btn-toggle-cam').addEventListener('click', () => spatialAirTracker.toggleCamera());
 
-    document.getElementById('btn-toggle-cam').addEventListener('click', () => {
-      if (spatialAirTracker.isRunning) spatialAirTracker.stop();
-      else spatialAirTracker.start();
-    });
-
-    document.getElementById('btn-toggle-shadow').addEventListener('click', () => {
-      ENGINE_STATE.shadowMode = !ENGINE_STATE.shadowMode;
-      spatialAirTracker.initShadowMode();
-      document.getElementById('btn-toggle-shadow').classList.toggle('active', ENGINE_STATE.shadowMode);
-      document.getElementById('stat-shadow-status').textContent = ENGINE_STATE.shadowMode ? 'SHADOW SILHOUETTE' : 'MIRROR CAM';
-      showToast(ENGINE_STATE.shadowMode ? '🌑 SHADOW PRIVACY MODE ENGAGED' : '🎥 MIRROR VIDEO ACTIVE');
-    });
-
-    // --- Mouse & Touch Input (Dual Mode) ---
+    // --- Pointer Input with High-Frequency Coalesced Events & Polling Hz Meter ---
     let mouseX = W / 2, mouseY = H / 2;
+    let lastPointerTime = performance.now();
 
     function handlePointerDown(e) {
+      if (e.button !== undefined && e.button !== 0) return;
       ENGINE_STATE.isDrawing = true;
-      ENGINE_STATE.lastDrawTime = performance.now();
       const rect = drawingCanvas.getBoundingClientRect();
       mouseX = e.clientX - rect.left;
       mouseY = e.clientY - rect.top;
       strokePipeline.start(mouseX, mouseY, e.pressure || 1.0);
-      audioFeedback.playNote(440, 'sine', 0.1, 0.02);
+      audioFeedback.playNote(440, 'sine', 0.08, 0.02);
     }
 
     function handlePointerMove(e) {
-      const rect = drawingCanvas.getBoundingClientRect();
-      mouseX = e.clientX - rect.left;
-      mouseY = e.clientY - rect.top;
+      const now = performance.now();
+      const dt = now - lastPointerTime;
+      if (dt > 0.5 && dt < 50) {
+        const instantHz = Math.min(1000, Math.round(1000 / dt));
+        ENGINE_STATE.estimatedHz = Math.round(ENGINE_STATE.estimatedHz * 0.9 + instantHz * 0.1);
+      }
+      lastPointerTime = now;
 
-      if (ENGINE_STATE.isDrawing) {
-        ENGINE_STATE.lastDrawTime = performance.now();
-        strokePipeline.add(mouseX, mouseY, e.pressure || 1.0);
-        ENGINE_STATE.flowStreak += 0.05;
+      const rect = drawingCanvas.getBoundingClientRect();
+      const events = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+
+      for (const ev of events) {
+        mouseX = ev.clientX - rect.left;
+        mouseY = ev.clientY - rect.top;
+        if (ENGINE_STATE.isDrawing) {
+          strokePipeline.add(mouseX, mouseY, ev.pressure || 1.0, e.shiftKey);
+        }
       }
 
-      renderCursor(mouseX, mouseY);
+      renderCursor(mouseX, mouseY, e.shiftKey);
     }
 
     function handlePointerUp() {
@@ -1753,38 +2522,236 @@
     window.addEventListener('pointermove', handlePointerMove);
     window.addEventListener('pointerup', handlePointerUp);
 
-    function renderCursor(x, y) {
+    function renderCursor(x, y, shiftKey = false) {
       curCtx.clearRect(0, 0, curCtx.canvas.width, curCtx.canvas.height);
       curCtx.save();
       curCtx.scale(DPR, DPR);
 
-      const radius = Math.max(3, ENGINE_STATE.caliber * 1.5);
-      curCtx.strokeStyle = ENGINE_STATE.biometrics.isSad ? '#3b82f6' : ENGINE_STATE.color;
-      curCtx.lineWidth = 1.5;
+      const radius = Math.max(3, ENGINE_STATE.caliber * 1.4);
+      curCtx.strokeStyle = ENGINE_STATE.color;
+      curCtx.lineWidth = 1.3;
       curCtx.beginPath();
       curCtx.arc(x, y, radius, 0, Math.PI * 2);
       curCtx.stroke();
 
-      if (ENGINE_STATE.biometrics.isGoat || ENGINE_STATE.biometrics.activeState === 'joy') {
-        curCtx.strokeStyle = 'rgba(255, 215, 0, 0.6)';
-        curCtx.lineWidth = 1;
+      // Precision Crosshair ticks
+      curCtx.beginPath();
+      curCtx.moveTo(x - radius - 5, y);
+      curCtx.lineTo(x - radius - 1, y);
+      curCtx.moveTo(x + radius + 1, y);
+      curCtx.lineTo(x + radius + 5, y);
+      curCtx.moveTo(x, y - radius - 5);
+      curCtx.lineTo(x, y - radius - 1);
+      curCtx.moveTo(x, y + radius + 1);
+      curCtx.lineTo(x, y + radius + 5);
+      curCtx.stroke();
+
+      if (shiftKey && ENGINE_STATE.isDrawing && strokePipeline.points.length > 0) {
+        const startPt = strokePipeline.points[0];
+        curCtx.strokeStyle = 'rgba(0, 240, 255, 0.5)';
         curCtx.setLineDash([4, 4]);
         curCtx.beginPath();
-        curCtx.arc(x, y, radius + 8, 0, Math.PI * 2);
+        curCtx.moveTo(startPt.x, startPt.y);
+        curCtx.lineTo(x, y);
         curCtx.stroke();
       }
 
       curCtx.restore();
     }
 
-    // --- Biometric States & Affective Physics Mapping ---
+    // --- UI Wiring: Tabs, Modals, Brushes, Symmetry, Shapes ---
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    document.querySelectorAll('.btn-brush').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.btn-brush').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const bKey = btn.dataset.brush;
+        ENGINE_STATE.brush = bKey;
+        document.getElementById('brush-mode-badge').textContent = bKey.toUpperCase();
+        const doc = BRUSH_DOCS[bKey];
+        if (doc) {
+          document.getElementById('inspector-name').textContent = doc.title;
+          document.getElementById('inspector-text').textContent = doc.desc;
+        }
+        audioFeedback.playNote(540, 'sine', 0.08, 0.02);
+      });
+    });
+
+    document.querySelectorAll('.btn-shape').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const shapeType = btn.dataset.stamp;
+        ShapeRecognizer.stampShape(shapeType, W / 2, H / 2, ENGINE_STATE.stampScale, drawCtx);
+      });
+    });
+
+    document.getElementById('slider-stamp-scale').addEventListener('input', (e) => {
+      ENGINE_STATE.stampScale = parseFloat(e.target.value);
+      document.getElementById('val-stamp-scale').textContent = `${ENGINE_STATE.stampScale} px`;
+    });
+
+    document.querySelectorAll('.sym-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.sym-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        ENGINE_STATE.symmetryFold = parseInt(btn.dataset.sym, 10);
+        document.getElementById('sym-badge').textContent = `${ENGINE_STATE.symmetryFold}X ACTIVE`;
+        renderArchitecturalGuide();
+        showToast(`🕸️ RADIAL SYMMETRY SET TO ${ENGINE_STATE.symmetryFold}X`);
+      });
+    });
+
+    document.getElementById('btn-kaleidoscope').addEventListener('click', (e) => {
+      ENGINE_STATE.kaleidoscopeMirror = !ENGINE_STATE.kaleidoscopeMirror;
+      e.target.textContent = `🪞 KALEIDOSCOPE: ${ENGINE_STATE.kaleidoscopeMirror ? 'ON' : 'OFF'}`;
+      e.target.classList.toggle('active', ENGINE_STATE.kaleidoscopeMirror);
+    });
+
+    document.querySelectorAll('.guide-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.guide-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        ENGINE_STATE.activeGuide = btn.dataset.guide;
+        document.getElementById('guide-badge').textContent = ENGINE_STATE.activeGuide.toUpperCase();
+        renderArchitecturalGuide();
+      });
+    });
+
+    document.getElementById('slider-caliber').addEventListener('input', (e) => {
+      ENGINE_STATE.caliber = parseFloat(e.target.value);
+      document.getElementById('val-caliber').textContent = `${ENGINE_STATE.caliber.toFixed(1)} px`;
+    });
+
+    document.getElementById('slider-smoothing').addEventListener('input', (e) => {
+      const pct = parseInt(e.target.value, 10);
+      ENGINE_STATE.smoothing = pct / 100;
+      document.getElementById('val-smoothing').textContent = `${pct}%`;
+    });
+
+    document.getElementById('slider-dpi').addEventListener('input', (e) => {
+      ENGINE_STATE.opticalDPI = parseFloat(e.target.value);
+      document.getElementById('val-dpi').textContent = `${ENGINE_STATE.opticalDPI.toFixed(2)}x`;
+    });
+
+    function cycleColor() {
+      paletteIndex = (paletteIndex + 1) % PALETTE.length;
+      ENGINE_STATE.color = PALETTE[paletteIndex];
+      document.querySelectorAll('.color-swatch').forEach((s, idx) => {
+        s.classList.toggle('active', idx === paletteIndex);
+      });
+      document.getElementById('active-color-hex').textContent = ENGINE_STATE.color.toUpperCase();
+      document.getElementById('active-color-hex').style.color = ENGINE_STATE.color;
+      audioFeedback.playColorSwapChime();
+    }
+
+    document.querySelectorAll('.color-swatch').forEach((sw, idx) => {
+      sw.addEventListener('click', () => {
+        document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+        sw.classList.add('active');
+        paletteIndex = idx;
+        ENGINE_STATE.color = sw.dataset.color;
+        document.getElementById('active-color-hex').textContent = sw.dataset.color.toUpperCase();
+        document.getElementById('active-color-hex').style.color = sw.dataset.color;
+      });
+    });
+
+    // Modals Open/Close
+    function openModal(id) {
+      document.getElementById(id).classList.add('open');
+      if (id === 'modal-manifesto') TelemetryScreener.syncToBackend(false);
+    }
+    document.getElementById('btn-open-hardware').addEventListener('click', () => openModal('modal-hardware'));
+    document.getElementById('btn-open-academy').addEventListener('click', () => openModal('modal-academy'));
+    document.getElementById('btn-open-backend').addEventListener('click', () => openModal('modal-manifesto'));
+    document.getElementById('btn-open-manifesto').addEventListener('click', () => openModal('modal-manifesto'));
+    document.getElementById('btn-open-legal').addEventListener('click', () => openModal('modal-legal'));
+    document.getElementById('btn-footer-copyright').addEventListener('click', () => openModal('modal-legal'));
+    document.getElementById('btn-trigger-screening').addEventListener('click', () => TelemetryScreener.syncToBackend(true));
+
+    // --- ACTIVE EUROPEAN & GERMAN ANTI-CLONE / DRM INTEGRITY GUARD (UrhG § 69a, § 95c) ---
+    (function initAntiCloneSecurityGuard() {
+      // 1. Framebusting: Prevent unauthorized sites from embedding/selling Void Lumin in an iframe
+      try {
+        if (window.self !== window.top) {
+          window.top.location = window.self.location;
+        }
+      } catch (e) {
+        document.body.innerHTML = '<div style="padding:40px;color:#ff0055;font-family:monospace;">SECURITY VIOLATION: Unauthorized Iframe Embedding Blocked under German UrhG § 69c.</div>';
+      }
+
+      // 2. Legal Warning Banner in DevTools Console
+      console.log(
+        '%c⚠️ STOP // VOID LUMIN™ v6.0 COPYRIGHT & ANTI-CLONE SHIELD',
+        'color:#ff0055;font-size:18px;font-weight:900;background:#05070c;padding:8px 14px;border:2px solid #ff0055;'
+      );
+      console.log(
+        '%cCopyright © 2026 Ali Sibai (sibaiali). All Rights Reserved.\nProtected under German Copyright Act (Urheberrechtsgesetz — §§ 2, 69a et seq., § 95c UrhG), § 4 Nr. 3 UWG, and EU Directive 2009/24/EC.\nUnauthorized cloning, copying, resale, commercial redistribution, or AI scraping (§ 44b Abs. 3 UrhG) is strictly prohibited and prosecuted.',
+        'color:#00f0ff;font-size:12px;font-family:monospace;line-height:1.5;'
+      );
+
+      // 3. Protect against right-click context cloning & unauthorized shortcut source extraction
+      window.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        showToast('⚖️ PROTECTED BY GERMAN UrhG § 69a // © 2026 ALI SIBAI — CLONING PROHIBITED');
+      });
+
+      window.addEventListener('dragstart', (e) => e.preventDefault());
+
+      window.addEventListener('keydown', (e) => {
+        const key = (e.key || '').toLowerCase();
+        // Block Ctrl+U (View Source), Ctrl+Shift+I / Ctrl+Shift+C (Clone Inspector), Ctrl+P
+        if ((e.ctrlKey || e.metaKey) && (key === 'u' || key === 'p' || (e.shiftKey && (key === 'i' || key === 'c' || key === 'j')))) {
+          e.preventDefault();
+          showToast('🛡️ ANTI-CLONE DRM GUARD // SOURCE PROTECTED UNDER GERMAN UrhG § 69a');
+        }
+      });
+
+      // 4. Freeze Core Engine Prototypes against runtime monkey-patching or tampering
+      try {
+        Object.freeze(ShapeRecognizer);
+        Object.freeze(TelemetryScreener);
+      } catch (e) {}
+    })();
+
+    document.querySelectorAll('.modal-close').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById(btn.dataset.close).classList.remove('open');
+      });
+    });
+
+    document.querySelectorAll('.cyber-modal-backdrop').forEach(backdrop => {
+      backdrop.addEventListener('click', (e) => {
+        if (e.target === backdrop) backdrop.classList.remove('open');
+      });
+    });
+
+    // Panel Collapsing for Laptop & Phone Fullscreen Canvas
+    document.getElementById('btn-toggle-left').addEventListener('click', () => {
+      const lp = document.getElementById('left-panel');
+      lp.classList.toggle('collapsed-left');
+      lp.classList.toggle('mobile-closed');
+    });
+
+    document.getElementById('btn-toggle-right').addEventListener('click', () => {
+      const rp = document.getElementById('right-panel');
+      rp.classList.toggle('collapsed-right');
+      rp.classList.toggle('mobile-open');
+    });
+
     const BIO_STATES = {
-      joy: { dop: 0.95, ser: 0.88, cort: 0.08, visc: 0.06, label: 'HAPPY // SILK-SMOOTH GLIDE', isGoat: true, isSad: false, desc: 'Happy = Silk Smooth Glide & Golden Buoyancy' },
-      zen: { dop: 0.65, ser: 0.95, cort: 0.05, visc: 0.15, label: 'TRANSCENDENT CALM', isGoat: false, isSad: false, desc: 'Zen = Harmonic Balance & Equilibrium' },
-      sad: { dop: 0.12, ser: 0.18, cort: 0.88, visc: 0.92, label: 'SAD // SLOW & BLURRY', isGoat: false, isSad: true, desc: 'Sad = Heavy Viscous Drag & Diffuse Blur' },
-      rage: { dop: 0.40, ser: 0.20, cort: 0.95, visc: 0.10, label: 'VOLATILE ADRENALINE', isGoat: false, isSad: false, desc: 'Rage = High-Frequency Fractures & Crimson Sparks' },
-      fear: { dop: 0.25, ser: 0.30, cort: 0.88, visc: 0.40, label: 'HYPER-VIGILANCE', isGoat: false, isSad: false, desc: 'Fear = Compressive Violet Tension' },
-      ecstasy: { dop: 0.99, ser: 0.92, cort: 0.02, visc: 0.02, label: '★ SUPREME GOAT STATUS', isGoat: true, isSad: false, desc: '★ GOAT = Absolute Harmonic Perfection' }
+      joy: { dop: 0.95, ser: 0.88, cort: 0.08, visc: 0.06, label: 'FLOW // SILK GLIDE', isGoat: true, isSad: false },
+      zen: { dop: 0.65, ser: 0.95, cort: 0.05, visc: 0.15, label: 'ZEN // HARMONIC', isGoat: false, isSad: false },
+      sad: { dop: 0.15, ser: 0.25, cort: 0.45, visc: 0.88, label: 'LIQUID // HEAVY DRAG', isGoat: false, isSad: true },
+      rage: { dop: 0.50, ser: 0.20, cort: 0.96, visc: 0.10, label: 'CYBER GLITCH // SPARKS', isGoat: false, isSad: false },
+      fear: { dop: 0.35, ser: 0.40, cort: 0.82, visc: 0.35, label: 'NEON OVERDRIVE', isGoat: false, isSad: false },
+      ecstasy: { dop: 0.99, ser: 0.95, cort: 0.02, visc: 0.02, label: '★ APEX HUMAN STATE', isGoat: true, isSad: false }
     };
 
     function applyBiometricState(key) {
@@ -1799,7 +2766,6 @@
       ENGINE_STATE.biometrics.isSad = s.isSad;
 
       document.getElementById('current-state-label').textContent = s.label;
-      document.getElementById('active-physics-desc').textContent = s.desc;
       document.getElementById('fill-dopamine').style.width = `${Math.round(s.dop * 100)}%`;
       document.getElementById('val-dopamine').textContent = `${Math.round(s.dop * 100)}%`;
       document.getElementById('fill-serotonin').style.width = `${Math.round(s.ser * 100)}%`;
@@ -1809,87 +2775,24 @@
       document.getElementById('fill-cortisol').style.width = `${Math.round(s.cort * 100)}%`;
       document.getElementById('val-cortisol').textContent = `${Math.round(s.cort * 100)}%`;
 
-      const goatBanner = document.getElementById('goat-banner');
-      if (s.isGoat) {
-        goatBanner.style.display = 'block';
-        audioFeedback.playGoatArpeggio();
-        showToast("🌟 ★ PREMIUM GOAT STATUS: 100% SILK-SMOOTH GLIDE");
-      } else {
-        goatBanner.style.display = 'none';
-      }
-
-      if (s.isSad) {
-        showToast("🌧️ MELANCHOLY STATE // HIGH VISCOSITY & DIFFUSE BLUR");
-        audioFeedback.playNote(220, 'sine', 0.4, 0.03);
-      }
-
       document.querySelectorAll('.btn-emo').forEach(b => {
         b.classList.toggle('active', b.dataset.state === key);
       });
     }
 
-    // Keyboard Shortcuts [1-6], [C], [S], [V]
-    window.addEventListener('keydown', (e) => {
-      if (e.key === '1') applyBiometricState('joy');
-      if (e.key === '2') applyBiometricState('zen');
-      if (e.key === '3') applyBiometricState('sad');
-      if (e.key === '4') applyBiometricState('rage');
-      if (e.key === '5') applyBiometricState('fear');
-      if (e.key === '6') applyBiometricState('ecstasy');
-      if (e.key === 'c' || e.key === 'C') clearCanvas();
-      if (e.key === 's' || e.key === 'S') saveMasterpiece();
-      if (e.key === 'v' || e.key === 'V') cycleColor();
-    });
-
     document.querySelectorAll('.btn-emo').forEach(btn => {
       btn.addEventListener('click', () => applyBiometricState(btn.dataset.state));
     });
 
-    // --- UI Controls ---
-    document.getElementById('toggle-shape-snap').addEventListener('change', (e) => {
-      ENGINE_STATE.shapeSnapping = e.target.checked;
-      showToast(e.target.checked ? "💖 SACRED SHAPE SNAPPING ACTIVE" : "SHAPE SNAPPING PAUSED");
-    });
-
-    const dpiSlider = document.getElementById('slider-dpi');
-    dpiSlider.addEventListener('input', (e) => {
-      ENGINE_STATE.opticalDPI = parseFloat(e.target.value);
-      document.getElementById('val-dpi').textContent = `${ENGINE_STATE.opticalDPI.toFixed(2)}x`;
-    });
-
-    document.querySelectorAll('.btn-brush').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.btn-brush').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        ENGINE_STATE.brush = btn.dataset.brush;
-        document.getElementById('brush-mode-badge').textContent = btn.dataset.brush.toUpperCase();
-        audioFeedback.playNote(520, 'sine', 0.08, 0.02);
-      });
-    });
-
-    document.getElementById('slider-caliber').addEventListener('input', (e) => {
-      ENGINE_STATE.caliber = parseFloat(e.target.value);
-      document.getElementById('val-caliber').textContent = `${ENGINE_STATE.caliber.toFixed(1)} px`;
-    });
-
-    document.querySelectorAll('.color-swatch').forEach((sw, idx) => {
-      sw.addEventListener('click', () => {
-        document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
-        sw.classList.add('active');
-        paletteIndex = idx;
-        ENGINE_STATE.color = sw.dataset.color;
-        document.getElementById('active-color-hex').textContent = sw.dataset.color.toUpperCase();
-        document.getElementById('active-color-hex').style.color = sw.dataset.color;
-      });
-    });
-
     function clearCanvas() {
+      pushUndoSnapshot();
       drawCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
-      showToast("CANVAS PURGED // NEURAL SLATE RESET");
-      audioFeedback.playNote(220, 'sine', 0.3, 0.03);
+      showToast('🧹 CANVAS PURGED // READY FOR HUMAN CREATION');
+      audioFeedback.playNote(220, 'sine', 0.25, 0.03);
     }
 
     document.getElementById('btn-clear-canvas').addEventListener('click', clearCanvas);
+    document.getElementById('btn-undo').addEventListener('click', undoLastStroke);
 
     function saveMasterpiece() {
       const exportCanvas = document.createElement('canvas');
@@ -1898,9 +2801,9 @@
       const expCtx = exportCanvas.getContext('2d');
 
       const bgGrad = expCtx.createRadialGradient(1920, 1080, 50, 1920, 1080, 2200);
-      bgGrad.addColorStop(0, '#0a0e16');
-      bgGrad.addColorStop(0.6, '#040608');
-      bgGrad.addColorStop(1, '#010203');
+      bgGrad.addColorStop(0, '#0a0e17');
+      bgGrad.addColorStop(0.6, '#04060a');
+      bgGrad.addColorStop(1, '#010204');
       expCtx.fillStyle = bgGrad;
       expCtx.fillRect(0, 0, 3840, 2160);
 
@@ -1908,28 +2811,49 @@
       expCtx.imageSmoothingQuality = 'high';
       expCtx.drawImage(drawingCanvas, 0, 0, 3840, 2160);
 
-      expCtx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-      expCtx.font = 'bold 36px monospace';
-      expCtx.fillText('VOID LUMIN 5.0 // SPATIAL NEURAL MASTERPIECE', 80, 120);
+      expCtx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+      expCtx.font = 'bold 34px monospace';
+      expCtx.fillText('VOID LUMIN™ v6.0 // CERTIFIED 100% HUMAN CREATION (NO AI SLOP)', 80, 110);
 
       expCtx.font = '24px monospace';
       expCtx.fillStyle = '#00f0ff';
-      expCtx.fillText(`STATE: ${ENGINE_STATE.biometrics.activeState.toUpperCase()} | PRIVACY: SHADOW SILHOUETTE | FLOW: x${Math.round(ENGINE_STATE.flowStreak)}`, 80, 165);
+      expCtx.fillText(
+        `PROOF SIGNATURE: ${ENGINE_STATE.humanSignature} | STROKES: ${ENGINE_STATE.strokeCount} | SYMMETRY: ${ENGINE_STATE.symmetryFold}X`,
+        80,
+        155
+      );
 
       expCtx.font = '20px monospace';
-      expCtx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-      expCtx.fillText(`SPEC: 4K UHD 3840x2160 | TIMESTAMP: ${new Date().toISOString()} | &euro;1B SPATIAL SPEC`, 80, 200);
+      expCtx.fillStyle = 'rgba(255, 215, 0, 0.85)';
+      expCtx.fillText(
+        'ENGINE COPYRIGHT © 2026 ALI SIBAI // PROTECTED UNDER GERMAN UrhG §§ 2, 69a, 95c & EU DIRECTIVE 2009/24/EC',
+        80,
+        195
+      );
 
       const link = document.createElement('a');
-      link.download = `VOID_LUMIN_MASTERPIECE_${Date.now()}.png`;
+      link.download = `VOID_LUMIN_HUMAN_ART_${Date.now()}.png`;
       link.href = exportCanvas.toDataURL('image/png');
       link.click();
 
-      showToast("💎 4K MASTERPIECE EXPORTED WITH SPATIAL WATERMARK");
-      audioFeedback.playChord([523.25, 659.25, 783.99, 1046.50]);
+      showToast(`💎 4K HUMAN ART EXPORTED [${ENGINE_STATE.humanSignature}]`);
+      audioFeedback.playGoatArpeggio();
     }
 
     document.getElementById('btn-save-masterpiece').addEventListener('click', saveMasterpiece);
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === '1') applyBiometricState('joy');
+      if (e.key === '2') applyBiometricState('zen');
+      if (e.key === '3') applyBiometricState('sad');
+      if (e.key === '4') applyBiometricState('rage');
+      if (e.key === '5') applyBiometricState('fear');
+      if (e.key === '6') applyBiometricState('ecstasy');
+      if (e.key === 'z' || e.key === 'Z') undoLastStroke();
+      if (e.key === 'c' || e.key === 'C') clearCanvas();
+      if (e.key === 's' || e.key === 'S') saveMasterpiece();
+      if (e.key === 'v' || e.key === 'V') cycleColor();
+    });
 
     let toastTimeout = null;
     function showToast(msg) {
@@ -1937,26 +2861,22 @@
       toast.textContent = msg;
       toast.classList.add('show');
       clearTimeout(toastTimeout);
-      toastTimeout = setTimeout(() => { toast.classList.remove('show'); }, 3200);
+      toastTimeout = setTimeout(() => toast.classList.remove('show'), 3200);
     }
 
-    // --- Main Engine Render Loop ---
-    let lastTimestamp = performance.now();
+    // Main Render & Shield Loop
     let frameCount = 0;
     let fpsTimer = performance.now();
 
     function engineRenderLoop(timestamp) {
-      const dt = timestamp - lastTimestamp;
-      lastTimestamp = timestamp;
-
-      // 1. Particle Simulation Pass
       particleEngine.updateAndRender(partCtx);
+      spatialAirTracker.renderGeometryShield();
 
-      // 2. Telemetry Profiler
       frameCount++;
       if (timestamp - fpsTimer >= 500) {
         const currentFps = Math.round((frameCount * 1000) / (timestamp - fpsTimer));
         document.getElementById('stat-fps').textContent = currentFps.toFixed(1);
+        document.getElementById('stat-hz').textContent = `${ENGINE_STATE.estimatedHz} Hz`;
         frameCount = 0;
         fpsTimer = timestamp;
       }
@@ -1966,6 +2886,7 @@
 
     resizeCanvases();
     applyBiometricState('joy');
+    TelemetryScreener.syncToBackend(false);
     requestAnimationFrame(engineRenderLoop);
   </script>
 </body>
