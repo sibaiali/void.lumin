@@ -1,6 +1,8 @@
 {
   "version": 2,
-  "cleanUrls": true,
+  "buildCommand": "",
+  "outputDirectory": ".",
+  "framework": null,
   "headers": [
     {
       "source": "/(.*)",
@@ -15,16 +17,6 @@
         { "key": "X-Robots-Tag", "value": "noai, noimageai" },
         { "key": "X-Copyright-Owner", "value": "Ali Sibai (sibaiali) - Protected under German UrhG SS 69a & EU Dir 2009/24/EC - All Rights Reserved" }
       ]
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/api/telemetry",
-      "destination": "/api/telemetry.js"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
     }
   ]
 }
